@@ -6,186 +6,205 @@ library(pins)
 library(echarts4r)
 library(reactable)
 library(shiny)
-library(shinydashboard)
+#library(tablerDash)
 library(shinyWidgets)
+library(shinydashboard)
+library(shinydashboardPlus)
 
 board_register("rsconnect",
                server = "srv-gcp-ms-connect:3939",
                key = Sys.getenv("CONNECT_API_KEY"))
 
+domains <- c("Living Conditions", "Diet and Lifestyle",     
+             "Education", "Demographics",
+             "Mental Health and Wellbeing", "Smoking and Vaping",         
+             "Alcohol Consumption", "Drug Use",                   
+             "Sexual Health", "Safety",                  
+             "Sustainability", "COVID-19")
+names(domains) <- domains
 
-# UI ----------------------------------------------------------------------
+# UI ----------------------------------------------------------------
 
-ui <- dashboardPage(skin = "red", 
-  
-  dashboardHeader(
-    title = "YPHWS Dashboard Demo"
-  ),
-  
-  dashboardSidebar(
-    
-    # pick variable to compare by 
-    selectInput("comp", label = "Select what to compare by (default is sex)",
-                 choices = list("Sex" = "sex"), 
-                 selected = "sex", multiple = T),
-    
-    # pick survey topic
-    uiOutput("topic"),
-
-    # pick questions
-    uiOutput("questions")
-  ),
-  
-  dashboardBody(
-      
-    fluidRow(
-      
-      tabBox(
-        title = "",
-        # The id lets us use input$tabset1 on the server to find the current tab
-        id = "tabset1", height = "250px",
-        
-        tabPanel("Summary", htmlOutput("text_summary")),
-        
-        tabPanel("Plot", 
-                 echarts4rOutput("plot")),
-        
-        tabPanel("Differences found",
-                 "Tab content"),
-        
-        tabPanel("Data Table", 
-                 "Tab content 2")
-        
-        )
-      #TODO modularise tab box so each question selected would result in 1 tab box 
+ui <- tablerDashPage(
+  title = "Dashboard", 
+    navbar = tablerDashNav(
+      id = "nav",
+      src = "img/yphws_logo.png",
+      tablerNavMenu(id = "tabs",
+                    selectInput("comp", label = "Select what to group by (default is sex)",
+                                choices = list("Sex" = "sex", "Year group" = "year", "District" = "District"), 
+                                selected = "sex", multiple = T), 
+                    tablerNavMenuItem(
+                      "Insight",
+                      tabName = "Insight"
+                    ),
+                    tablerNavMenuItem(
+                       "Key Points",
+                       tabName = "Key Points"
+                     )
+                    
       )
-    
-    # br(), 
-    # 
-    # fluidRow(
-    #   
-    #   tabBox(
-    #     title = "",
-    #     # The id lets us use input$tabset1 on the server to find the current tab
-    #     id = "tabset2", height = "250px",
-    #     
-    #     tabPanel("Plot", 
-    #              echarts4rOutput("plot2")),
-    #     
-    #     tabPanel("Differences found",
-    #              "Tab content"),
-    #     
-    #     tabPanel("Data Table", 
-    #              "Tab content 2")
-    #     
-    #   )
-    #   
-    # )
+    ),
+    body = tablerDashBody(
+      tablerTabItems(
+        tablerTabItem(
+          tabName = "Key Points"
+        ),
+        tablerTabItem(
+          tabName = "Insight",
+          fluidRow(
+            column(2, 
+                   br(),
+                   br(),
+                   # pick survey topic
+                   pickerInput(
+                     inputId = "domains",
+                     label = "Select health topic/s:", 
+                     choices = domains,
+                     multiple = TRUE,
+                     selected = "Safety"
+                   ),
+                   uiOutput("questions")
+            ),
+            column(10, uiOutput("explore_boxes"))
+        )
+      )
     )
+  )
 )
+  
+
 
 
 # Server ------------------------------------------------------------------
 
 server <- function(input, output) {
-
-  rv <- reactiveValues()
-  rv$params <- get_params()
-  rv$schools <- pin_get("ayu/school_data", board = "rsconnect")
-  rv$lookup <- read.csv("data-raw/responses_lookup.csv")
   
-  data <- reactive({
+  # Uncomment for testing
+  observe({
     
-    get_data(data = pin_get("bkimpton/youth_survey_responses", board = "rsconnect"),
-             q_coded = isolate(rv$lookup), 
-             school_data = isolate(rv$schools))
+    if ("District" %in% input$comp) { browser() }
     
   })
+
+  # --Load all data-----
+  rv <- reactiveValues()
+  rv$params <- get_params() # params
+  rv$data <- get_data(params = isolate(rv$params), data = isolate(params$data_pin)) # Raw data
+  rv$data_old <- get_data(params = isolate(rv$params), data = isolate(params$prev_data_pin)) # Raw data, previous. 
+  
+  # --Reactive UIs----
+  output$questions <- renderUI({
+    questions <- isolate(rv$data$q_coded) %>% 
+      mutate(survey_text = as.character(survey_text)) %>% 
+      filter(question_theme %in% input$domains) 
     
+    pickerInput("questions", label = "Select/type in a question (multiple can be selected)",
+                choices = as.character(unique(questions$survey_text)), multiple = T, 
+                selected = as.character(unique(questions$survey_text)), 
+                options = list(`live-search` = TRUE))
+  })
+  
+  # --Generate statistics using raw data
   stats <- reactive({
-    
-    get_sum_stats(data = data(), 
-                  var = "sex") # TODO
-    
+    get_stats(
+      data = rv$data$data,
+      group = input$comp,
+      q_coded = rv$data$q_coded
+    )
   })
   
   diffs <- reactive({
+    sel_comp <- rv$data$data %>% 
+      select(input$comp) 
+    sel_comp <- unique(na.omit(unlist(sel_comp)))
     
-    get_diffs(stats = stats(),
-              var = "sex") # TODO
-    
-  })
-
-  output$topic <- renderUI({
-    
-    checkboxGroupInput("topic", label = "Select/type in an indicator (multiple can be selected)",
-                choices = as.character(unique(isolate(rv$lookup$question_theme))), 
-                selected = "Mental Health and Wellbeing")  #TODO)
-    
+    get_stats_diffs(stats = stats(), 
+                    levels = c("All Responses", sel_comp), 
+                    compare_to_all = F) # TODO
   })
   
-  output$questions <- renderUI({
+  observe({
+    # vector of selected vars
+    single <- rv$data$q_coded %>% 
+      filter(survey_text %in% input$questions, !multicat)
     
-    questions <- isolate(rv$lookup) %>% 
-      mutate(survey_text = as.character(survey_text)) %>% 
-      filter(question_theme %in% input$topic) 
+    #TODO deduplicate multicat questions.
+    rv$filtered$chk_var <- rv$data$q_coded %>% 
+      filter(question_coded %in% single$question_coded) %>% 
+      pull(question_coded)
+    # rv$filtered$chk_var <- rv$data$q_coded %>% 
+    #   filter(survey_text %in% input$questions, multicat) %>% 
+    #   mutate(question_raw = gsub("\\..*", "", question_raw),
+    #          question_coded = question_coded_gen) %>% 
+    #   distinct(question_raw, .keep_all = TRUE) %>% 
+    #   bind_rows(single) %>% 
+    #   pull(question_coded)
     
-    pickerInput("questions", label = "Select/type in an indicator (multiple can be selected)",
-                choices = as.character(unique(questions$survey_text)), multiple = T, 
-                selected = as.character(unique(questions$survey_text)), 
-                options = list(`live-search`=TRUE))
-    
-    })
-  
-  chk_stats <- reactive({
-    
-    output <- list()
-    stats <- stats()
-    diffs <- diffs()
-    
-    output$chk_var <- c('mental_talk')
-    output$chk_stats <- filter(stats, question %in% output$chk_var)
-    output$chk_diff <- filter(diffs, question %in% output$chk_var)
-    
-    return(output)
-    
+    # filtered datasets
+    rv$filtered$chk_stats <- filter(stats(), question %in% rv$filtered$chk_var)
+    rv$filtered$chk_diff <- filter(diffs(), question %in% rv$filtered$chk_var)
   })
   
 
-# Text --------------------------------------------------------------------
+# Explore data --------------------------------------------------------------------
 
-  output$text_summary <- renderText("Within Hertfordshire, 12420 students (96%) responded to this question. Of these, 6565 were female, 5700 were male, and 155 stated ‘Other’ for sex.
-<br>
-The most common response for all respondents was ‘Yes’, which made up 70.4% of responses and the least common response was ‘No’, with 10.8% of responses. For more detail, please see the Graph or Table tabs.
-<br>
-Overall there were 5 significant difference(s) found between groups. 
-There were 2 significant difference(s) found between year groups. 
+  ## --TEXT----
+  # output$text_summary <- renderText({
+  #   
+  #   # create_sum_sentence(dataset = chk_stats, 
+  #   #                     multi = F, 
+  #   #                     value_of_interest = F, 
+  #   #                     full_data = stats,
+  #   #                     diffs = chk_diff,
+  #   #                     custom_grp = plot_custom_grp,
+  #   #                     group_of_interest = cat_of_interest)
+  #   
+  #   "WIP"
+  #   
+  # })
 
-There were 1 significant difference(s) found between sexes. 
-
-There were 1 significant difference(s) found between ethnic groups. 
-
-There were 1 significant difference(s) found between districts. ")
-
-# Plots -------------------------------------------------------------------
-
-  output$plot <- renderEcharts4r({
-
-    chk_stats <- isolate(chk_stats())
-    create_basic_plot(df = chk_stats$chk_stats,
-                      chk_var = chk_stats$chk_var)
+  boxes <- reactive({
     
+    l <- list()
+    for (i in 1:length(rv$filtered$chk_var)){
+      
+      # Current question
+      current <- filter(rv$filtered$chk_stats, question %in% rv$filtered$chk_var[i])
+      
+      l[[i]] <- tabItem("name", 
+                              tablerCard(status = "success", width = 12,
+                                         title = rv$filtered$chk_var[i],
+                                         tabPanel(
+                                           create_sum_sentence(dataset = current, 
+                                                               multi = F, 
+                                                               value_of_interest = F, 
+                                                               full_data = rv$filtered$chk_stats,
+                                                               diffs = rv$filtered$chk_diff,
+                                                               custom_grp = unique(current$breakdown),
+                                                               group_of_interest = unique(current$breakdown)[2]),
+                                           create_basic_plot(df = current, 
+                                                             plot_custom_grp = unique(current$breakdown), 
+                                                             rotate = 60,
+                                                             plot_title = current$question_text[1])
+                                         ),
+                                         tabPanel(
+                                           "Test"
+                                         )
+                                         
+        
+        
+      ) 
+      )
+    }
+    
+    return(l)
     
   })
-  
-  output$plot2 <- renderEcharts4r({
-    
-    chk_stats <- isolate(chk_stats())
-    create_basic_plot(df = chk_stats$chk_stats,
-                      chk_var = chk_stats$chk_var)
-    
-    
-  })
+
+  output$explore_boxes <- renderUI(boxes())
+
+
   
 }
 
