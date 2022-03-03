@@ -173,136 +173,6 @@ create_sum_sentence <- function(dataset,
 
 # Bar graphs --------------------------------------------------------------
 
-create_int_plot <- function(df, 
-                            sex = FALSE, 
-                            title = plot_title, 
-                            fontsize = 11, 
-                            textangle = 0, 
-                            factor_levels = F,
-                            include_school = F){
-  
-  if (district_comparison == T) {df <- filter(df, school != paste0(district, " Schools"))}
-  
-  # if (factor_levels[1] == F) { 
-  #   
-  #   factor_levels <- unique(str_wrap(df$response, 10))
-  #   
-  # } else {
-  #     
-  #   factor_levels <- str_wrap(factor_levels, 10)
-  #   
-  #   }
-  
-  # clean data so no denominator is less than 20 responses
-  df <- df %>% 
-    complete(expand(., nesting(breakdown, school, response))) 
-  #mutate(response = ordered(str_wrap(.$response, 10), levels = c(factor_levels)))
-  
-  if(sex == TRUE) {
-    
-    data <- df %>%
-      filter(breakdown %in% c("All Responses", "Female", "Male", "Other", "Prefer not to say"))
-    
-    t <- table(data$breakdown[data$count < 6]) #find group that consistently has less than 20 responses
-    remove <- names(t)[t == 14]
-    
-    data <- data[data$breakdown %nin% remove, ]
-    
-  } else {
-    
-    data <- df %>%
-      filter(breakdown %in% c("All Responses", "Year 7", "Year 8", "Year 9",
-                              "Year 10", "Year 11", "Year 12", "Year 13"))
-    
-    t <- table(data$breakdown[data$count < 6]) #find group that consistently has less than 20 responses
-    remove <- names(t)[t == 14]
-    
-    data <- data[data$breakdown %nin% remove, ]
-    
-    g_levels <- c('Year 13',
-                  'Year 12',
-                  'Year 11',
-                  'Year 10',
-                  'Year 9',
-                  'Year 8',
-                  'Year 7',
-                  'All Responses')
-    
-    g_levels <- g_levels[!g_levels %in% remove]
-    
-    data$breakdown <- ordered(data$breakdown, levels = g_levels) 
-    
-  }
-  
-  data_all <- data %>% 
-    filter(school == "All Schools") 
-  
-  # data_all$value[data_all$denominator < 6] <- 0
-  # data_all$lowereb[data_all$denominator < 6] <- 0
-  # data_all$uppereb[data_all$denominator < 6] <- 0
-  # data_all$lowercl[data_all$denominator < 6] <- 0
-  # data_all$uppercl[data_all$denominator < 6] <- 0
-  
-  
-  p_all <- data_all %>%
-    dplyr::arrange(breakdown) %>%
-    plot_ly(x = ~str_wrap(response, 10), y = ~value, type = "bar", width = 900, height = 500,
-            name = ~breakdown, color = ~breakdown, colors = "viridis", 
-            legendgroup = ~breakdown,
-            error_y = list(array = ~uppereb, arrayminus = ~lowereb, 
-                           symmetric = F, color = '#000000', opacity = 0.3),
-            hovertemplate = ~paste0(count, ", ", value_cens, " (CI: ", uppercl, " - ", lowercl, ")")) %>%
-    layout(yaxis = list(title = 'Percent', tickformat = ',.0%'),
-           xaxis = list(tickangle = textangle, tickfont = list(size = fontsize), title = "All Schools"),
-           barmode = 'group',
-           hovermode = 'compare')
-  
-  # data_school$value[data_school$denominator < 6] <- 0
-  # data_school$lowereb[data_school$denominator < 6] <- 0
-  # data_school$uppereb[data_school$denominator < 6] <- 0
-  # data_school$lowercl[data_school$denominator < 6] <- 0
-  # data_school$uppercl[data_school$denominator < 6] <- 0
-  
-  if (include_school == T) {
-    
-    data_school <- data %>% 
-      filter(school == sch)
-    
-    p_sch <- data_school %>%
-      dplyr::arrange(breakdown) %>%
-      plot_ly(x = ~str_wrap(response, 10), y = ~value, type = "bar", width = 1100, height = 500,
-              name = ~breakdown, color = ~breakdown, colors = "viridis", 
-              legendgroup = ~breakdown, 
-              showlegend = F,
-              error_y = list(array = ~uppereb, arrayminus = ~lowereb,
-                             symmetric = F, color = '#000000', opacity = 0.3),
-              hovertemplate = ~paste0(count, ", ", value_cens, " (CI: ", uppercl, " - ", lowercl, ")")) %>%
-      layout(yaxis = list(title = 'Percent', tickformat = ',.0%'),
-             barmode = 'group', xaxis = list(title = sch),
-             xaxis = list(tickangle = textangle, tickfont = list(size = fontsize)),
-             hovermode = 'compare')
-    
-    p <- plotly::subplot(p_sch, p_all, shareY = T, titleX = TRUE) %>%
-      layout(title = list(text = paste(title, "| YPHWS", year),
-                          x = 0.05, font = list(color = col_db)),
-             images = list(source = base64enc::dataURI(file ="graphics/logo_phei.png"),
-                           x = 1, y = 1.05, sizex = 0.15, sizey = 0.15, xanchor = "left",
-                           yanchor = "top"),
-             legend = list(y = 0.8),
-             xaxis = list(tickangle = textangle, tickfont = list(size = fontsize))) %>%
-      plotly::config(displaylogo = FALSE, modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverCompareCartesian", "hoverClosestCartesian"))) %>%
-      partial_bundle()
-    
-    return(p)
-    
-  }
-  
-  
-  return(p_all)
-  
-  
-}
-
 create_basic_plot <- function(df, 
                               plot_custom_grp, 
                               plot_title,
@@ -350,7 +220,8 @@ create_basic_plot <- function(df,
     e_title(plot_title) %>% 
     e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
                                                            image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
-    e_toolbox_feature(feature = c("dataZoom", "restore"))
+    e_toolbox_feature(feature = c("dataZoom", "restore")) %>% 
+    e_theme_custom("phei.json")
   
 }
 

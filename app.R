@@ -6,10 +6,10 @@ library(pins)
 library(echarts4r)
 library(reactable)
 library(shiny)
-#library(tablerDash)
+library(tablerDash)
 library(shinyWidgets)
 library(shinydashboard)
-library(shinydashboardPlus)
+#library(bs4Dash)
 
 board_register("rsconnect",
                server = "srv-gcp-ms-connect:3939",
@@ -31,17 +31,18 @@ ui <- tablerDashPage(
       id = "nav",
       src = "img/yphws_logo.png",
       tablerNavMenu(id = "tabs",
-                    selectInput("comp", label = "Select what to group by (default is sex)",
-                                choices = list("Sex" = "sex", "Year group" = "year", "District" = "District"), 
-                                selected = "sex", multiple = T), 
+                    pickerInput("comp", label = "Select what to group by",
+                                choices = list("Sex" = "sex", "Year group" = "schyear", "District" = "District"), 
+                                selected = "sex", multiple = FALSE), 
+                    tablerNavMenuItem(
+                      "Key Points",
+                      tabName = "Key Points"
+                    ),
                     tablerNavMenuItem(
                       "Insight",
                       tabName = "Insight"
-                    ),
-                    tablerNavMenuItem(
-                       "Key Points",
-                       tabName = "Key Points"
-                     )
+                    )
+                    
                     
       )
     ),
@@ -58,13 +59,13 @@ ui <- tablerDashPage(
                    br(),
                    # pick survey topic
                    pickerInput(
-                     inputId = "domains",
+                     inputId = "domains", 
                      label = "Select health topic/s:", 
-                     choices = domains,
-                     multiple = TRUE,
-                     selected = "Safety"
+                     choices = c(domains),
+                     selected = "Safety", multiple = T
                    ),
-                   uiOutput("questions")
+                   uiOutput("questions"),
+                   HTML("<a href='#anchorid'>Working anchor example</a>")
             ),
             column(10, uiOutput("explore_boxes"))
         )
@@ -173,24 +174,42 @@ server <- function(input, output) {
       current <- filter(rv$filtered$chk_stats, question %in% rv$filtered$chk_var[i])
       
       l[[i]] <- tabItem("name", 
-                              tablerCard(status = "success", width = 12,
-                                         title = rv$filtered$chk_var[i],
-                                         tabPanel(
-                                           create_sum_sentence(dataset = current, 
-                                                               multi = F, 
-                                                               value_of_interest = F, 
+                              tabBox(width = 12, side = "right", status = "success",
+                                         collapsible = TRUE, 
+                                         title = HTML(paste0("<hr><br><a id='anchorid'></a>", rv$filtered$chk_var[i],"<br>")),
+                                         tabPanel("Summary", 
+                                           HTML(create_sum_sentence(dataset = current,
+                                                               multi = F,
+                                                               value_of_interest = F,
                                                                full_data = rv$filtered$chk_stats,
                                                                diffs = rv$filtered$chk_diff,
                                                                custom_grp = unique(current$breakdown),
-                                                               group_of_interest = unique(current$breakdown)[2]),
-                                           create_basic_plot(df = current, 
-                                                             plot_custom_grp = unique(current$breakdown), 
+                                                               group_of_interest = unique(current$breakdown)[2])),
+                                           br(),
+                                           create_basic_plot(df = current,
+                                                             plot_custom_grp = unique(current$breakdown),
                                                              rotate = 60,
                                                              plot_title = current$question_text[1])
                                          ),
-                                         tabPanel(
-                                           "Test"
-                                         )
+                                     tabPanel(
+                                       "Table", 
+                                       rv$filtered$chk_stats %>% 
+                                         mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
+                                                lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
+                                                uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
+                                                ) %>% 
+                                         select(breakdown, question = question_text, response, value, count, denominator,
+                                                lowercl, uppercl) %>% 
+                                       reactable(groupBy = c("breakdown", "question"),
+                                                 columns = list(
+                                                   value = colDef(maxWidth = 70),
+                                                   count = colDef(maxWidth = 65),
+                                                   denominator = colDef(maxWidth = 70),
+                                                   lowercl = colDef(maxWidth = 70),
+                                                   uppercl = colDef(maxWidth = 70)
+                                                 ))
+                                     )
+                                         
                                          
         
         
