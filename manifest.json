@@ -3627,6 +3627,46 @@
         "Built": "R 3.6.3; ; 2021-02-12 04:02:20 UTC; unix"
       }
     },
+    "shinydashboardPlus": {
+      "Source": "github",
+      "Repository": null,
+      "GithubRepo": "shinydashboardPlus",
+      "GithubUsername": "RinteRface",
+      "GithubRef": "HEAD",
+      "GithubSha1": "b8a36852a3be4d889748eb93d1a095a11efe9000",
+      "description": {
+        "Package": "shinydashboardPlus",
+        "Type": "Package",
+        "Title": "Add More 'AdminLTE2' Components to 'shinydashboard'",
+        "Version": "2.0.1",
+        "Authors@R": "c(\n  person(\"David\", \"Granjon\", email = \"dgranjon@ymail.com\", role = c(\"aut\", \"cre\")),\n  person(family = \"RinteRface\", role = \"cph\"),\n  person(family = \"Almasaeed Studio\", role = c(\"ctb\", \"cph\"), comment = \"AdminLTE2 theme for Bootstrap 3\"),\n  person(\"Guang\", \"Yang\", role = c(\"ctb\", \"cph\"), comment = \"ygdashboard original template\"),\n  person(\"Winston\", \"Chang\", role = c(\"ctb\", \"cph\"), comment = \"Functions from shinydashboard\"),\n  person(\"Victor\", \"Perrier\", email = \"victor.perrier@dreamrs.fr\", role = \"ctb\",\n          comment = \"improved the shinydashboardPlusGallery\"))",
+        "Maintainer": "David Granjon <dgranjon@ymail.com>",
+        "Description": "Extend 'shinydashboard' with 'AdminLTE2' components. \n             'AdminLTE2' is a free 'Bootstrap 3' dashboard template available\n             at <https://adminlte.io>. Customize boxes, add timelines and a lot more. ",
+        "License": "GPL (>= 2) | file LICENSE",
+        "Imports": "shiny, htmltools, shinydashboard, fresh, waiter, lifecycle",
+        "Suggests": "styler (>= 1.2.0), shinyAce, shinyWidgets, shinyEffects,\nshinyjqui, knitr, rmarkdown, jsonlite",
+        "URL": "https://github.com/RinteRface/shinydashboardPlus,\nhttps://rinterface.com/shiny/shinydashboardPlus/",
+        "BugReports": "https://github.com/RinteRface/shinydashboardPlus/issues",
+        "Encoding": "UTF-8",
+        "RoxygenNote": "7.1.1.9000",
+        "VignetteBuilder": "knitr",
+        "RdMacros": "lifecycle",
+        "RemoteType": "github",
+        "RemoteHost": "api.github.com",
+        "RemoteRepo": "shinydashboardPlus",
+        "RemoteUsername": "RinteRface",
+        "RemoteRef": "HEAD",
+        "RemoteSha": "b8a36852a3be4d889748eb93d1a095a11efe9000",
+        "GithubRepo": "shinydashboardPlus",
+        "GithubUsername": "RinteRface",
+        "GithubRef": "HEAD",
+        "GithubSHA1": "b8a36852a3be4d889748eb93d1a095a11efe9000",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-06-03 08:54:40 UTC; ayu",
+        "Author": "David Granjon [aut, cre],\n  RinteRface [cph],\n  Almasaeed Studio [ctb, cph] (AdminLTE2 theme for Bootstrap 3),\n  Guang Yang [ctb, cph] (ygdashboard original template),\n  Winston Chang [ctb, cph] (Functions from shinydashboard),\n  Victor Perrier [ctb] (improved the shinydashboardPlusGallery)",
+        "Built": "R 3.6.3; ; 2021-06-03 08:54:41 UTC; unix"
+      }
+    },
     "sourcetools": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -4347,7 +4387,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "0e9d92ee87b3055374dba5a1340eae12"
+      "checksum": "8f537092cfd6bb9b46d0f63064fcddc8"
     },
     "packrat/desc/askpass": {
       "checksum": "c6570d743f523d378138d1d5e3025393"
@@ -4685,6 +4725,9 @@
     "packrat/desc/shinydashboard": {
       "checksum": "a8026cfc081996c121591798494e6b4d"
     },
+    "packrat/desc/shinydashboardPlus": {
+      "checksum": "bfb2e14bb568159e04d9a494f1194f99"
+    },
     "packrat/desc/shinyWidgets": {
       "checksum": "b1e8de8b05a11610ce287a8bf1c72d8f"
     },
@@ -4758,7 +4801,7 @@
       "checksum": "ecf98c821df5535ec5c6c49ac036d22d"
     },
     "packrat/packrat.lock": {
-      "checksum": "5b6c20d6fcf8946db10f797ca004a0bf"
+      "checksum": "8cdb035a22c93c21dbb6f45dc6c34128"
     },
     "R/global_utils.R": {
       "checksum": "fb99e652042b0557d24a19660bfdfc94"
