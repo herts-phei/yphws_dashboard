@@ -39,8 +39,20 @@ ui <- tablerDashPage(
                       tabName = "Key Points"
                     ),
                     tablerNavMenuItem(
-                      "Insight",
-                      tabName = "Insight"
+                      "Explore Data",
+                      tabName = "ExploreData"
+                    ),
+                    tablerNavMenuItem(
+                      "Inequalities",
+                      tabName = "Inequalities"
+                    ),
+                    tablerNavMenuItem(
+                      "Export",
+                      tabName = "Export"
+                    ),
+                    tablerNavMenuItem(
+                      "About",
+                      tabName = "About"
                     )
                     
                     
@@ -52,11 +64,9 @@ ui <- tablerDashPage(
           tabName = "Key Points"
         ),
         tablerTabItem(
-          tabName = "Insight",
+          tabName = "ExploreData",
           fluidRow(
             column(2, 
-                   br(),
-                   br(),
                    # pick survey topic
                    pickerInput(
                      inputId = "domains", 
@@ -69,6 +79,15 @@ ui <- tablerDashPage(
             ),
             column(10, uiOutput("explore_boxes"))
         )
+      ),
+      tablerTabItem(
+        tabName = "Inequalities"
+      ),
+      tablerTabItem(
+        tabName = "Export"
+      ),
+      tablerTabItem(
+        tabName = "About"
       )
     )
   )
