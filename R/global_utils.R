@@ -339,7 +339,7 @@ get_params <- function(board = board) {
   
   output <- list()
   
-  output$year <- 2021#year of survey
+  output$year <- 2021 #year of survey
   output$data_pin <- "ayu/YPHWS_2021"
   output$q_coded <- "hau/YPHWS_question_lookup_2021"
   output$q_coded_prev <- "bkimpton/YPHWS_question_lookup"
