@@ -173,7 +173,7 @@ server <- function(input, output) {
   # Uncomment for testing
   observe({
 
-    if ("ethnicity" %in% input$comp) { browser() }
+    if ("Education" %in% input$domains) { browser() }
 
   })
   
@@ -619,17 +619,18 @@ server <- function(input, output) {
                                collapsible = FALSE, 
                                title = HTML(paste0("<hr><br><a id='anchorid'></a>", rv$filtered$chk_var[i],"<br>")),
                                tabPanel("Summary", 
-                                        HTML(create_sum_sentence(dataset = current,
+                                        HTML(
+                                          create_sum_sentence(dataset = current,
                                                                  multi = F,
                                                                  value_of_interest = F,
                                                                  full_data = rv$filtered$chk_stats,
                                                                  diffs = rv$filtered$chk_diff,
                                                                  custom_grp = unique(current$breakdown),
-                                                                 group_of_interest = unique(current$breakdown)[2])),
+                                                                 group_of_interest = unique(current$breakdown)[2])
+                                          ),
                                         br(),
                                         create_basic_plot(df = current,
                                                           plot_custom_grp = unique(current$breakdown),
-                                                          rotate = 60,
                                                           plot_title = current$question_text[1])
                                ),
                                tabPanel(

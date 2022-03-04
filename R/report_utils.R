@@ -179,7 +179,7 @@ create_basic_plot <- function(df,
                               rotate = 0) {
   
   groups <- unique(c("All Responses", 
-              plot_custom_grp))
+                     plot_custom_grp))
   
   # plot object
   df %>% 
