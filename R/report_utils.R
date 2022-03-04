@@ -1,9 +1,6 @@
 
 # Generate text -----------------------------------------------------------
 
-create_key_summary <- function(df, 
-                               comp)
-
 create_sum_sentence <- function(dataset, 
                                 multi = F, 
                                 value_of_interest = F, 
