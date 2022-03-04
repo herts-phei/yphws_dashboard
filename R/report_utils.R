@@ -337,7 +337,9 @@ tartan <- function(df,
 
 # Tables ------------------------------------------------------------------
 
-create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
+create_tbl <- function(stats_diff, 
+                       multi_response = F, 
+                       include_school = F) {
   
   if (district_comparison == T) {stats_diff <- filter(stats_diff, school.y != paste0(district, " Schools"),
                                                       breakdown != "All Responses in District")}
