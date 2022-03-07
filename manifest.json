@@ -4387,7 +4387,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "8f537092cfd6bb9b46d0f63064fcddc8"
+      "checksum": "8674be1d9158be2cc58a372d47fb8da6"
     },
     "packrat/desc/askpass": {
       "checksum": "c6570d743f523d378138d1d5e3025393"
@@ -4803,17 +4803,26 @@
     "packrat/packrat.lock": {
       "checksum": "8cdb035a22c93c21dbb6f45dc6c34128"
     },
+    "R/explore_mod.R": {
+      "checksum": "034b4c442f8967b6a01f651fea77def3"
+    },
     "R/global_utils.R": {
-      "checksum": "fb99e652042b0557d24a19660bfdfc94"
+      "checksum": "7ce82d03c3ce48234333490764ed3675"
+    },
+    "R/inequalities_mod.R": {
+      "checksum": "35a23c31d1dc8ecbc9dc2447416184a6"
+    },
+    "R/key_mod.R": {
+      "checksum": "c550ce32bd48edf59616896f9f9f061a"
     },
     "R/report_utils.R": {
-      "checksum": "3a45bbc9ad8e771040ee8bb288c09b1a"
+      "checksum": "c7d48752c46c7f1fbe655ad6464680bf"
+    },
+    "www/img/logo_phei.png": {
+      "checksum": "afe8f24410c4074479f2aa0c39a5ef6c"
     },
     "www/img/logo.png": {
       "checksum": "2602c8f6c1577b9b1f7d44caeb329895"
-    },
-    "www/img/team_black_png.png": {
-      "checksum": "afe8f24410c4074479f2aa0c39a5ef6c"
     },
     "www/img/yphws_logo.png": {
       "checksum": "a7a47dde1d86165cef8cb9888794e63a"
