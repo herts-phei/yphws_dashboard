@@ -102,7 +102,7 @@ ui <- tablerDashPage(
       tablerTabItem(
         tabName = "ExploreData",
         fluidRow(
-          column(2, tags$style(HTML(".col-sm-2{position:fixed;}")),
+          column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1}")),
                  # pick survey topic
                  pickerInput(
                    inputId = "domains", 
