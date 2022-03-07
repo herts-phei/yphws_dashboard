@@ -102,7 +102,7 @@ ui <- tablerDashPage(
       tablerTabItem(
         tabName = "ExploreData",
         fluidRow(
-          column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1}")),
+          column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
                  # pick survey topic
                  pickerInput(
                    inputId = "domains", 
@@ -111,7 +111,42 @@ ui <- tablerDashPage(
                    selected = "Safety", multiple = T
                  ),
                  uiOutput("questions"),
-                 HTML("<a href='#anchorid'>Working anchor example</a>")
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
+                 HTML("<a href='#anchorid'>Working anchor example- END</a>")
           ),
           column(offset = 3, 10, uiOutput("explore_boxes"))
         )
