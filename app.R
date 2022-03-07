@@ -103,6 +103,13 @@ ui <- tablerDashPage(
         tabName = "ExploreData",
         fluidRow(
           column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
+                 tagList(
+                   fluidRow(
+                     tablerCard(width = 2, 
+                       htmlOutput("explore_links"))
+                   ))
+          ),
+          column(offset = 3, 10, 
                  # pick survey topic
                  pickerInput(
                    inputId = "domains", 
@@ -110,45 +117,7 @@ ui <- tablerDashPage(
                    choices = c(domains),
                    selected = "Safety", multiple = T
                  ),
-                 uiOutput("questions"),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example</a>"),br(),
-                 HTML("<a href='#anchorid'>Working anchor example- END</a>")
-          ),
-          column(offset = 3, 10, uiOutput("explore_boxes"))
+                 uiOutput("explore_boxes"))
         )
       ),
       tablerTabItem(
@@ -224,7 +193,7 @@ server <- function(input, output) {
       mutate(survey_text = as.character(survey_text)) %>% 
       filter(question_theme %in% input$domains) 
     
-    pickerInput("questions", label = "Select/type in a question (multiple can be selected)",
+    pickerInput("questions", label = "Select/type in question/s",
                 choices = as.character(unique(questions$survey_text)), multiple = T, 
                 selected = as.character(unique(questions$survey_text)), 
                 options = list(`live-search` = TRUE))
@@ -252,7 +221,7 @@ server <- function(input, output) {
   observe({
     # vector of selected vars
     single <- rv$data$q_coded %>% 
-      filter(survey_text %in% input$questions, !multicat)
+      filter(!multicat, question_theme %in% input$domains)
     
     #TODO deduplicate multicat questions.
     rv$filtered$chk_var <- rv$data$q_coded %>% 
@@ -652,7 +621,7 @@ server <- function(input, output) {
       l[[i]] <- tabItem("name", 
                         bs4TabCard(width = 12, side = "right", status = "success",
                                collapsible = FALSE, 
-                               title = HTML(paste0("<hr><br><a id='anchorid'></a>", rv$filtered$chk_var[i],"<br>")),
+                               title = HTML(paste0("<hr><br><a id='anchor-", current$question[1], "'></a>", rv$filtered$chk_var[i],"<br>")),
                                tabPanel("Summary", 
                                         HTML(
                                           create_sum_sentence(dataset = current,
@@ -693,7 +662,29 @@ server <- function(input, output) {
     
   })
   
+  links <- reactive({
+    
+    l <- list()
+    for (i in 1:length(rv$filtered$chk_var)){
+      
+      # Current question
+      current <- filter(rv$filtered$chk_stats, question %in% rv$filtered$chk_var[i])
+      
+      q_coded <- rv$data$q_coded
+      text <- q_coded$survey_text[q_coded$question_coded %in% current$question] # for TOC
+      
+      l[[i]] <- paste0("<a href='#anchor-", current$question[i], "'>", text, "</a><br><br>")
+      
+    }
+    
+    output <- paste(unlist(l), collapse = "")
+    
+    return(output)
+    
+  })
+  
   output$explore_boxes <- renderUI(boxes())
+  output$explore_links <- renderText(links())
   
   # Inequalities ------------------------------------------------------------
   
