@@ -102,7 +102,7 @@ ui <- tablerDashPage(
       tablerTabItem(
         tabName = "ExploreData",
         fluidRow(
-          column(2, 
+          column(2, tags$style(HTML(".col-sm-2{position:fixed;}")),
                  # pick survey topic
                  pickerInput(
                    inputId = "domains", 
@@ -113,7 +113,7 @@ ui <- tablerDashPage(
                  uiOutput("questions"),
                  HTML("<a href='#anchorid'>Working anchor example</a>")
           ),
-          column(10, uiOutput("explore_boxes"))
+          column(offset = 3, 10, uiOutput("explore_boxes"))
         )
       ),
       tablerTabItem(
