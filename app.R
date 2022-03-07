@@ -175,11 +175,11 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  observe({
-
-    if ("Education" %in% input$domains) { browser() }
-
-  })
+  # observe({
+  # 
+  #   if ("Education" %in% input$domains) { browser() }
+  # 
+  # })
   
   # --Load all data-----
   rv <- reactiveValues()
