@@ -5,14 +5,7 @@ explore_mod <- function(id,
   
   ns <- NS(id)
   
-  domains <- c("Living Conditions", "Diet and Lifestyle",
-               "Education", "Demographics",
-               "Mental Health and Wellbeing", "Smoking and Vaping",
-               "Alcohol Consumption", "Drug Use",
-               "Sexual Health", "Safety",
-               "Sustainability", "COVID-19")
-  
-  names(domains) <- domains
+
   
   tablerTabItem(
     tabName = "ExploreData",

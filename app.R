@@ -77,7 +77,28 @@ ui <- tablerDashPage(
   body = tablerDashBody(
     tablerTabItems(
       key_mod("key"),
-      explore_mod("explore"),
+      tablerTabItem(
+        tabName = "ExploreData",
+        fluidRow(
+          # column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
+          #        tagList(
+          #          fluidRow(
+          #            tablerCard(width = 2,
+          #                       htmlOutput(ns("explore_links")))
+          #          )
+          #          )
+          # ),
+          column(12, 
+                 # pick survey topic
+                 pickerInput(
+                   inputId = "domains", 
+                   label = "Select health topic/s:", 
+                   choices = c(domains),
+                   selected = "Safety", multiple = T
+                 ),
+                 uiOutput("explore_boxes"))
+        )
+      ),
       inequalities_mod("ineq"),
       tablerTabItem(
         tabName = "Export",
@@ -111,11 +132,11 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  observe({
-    
-    if ("ethnicity" %in% input$comp) { browser() }
-    
-  })
+  # observe({
+  #   
+  #   if ("ethnicity" %in% input$comp) { browser() }
+  #   
+  # })
   
   # --Load all data-----
   rv <- reactiveValues()
@@ -177,13 +198,222 @@ server <- function(input, output) {
   
   # Explore data --------------------------------------------------------------------
   
-  explore_mod_server("explore",
-                     stats = reactive(rv$stats),
-                     stats_old = reactive(rv$stats_old),
-                     diffs = reactive(rv$diffs),
-                     comp = reactive(input$comp),
-                     q_coded = reactive(rv$data$q_coded),
-                     q_coded_old = reactive(rv$data_old$q_coded_prev))
+  # Data --------------------------------------------------------------------
+  
+  chk_var <- reactive({
+    
+    q_coded <- rv$data$q_coded
+    # vector of selected vars
+    single <- q_coded %>% 
+      filter(question_theme %in% input$domains)
+    
+    #TODO deduplicate multicat questions.
+    chk_var <- q_coded %>%
+      filter(question_coded %in% single$question_coded) %>%
+      pull(question_coded_gen)
+    
+    return(unique(chk_var))
+    
+  })
+  
+  # filtered datasets
+  chk_stats <- reactive({
+    stats <- rv$stats
+    stats %>% 
+      left_join(select(rv$data$q_coded, -question_text), by = c("question" = "question_coded")) %>% 
+      filter(question_coded_gen %in% chk_var())
+    
+  })
+  
+  chk_stats_old <- reactive({
+    stats_old <- rv$stats_old
+    stats_old %>%
+      left_join(select(rv$data_old$q_coded_prev, -question_text), by = c("question" = "question_coded")) %>%
+      filter(question_coded_gen %in% chk_var())
+  })
+  
+  chk_diff <- reactive({
+    diffs <- rv$diffs
+    diffs %>% 
+      left_join(select(rv$data$q_coded, -question_text), by = c("question" = "question_coded")) %>% 
+      filter(question_coded_gen %in% chk_var())
+  })
+  
+  # Boxes -------------------------------------------------------------------
+  boxes <- reactive({
+    
+    stats <- rv$stats
+    stats_old <- rv$stats_old
+    diffs <- rv$diffs
+    comp <- input$comp
+    q_coded <- rv$data$q_coded
+    
+    l <- list()
+    for (i in 1:length(chk_var())){
+      
+      # Current question
+      current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+      current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
+        mutate(multi_cat = as.logical(multi_cat),
+               multi_binary = as.logical(multi_binary),
+               year = "2021") %>% 
+        bind_rows(mutate(current, year = "2020"))  
+      
+      multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
+      multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
+      
+      # --Create text and plots based on type of question--
+      if (multi) { 
+        int_plot <- create_multi_plot(df = current,
+                                      plot_title = "",
+                                      binary = multi_bin)
+        
+        trend_plot <- ""
+        
+        if(!multi_bin) {
+          
+          resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
+                                 collapse = "|")
+          resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
+          text <- create_sum_sentence(dataset = current,
+                                      multi = multi,
+                                      value_of_interest = resp_interest,
+                                      full_data = chk_stats(),
+                                      diffs = chk_diff(),
+                                      custom_grp = unique(current$breakdown),
+                                      group_of_interest = unique(current$breakdown)[2],
+                                      q_coded = q_coded)
+          
+        } else {
+          
+          text <- create_sum_sentence(dataset = current,
+                                      multi = multi,
+                                      value_of_interest = "Yes",
+                                      full_data = chk_stats(),
+                                      diffs = chk_diff(),
+                                      custom_grp = unique(current$breakdown),
+                                      group_of_interest = unique(current$breakdown)[2],
+                                      q_coded = q_coded)
+          
+        }
+        
+      } else {
+        
+        text <- create_sum_sentence(dataset = current,
+                                    multi = multi,
+                                    value_of_interest = "Yes",
+                                    full_data = chk_stats(),
+                                    diffs = chk_diff(),
+                                    custom_grp = unique(current$breakdown),
+                                    group_of_interest = unique(current$breakdown)[2],
+                                    q_coded = q_coded)
+        
+        int_plot <- create_basic_plot(df = current,
+                                      plot_custom_grp = unique(current$breakdown),
+                                      plot_title = "")
+        
+        trend_plot <- current_old %>% 
+          ggplot(aes(x = response, y = value, group = year)) +
+          geom_bar(
+            aes(color = year, fill = year),
+            stat = "identity", position = position_dodge(0.8),
+            width = 0.7
+          ) +
+          geom_errorbar(aes(ymin = lowercl, ymax = uppercl, group = year), 
+                        width = 0.2, colour = "black", alpha = 0.5,
+                        position = position_dodge(0.95)) +
+          facet_wrap(~breakdown) +
+          theme_minimal()
+        
+        trend_plot <- ggplotly(trend_plot)
+        
+        
+      }
+      
+      
+      
+      # --Create boxes --
+      l[[i]] <- tabItem("name", 
+                        tabBox(width = 12, side = "right", status = "success",
+                               collapsible = FALSE, 
+                               title = "",
+                               #HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
+                               tabPanel("Summary", 
+                                        HTML(
+                                          text
+                                        ),
+                                        br(),
+                                        int_plot
+                               ),
+                               tabPanel(
+                                 "Trend",
+                                 br(),
+                                 trend_plot
+                               ),
+                               tabPanel(
+                                 "Table",
+                                 chk_stats() %>%
+                                   mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
+                                          lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
+                                          uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
+                                   ) %>%
+                                   select(breakdown, question = question_text, response, value, count, denominator,
+                                          lowercl, uppercl) %>%
+                                   reactable(groupBy = c("breakdown", "question"),
+                                             columns = list(
+                                               value = colDef(maxWidth = 70),
+                                               count = colDef(maxWidth = 65),
+                                               denominator = colDef(maxWidth = 70),
+                                               lowercl = colDef(maxWidth = 70),
+                                               uppercl = colDef(maxWidth = 70)
+                                             ))
+                               )
+                        ) )
+    }
+    
+    return(l)
+    
+    
+  })
+  
+  
+  # TOC Links ---------------------------------------------------------------
+  # links <- reactive({
+  #   
+  #   stats <- stats()
+  #   diffs <- diffs()
+  #   comp <- comp()
+  #   q_coded <- q_coded()
+  #   
+  #   l <- list()
+  #   for (i in 1:length(chk_var())){
+  #     
+  #     # Current question
+  #     current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+  #     
+  #     q_coded <- q_coded
+  #     text <- q_coded$question_coded_gen[q_coded$question_coded_gen %in% current$question_coded_gen] # for TOC
+  #     
+  #     l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
+  #     
+  #   }
+  #   
+  #   output <- paste(unlist(l), collapse = "")
+  #   
+  #   return(output)
+  #   
+  # })
+  
+  output$explore_boxes <- renderUI(boxes())
+  #output$explore_links <- renderText(links())
+  
+  # explore_mod_server("explore",
+  #                    stats = reactive(rv$stats),
+  #                    stats_old = reactive(rv$stats_old),
+  #                    diffs = reactive(rv$diffs),
+  #                    comp = reactive(input$comp),
+  #                    q_coded = reactive(rv$data$q_coded),
+  #                    q_coded_old = reactive(rv$data_old$q_coded_prev))
   
   # Inequalities ------------------------------------------------------------
   
