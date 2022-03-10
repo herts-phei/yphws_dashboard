@@ -227,11 +227,11 @@ explore_mod_server <- function(id,
                                                 br(),
                                                 int_plot
                                        ),
-                                       tabPanel(
-                                         "Trend",
-                                         br(),
-                                         trend_plot
-                                       ),
+                                       # tabPanel(
+                                       #   "Trend",
+                                       #   br(),
+                                       #   trend_plot
+                                       # ),
                                        tabPanel(
                                          "Table", 
                                          chk_stats() %>% 
