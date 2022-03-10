@@ -17,12 +17,13 @@ explore_mod <- function(id,
   tablerTabItem(
     tabName = "ExploreData",
     fluidRow(
-      column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
-             tagList(
-               fluidRow(
-                 tablerCard(width = 2, 
-                            htmlOutput(ns("explore_links")))
-               ))
+      column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}"))
+             # tagList(
+             #   fluidRow(
+             #     tablerCard(width = 2, 
+             #                htmlOutput(ns("explore_links")))
+             #   )
+             #   )
       ),
       column(offset = 3, 10, 
              # pick survey topic
@@ -217,7 +218,8 @@ explore_mod_server <- function(id,
           l[[i]] <- tabItem("name", 
                             bs4TabCard(width = 12, side = "right", status = "success",
                                        collapsible = FALSE, 
-                                       title = HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
+                                       title = "",
+                                         #HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
                                        tabPanel("Summary", 
                                                 HTML(
                                                   text
@@ -257,34 +259,34 @@ explore_mod_server <- function(id,
       
 
       # TOC Links ---------------------------------------------------------------
-      links <- reactive({
-        
-        stats <- stats()
-        diffs <- diffs()
-        comp <- comp()
-        q_coded <- q_coded()
-        
-        l <- list()
-        for (i in 1:length(chk_var())){
-          
-          # Current question
-          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
-          
-          q_coded <- q_coded
-          text <- q_coded$question_coded_gen[q_coded$question_coded_gen %in% current$question_coded_gen] # for TOC
-          
-          l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
-          
-        }
-        
-        output <- paste(unlist(l), collapse = "")
-        
-        return(output)
-        
-      })
+      # links <- reactive({
+      #   
+      #   stats <- stats()
+      #   diffs <- diffs()
+      #   comp <- comp()
+      #   q_coded <- q_coded()
+      #   
+      #   l <- list()
+      #   for (i in 1:length(chk_var())){
+      #     
+      #     # Current question
+      #     current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+      #     
+      #     q_coded <- q_coded
+      #     text <- q_coded$question_coded_gen[q_coded$question_coded_gen %in% current$question_coded_gen] # for TOC
+      #     
+      #     l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
+      #     
+      #   }
+      #   
+      #   output <- paste(unlist(l), collapse = "")
+      #   
+      #   return(output)
+      #   
+      # })
       
       output$explore_boxes <- renderUI(boxes())
-      output$explore_links <- renderText(links())
+      #output$explore_links <- renderText(links())
       
     }
   )
