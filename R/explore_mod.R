@@ -231,25 +231,26 @@ explore_mod_server <- function(id,
                                          "Trend",
                                          br(),
                                          trend_plot
-                                       ),
-                                       tabPanel(
-                                         "Table", 
-                                         chk_stats() %>% 
-                                           mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
-                                                  lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
-                                                  uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
-                                           ) %>% 
-                                           select(breakdown, question = question_text, response, value, count, denominator,
-                                                  lowercl, uppercl) %>% 
-                                           reactable(groupBy = c("breakdown", "question"),
-                                                     columns = list(
-                                                       value = colDef(maxWidth = 70),
-                                                       count = colDef(maxWidth = 65),
-                                                       denominator = colDef(maxWidth = 70),
-                                                       lowercl = colDef(maxWidth = 70),
-                                                       uppercl = colDef(maxWidth = 70)
-                                                     ))
-                                       )) )
+                                       )
+                                       # tabPanel(
+                                       #   "Table", 
+                                       #   chk_stats() %>% 
+                                       #     mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
+                                       #            lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
+                                       #            uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
+                                       #     ) %>% 
+                                       #     select(breakdown, question = question_text, response, value, count, denominator,
+                                       #            lowercl, uppercl) %>% 
+                                       #     reactable(groupBy = c("breakdown", "question"),
+                                       #               columns = list(
+                                       #                 value = colDef(maxWidth = 70),
+                                       #                 count = colDef(maxWidth = 65),
+                                       #                 denominator = colDef(maxWidth = 70),
+                                       #                 lowercl = colDef(maxWidth = 70),
+                                       #                 uppercl = colDef(maxWidth = 70)
+                                       #               ))
+                                       # )
+                                       ) )
         }
         
         return(l)
