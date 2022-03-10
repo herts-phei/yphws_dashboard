@@ -146,9 +146,7 @@ explore_mod_server <- function(id,
           
           # --Create text and plots based on type of question--
           if (multi) { 
-            int_plot <- create_multi_plot(df = current,
-                                          plot_title = "",
-                                          binary = multi_bin)
+            int_plot <- ""
             
             trend_plot <- ""
             
@@ -207,7 +205,7 @@ explore_mod_server <- function(id,
               facet_wrap(~breakdown) +
               theme_minimal()
             
-            trend_plot <- ggplotly(trend_plot)
+            trend_plot <- ""
 
             
           }
