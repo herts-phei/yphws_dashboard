@@ -216,40 +216,40 @@ explore_mod_server <- function(id,
           
           # --Create boxes --
           l[[i]] <- tabItem("name", 
-                            bs4Dash::bs4TabCard(width = 12, side = "right", status = "success",
-                                                collapsible = FALSE, 
-                                                title = "",
-                                                #HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
-                                                tabPanel("Summary", 
-                                                         HTML(
-                                                           text
-                                                         ),
-                                                         br()
-                                                         #int_plot
-                                                ),
-                                                tabPanel(
-                                                  "Trend",
-                                                  br(),
-                                                  trend_plot
-                                                ),
-                                                tabPanel(
-                                                  "Table", 
-                                                  chk_stats() %>% 
-                                                    mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
-                                                           lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
-                                                           uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
-                                                    ) %>% 
-                                                    select(breakdown, question = question_text, response, value, count, denominator,
-                                                           lowercl, uppercl) %>% 
-                                                    reactable(groupBy = c("breakdown", "question"),
-                                                              columns = list(
-                                                                value = colDef(maxWidth = 70),
-                                                                count = colDef(maxWidth = 65),
-                                                                denominator = colDef(maxWidth = 70),
-                                                                lowercl = colDef(maxWidth = 70),
-                                                                uppercl = colDef(maxWidth = 70)
-                                                              ))
-                                                )) )
+                            bs4TabCard(width = 12, side = "right", status = "success",
+                                       collapsible = FALSE, 
+                                       title = "",
+                                       #HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
+                                       tabPanel("Summary", 
+                                                # HTML(
+                                                #   text
+                                                # ),
+                                                br()
+                                                #int_plot
+                                       ),
+                                       tabPanel(
+                                         "Trend",
+                                         br(),
+                                         trend_plot
+                                       ),
+                                       tabPanel(
+                                         "Table", 
+                                         chk_stats() %>% 
+                                           mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
+                                                  lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
+                                                  uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
+                                           ) %>% 
+                                           select(breakdown, question = question_text, response, value, count, denominator,
+                                                  lowercl, uppercl) %>% 
+                                           reactable(groupBy = c("breakdown", "question"),
+                                                     columns = list(
+                                                       value = colDef(maxWidth = 70),
+                                                       count = colDef(maxWidth = 65),
+                                                       denominator = colDef(maxWidth = 70),
+                                                       lowercl = colDef(maxWidth = 70),
+                                                       uppercl = colDef(maxWidth = 70)
+                                                     ))
+                                       )) )
         }
         
         return(l)
