@@ -134,7 +134,7 @@ server <- function(input, output) {
   observe({
     sel_comp <- rv$data$data %>% 
       select(input$comp) 
-    sel_comp <- unique(na.omit(unlist(sel_comp)))
+    sel_comp <- as.character(unique(na.omit(unlist(sel_comp))))
     
     rv$diffs <- get_stats_diffs(stats = rv$stats, 
                                 levels = c("All Responses", sel_comp), 
