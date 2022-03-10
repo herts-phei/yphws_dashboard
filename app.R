@@ -110,11 +110,11 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  # observe({
-  # 
-  #   if ("ethnicity" %in% input$comp) { browser() }
-  # 
-  # })
+  observe({
+
+    if ("ethnicity" %in% input$comp) { browser() }
+
+  })
   
   # --Load all data-----
   rv <- reactiveValues()
@@ -160,6 +160,7 @@ server <- function(input, output) {
   inequalities_mod_server("ineq",
                           params = reactive(rv$params),
                           q_coded = reactive(rv$data$q_coded),
+                          stats = reactive(rv$stats),
                           diffs = reactive(rv$diffs))
   
   # Export ------------------------------------------------------------------
@@ -179,7 +180,8 @@ server <- function(input, output) {
                                "Self-harm" = "selfharm_ever",
                                "Bullied" = "bullied",
                                "District" = "District"), 
-                selected = input$comp, multiple = FALSE)
+                selected = input$comp, 
+                multiple = FALSE)
     
   })
   

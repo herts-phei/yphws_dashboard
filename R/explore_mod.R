@@ -57,22 +57,25 @@ explore_mod_server <- function(id,
       # Reactive UIs ------------------------------------------------------------
       
       # output$questions <- renderUI({
-      #   
+      # 
       #   stats <- stats()
       #   diffs <- diffs()
       #   comp <- comp()
       #   q_coded <- q_coded()
-      #   
+      # 
       #   questions <- isolate(q_coded) %>%
       #     mutate(survey_text = as.character(survey_text)) %>%
       #     filter(question_theme %in% input$domains)
-      #   
+      # 
       #   pickerInput(ns("questions"), label = "Select/type in a question (multiple can be selected)",
       #               choices = as.character(unique(questions$survey_text)), multiple = T,
       #               selected = as.character(unique(questions$survey_text)),
       #               options = list(`live-search` = TRUE))
       # })
       
+      observe({
+        if ("Education" %in% input$domains ) {browser()}
+      })
       
       # Data --------------------------------------------------------------------
       
@@ -82,33 +85,34 @@ explore_mod_server <- function(id,
         
         # vector of selected vars
         single <- q_coded %>% 
-          filter(!multicat, question_theme %in% input$domains)
+          filter(question_theme %in% input$domains)
         
         #TODO deduplicate multicat questions.
         chk_var <- q_coded %>%
           filter(question_coded %in% single$question_coded) %>%
-          pull(question_coded)
+          pull(question_coded_gen)
         
-        return(chk_var)
+        return(unique(chk_var))
         
       })
-      
-      # chk_var()() <- q_coded %>%
-      #   filter(survey_text %in% input$questions, multicat) %>%
-      #   mutate(question_raw = gsub("\\..*", "", question_raw),
-      #          question_coded = question_coded_gen) %>%
-      #   distinct(question_raw, .keep_all = TRUE) %>%
-      #   bind_rows(single) %>%
-      #   pull(question_coded)
       
       # filtered datasets
       chk_stats <- reactive({
         stats <- stats()
-        filter(stats, question %in% chk_var()) })
+        
+        stats %>% 
+          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
+          filter(question_coded_gen %in% chk_var())
+          
+        })
       
       chk_diff <- reactive({
         stats <- stats()
-        filter(diffs, question %in% chk_var()) })
+        diffs <- diffs()
+        diffs %>% 
+          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
+          filter(question_coded_gen %in% chk_var())
+        })
       
       # Boxes -------------------------------------------------------------------
       boxes <- reactive({
@@ -122,26 +126,73 @@ explore_mod_server <- function(id,
         for (i in 1:length(chk_var())){
           
           # Current question
-          current <- filter(chk_stats(), question %in% chk_var()[i])
+          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+          multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
+          multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
           
+          # --Create text and plots based on type of question--
+          if (multi) { 
+            int_plot <- create_multi_plot(df = current,
+                                          plot_title = "",
+                                          binary = multi_bin)
+            
+            if(!multi_bin) {
+              
+              resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
+                                     collapse = "|")
+              resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
+              text <- create_sum_sentence(dataset = current,
+                                          multi = multi,
+                                          value_of_interest = resp_interest,
+                                          full_data = chk_stats(),
+                                          diffs = chk_diff(),
+                                          custom_grp = unique(current$breakdown),
+                                          group_of_interest = unique(current$breakdown)[2],
+                                          q_coded = q_coded)
+              
+            } else {
+              
+              text <- create_sum_sentence(dataset = current,
+                                          multi = multi,
+                                          value_of_interest = "Yes",
+                                          full_data = chk_stats(),
+                                          diffs = chk_diff(),
+                                          custom_grp = unique(current$breakdown),
+                                          group_of_interest = unique(current$breakdown)[2],
+                                          q_coded = q_coded)
+              
+            }
+            
+            
+          } else {
+            
+            int_plot <- create_basic_plot(df = current,
+                                          plot_custom_grp = unique(current$breakdown),
+                                          plot_title = "")
+            
+            text <- create_sum_sentence(dataset = current,
+                                        multi = multi,
+                                        value_of_interest = "Yes",
+                                        full_data = chk_stats(),
+                                        diffs = chk_diff(),
+                                        custom_grp = unique(current$breakdown),
+                                        group_of_interest = unique(current$breakdown)[2],
+                                        q_coded = q_coded)
+            
+          }
+          
+
+          # --Create boxes --
           l[[i]] <- tabItem("name", 
                             bs4TabCard(width = 12, side = "right", status = "success",
                                        collapsible = FALSE, 
-                                       title = HTML(paste0("<hr><br><a id='anchor-", current$question[1], "'></a>", chk_var()[i],"<br>")),
+                                       title = HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
                                        tabPanel("Summary", 
                                                 HTML(
-                                                  create_sum_sentence(dataset = current,
-                                                                      multi = F,
-                                                                      value_of_interest = F,
-                                                                      full_data = chk_stats(),
-                                                                      diffs = chk_diff(),
-                                                                      custom_grp = unique(current$breakdown),
-                                                                      group_of_interest = unique(current$breakdown)[2])
+                                                  text
                                                 ),
                                                 br(),
-                                                create_basic_plot(df = current,
-                                                                  plot_custom_grp = unique(current$breakdown),
-                                                                  plot_title = current$question_text[1])
+                                                int_plot
                                        ),
                                        tabPanel(
                                          "Table", 
@@ -182,12 +233,12 @@ explore_mod_server <- function(id,
         for (i in 1:length(chk_var())){
           
           # Current question
-          current <- filter(chk_stats(), question %in% chk_var()[i])
+          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
           
           q_coded <- q_coded
-          text <- q_coded$survey_text[q_coded$question_coded %in% current$question] # for TOC
+          text <- q_coded$question_coded_gen[q_coded$question_coded_gen %in% current$question_coded_gen] # for TOC
           
-          l[[i]] <- paste0("<a href='#anchor-", current$question[i], "'>", text, "</a><br><br>")
+          l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
           
         }
         

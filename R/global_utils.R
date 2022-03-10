@@ -1,4 +1,153 @@
+# Server functions --------------------------------------------------------
 
+get_params <- function(board = board) {
+  
+  output <- list()
+  
+  output$year <- 2021 #year of survey
+  output$data_pin <- "ayu/YPHWS_2021"
+  output$q_coded <- "hau/YPHWS_question_lookup_2021"
+  output$q_coded_prev <- "bkimpton/YPHWS_question_lookup"
+  output$prev_data_pin <- "bkimpton/youth_survey_responses"
+  
+  output$districts <- c("Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire",
+                        "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield")
+  
+  output$domains <- c("Living Conditions", "Diet and Lifestyle",     
+                      "Education", "Demographics",
+                      "Mental Health and Wellbeing", "Smoking and Vaping",         
+                      "Alcohol Consumption", "Drug Use",                   
+                      "Sexual Health", "Safety",                  
+                      "Sustainability", "COVID-19")
+  
+  return(output)
+  
+}
+
+get_data <- function(board = board, 
+                     params,
+                     data) {
+  
+  output <- list()
+  
+  # questions lookup
+  output$q_coded <- pin_get(params$q_coded, board = "rsconnect") %>%
+    purrr::map_dfr(~ as.character(.)) %>% 
+    mutate(multi_cat = as.logical(multi_cat),
+           multi_binary = as.logical(multi_binary))
+  
+  output$q_coded_prev <- pin_get(params$q_coded_prev, board = "rsconnect") %>%
+    purrr::map_dfr(~ as.character(.))
+  
+  # survey data
+  output$data <- pin_get(params$data_pin, board = "rsconnect") %>%
+    mutate(
+      imd_quintile = case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
+      imd_quintile = case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),
+      imd_quintile = case_when(imd_quintile %in% "3" ~ "Quintile 3", TRUE ~ imd_quintile),
+      imd_quintile = case_when(imd_quintile %in% "4" ~ "Quintile 4", TRUE ~ imd_quintile),
+      imd_quintile = case_when(imd_quintile %in% "5" ~ "Quintile 5 - Least Deprived", TRUE ~ imd_quintile)
+    ) %>%
+    select(-lsoa_code)
+  
+  return(output)
+  
+}
+
+get_stats <- function(data, 
+                      group, 
+                      q_coded) {
+  
+  # recode scale to categories
+  data <- data %>%
+    dplyr::mutate(life_satisfied = recode(life_satisfied, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  life_worthwhile = recode(life_worthwhile, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  life_happyyesterday = recode(life_happyyesterday, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  life_satisfied_before_covid = recode(life_satisfied_before_covid, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  alcohol_perday = recode(alcohol_perday, "0"="none","1"="1-2","2"="1-2","3"="3-4","4"="3-4","5"="5-6","6"="5-6","7"="7-9","8"="7-9","9"="7-9","10"="10+"),
+                  pa_60 = recode(pa_60, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"),
+                  pa_30 = recode(pa_30, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"))
+  
+  data_l <- list()
+  
+  # summary statistics for all schools. 
+  data_l[["data_all_schools"]] <- data %>% 
+    dplyr::mutate(school = "All Schools", schyear = "All Responses") %>% 
+    summarystats(c('school', 'schyear'), q_coded = q_coded)
+  
+  # summary statistics by group variable(s)
+  for (g in 1:length(group)) {
+    
+    data_l[[paste0("data_by", group[g])]] <- data %>% 
+      dplyr::mutate(school = "All Schools") %>%  
+      summarystats(c('school', group[g]), q_coded = q_coded)
+    
+  }
+  
+  # IF WE WANT TO GROUP BY DISTRICTS, WE NEED SOME ADDITIONAL PRE-PROCESSING. 
+  if (any(grepl("District", group))) {
+    
+    responses_per_district <- data %>% 
+      dplyr::select(school, District) %>%  
+      dplyr::group_by(District) %>% 
+      dplyr::mutate(school_count = n()) %>% 
+      dplyr::distinct() %>% 
+      dplyr::summarise(District, school_count, schools_per_district = n()) %>% 
+      dplyr::distinct() %>% 
+      dplyr::mutate(comparison = case_when(school_count >= 250 & schools_per_district > 1 ~ TRUE, 
+                                           TRUE ~ FALSE))
+    
+    data_d <- dplyr::filter(data, District %in% responses_per_district$District[responses_per_district$comparison == T])
+    
+    # bind to list
+    data_l[[paste0("data_by", "District")]] <- data_d %>% 
+      dplyr::mutate(school = "All Schools") %>%  
+      summarystats(c('school', "District"), q_coded = q_coded)
+    
+  }
+  
+  omit_cols <- c("Ended", "Started", "UserID", "postcode", "postcode2", "sch_hidden", "school_other_hidden") #certain columns are not needed for reporting.
+  
+  stats <- dplyr::bind_rows(data_l)
+  
+  stats <- stats %>%
+    dplyr::mutate(value = formattable::percent(value, digits = 1),
+                  lowercl = formattable::percent(lowercl, digits = 1),
+                  uppercl = formattable::percent(uppercl, digits = 1),
+                  lowereb = value - lowercl,
+                  uppereb = uppercl - value)  %>% 
+    dplyr::filter(!is.na(breakdown))
+  
+}
+
+get_stats_diffs <- function(stats, 
+                            levels, 
+                            compare_to_all = F) {
+  
+  stats <- dplyr::filter(stats, breakdown %in% levels)
+  
+  # get differences (new cols)
+  data_from <- stats
+  data_to <- stats[stats[["school"]] %in% "All Schools", ] 
+  stats_diffs_all <- dplyr::inner_join(data_from, data_to, by = c(NULL, "question", "response")) %>%
+    dplyr::mutate(diff = dplyr::case_when(lowercl.x > uppercl.y ~ "significantly higher than",
+                                          uppercl.x < lowercl.y ~ "significantly lower than"),
+                  image = paste0("graphics/", diff, ".png"))
+  
+  # clean factors
+  stats_diffs_all$breakdown.x <- factor(stats_diffs_all$breakdown.x, levels = levels)
+  stats_diffs_all$breakdown.x <- droplevels(stats_diffs_all$breakdown.x)
+  
+  if(compare_to_all) {
+    stats_diffs_all <- stats_diffs_all %>% 
+      dplyr::filter(school.y == "All Schools") %>% 
+      dplyr::filter(!breakdown.x == "All Responses") %>% 
+      dplyr::filter(breakdown.y == "All Responses")
+  }
+  
+  return(stats_diffs_all)
+  
+}
 
 # General functions -------------------------------------------------------
 
@@ -332,146 +481,3 @@ get_stats_diffs <- function(stats,
   
 }
 
-
-# Server functions --------------------------------------------------------
-
-get_params <- function(board = board) {
-  
-  output <- list()
-  
-  output$year <- 2021 #year of survey
-  output$data_pin <- "ayu/YPHWS_2021"
-  output$q_coded <- "hau/YPHWS_question_lookup_2021"
-  output$q_coded_prev <- "bkimpton/YPHWS_question_lookup"
-  output$prev_data_pin <- "bkimpton/youth_survey_responses"
-  
-  output$districts <- c("Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire",
-    "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield")
-
-  return(output)
-  
-}
-
-get_data <- function(board = board, 
-                     params,
-                     data) {
-  
-  output <- list()
-  
-  # questions lookup
-  output$q_coded <- pin_get(params$q_coded, board = "rsconnect") %>%
-    purrr::map_dfr(~ as.character(.)) %>% 
-    mutate(multicat = as.logical(multicat))
-  
-  output$q_coded_prev <- pin_get(params$q_coded_prev, board = "rsconnect") %>%
-    purrr::map_dfr(~ as.character(.))
-  
-  # survey data
-  output$data <- pin_get(params$data_pin, board = "rsconnect") %>%
-    mutate(
-      imd_quintile = case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
-      imd_quintile = case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),
-      imd_quintile = case_when(imd_quintile %in% "3" ~ "Quintile 3", TRUE ~ imd_quintile),
-      imd_quintile = case_when(imd_quintile %in% "4" ~ "Quintile 4", TRUE ~ imd_quintile),
-      imd_quintile = case_when(imd_quintile %in% "5" ~ "Quintile 5 - Least Deprived", TRUE ~ imd_quintile)
-    ) %>%
-    select(-lsoa_code)
-    
-  return(output)
-  
-}
-
-get_stats <- function(data, 
-                      group, 
-                      q_coded) {
-  
-  # recode scale to categories
-  data <- data %>%
-    dplyr::mutate(life_satisfied = recode(life_satisfied, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  life_worthwhile = recode(life_worthwhile, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  life_happyyesterday = recode(life_happyyesterday, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  life_satisfied_before_covid = recode(life_satisfied_before_covid, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  alcohol_perday = recode(alcohol_perday, "0"="none","1"="1-2","2"="1-2","3"="3-4","4"="3-4","5"="5-6","6"="5-6","7"="7-9","8"="7-9","9"="7-9","10"="10+"),
-                  pa_60 = recode(pa_60, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"),
-                  pa_30 = recode(pa_30, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"))
-  
-  data_l <- list()
-  
-  # summary statistics for all schools. 
-  data_l[["data_all_schools"]] <- data %>% 
-    dplyr::mutate(school = "All Schools", schyear = "All Responses") %>% 
-    summarystats(c('school', 'schyear'), q_coded = q_coded)
-  
-  # summary statistics by group variable(s)
-  for (g in 1:length(group)) {
-    
-    data_l[[paste0("data_by", group[g])]] <- data %>% 
-      dplyr::mutate(school = "All Schools") %>%  
-      summarystats(c('school', group[g]), q_coded = q_coded)
-    
-  }
-  
-  # IF WE WANT TO GROUP BY DISTRICTS, WE NEED SOME ADDITIONAL PRE-PROCESSING. 
-  if (any(grepl("District", group))) {
-    
-    responses_per_district <- data %>% 
-      dplyr::select(school, District) %>%  
-      dplyr::group_by(District) %>% 
-      dplyr::mutate(school_count = n()) %>% 
-      dplyr::distinct() %>% 
-      dplyr::summarise(District, school_count, schools_per_district = n()) %>% 
-      dplyr::distinct() %>% 
-      dplyr::mutate(comparison = case_when(school_count >= 250 & schools_per_district > 1 ~ TRUE, 
-                                           TRUE ~ FALSE))
-    
-    data_d <- dplyr::filter(data, District %in% responses_per_district$District[responses_per_district$comparison == T])
-    
-    # bind to list
-    data_l[[paste0("data_by", "District")]] <- data_d %>% 
-      dplyr::mutate(school = "All Schools") %>%  
-      summarystats(c('school', "District"), q_coded = q_coded)
-    
-  }
-  
-  omit_cols <- c("Ended", "Started", "UserID", "postcode", "postcode2", "sch_hidden", "school_other_hidden") #certain columns are not needed for reporting.
-  
-  stats <- dplyr::bind_rows(data_l)
-  
-  stats <- stats %>%
-    dplyr::mutate(value = formattable::percent(value, digits = 1),
-                  lowercl = formattable::percent(lowercl, digits = 1),
-                  uppercl = formattable::percent(uppercl, digits = 1),
-                  lowereb = value - lowercl,
-                  uppereb = uppercl - value)  %>% 
-    dplyr::filter(!is.na(breakdown))
-  
-}
-
-get_stats_diffs <- function(stats, 
-                            levels, 
-                            compare_to_all = F) {
-  
-  stats <- dplyr::filter(stats, breakdown %in% levels)
-
-  # get differences (new cols)
-  data_from <- stats
-  data_to <- stats[stats[["school"]] %in% "All Schools", ] 
-  stats_diffs_all <- dplyr::inner_join(data_from, data_to, by = c(NULL, "question", "response")) %>%
-    dplyr::mutate(diff = dplyr::case_when(lowercl.x > uppercl.y ~ "significantly higher than",
-                                          uppercl.x < lowercl.y ~ "significantly lower than"),
-                  image = paste0("graphics/", diff, ".png"))
-  
-  # clean factors
-  stats_diffs_all$breakdown.x <- factor(stats_diffs_all$breakdown.x, levels = levels)
-  stats_diffs_all$breakdown.x <- droplevels(stats_diffs_all$breakdown.x)
-  
-  if(compare_to_all) {
-    stats_diffs_all <- stats_diffs_all %>% 
-      dplyr::filter(school.y == "All Schools") %>% 
-      dplyr::filter(!breakdown.x == "All Responses") %>% 
-      dplyr::filter(breakdown.y == "All Responses")
-  }
-  
-  return(stats_diffs_all)
-  
-}

@@ -7,7 +7,8 @@ create_sum_sentence <- function(dataset,
                                 full_data,
                                 diffs,
                                 custom_grp,
-                                group_of_interest) {
+                                group_of_interest,
+                                q_coded) {
   
   if (nrow(dataset) == 0) { return ("") }
   
@@ -146,7 +147,7 @@ create_sum_sentence <- function(dataset,
           df <- grp_df %>% 
             filter(question %in% reps, response == value_of_interest) %>% 
             left_join(q_coded, by = c("question" = "question_coded")) %>% 
-            drop_na(reworded) %>% 
+            #drop_na(reworded) %>% 
             arrange(desc(count))
           
           if (binary) {
@@ -165,7 +166,7 @@ create_sum_sentence <- function(dataset,
   }
   
   # Add a short prompt(?) sentence.
-  sentence <- paste0(sentence, " For more detail, please see the Graph or Table tabs.")
+  sentence <- paste0(sentence, " For more detail, please see the graph or table.")
   
   return(sentence)
   
@@ -181,47 +182,115 @@ create_basic_plot <- function(df,
   groups <- unique(c("All Responses", 
                      plot_custom_grp))
   
-  # plot object
-  df %>% 
-    filter(breakdown %in% groups) %>% 
-    mutate(value = round(as.numeric(.$value), 3),
-           lowercl = round(as.numeric(.$lowercl), 3),
-           uppercl = round(as.numeric(.$uppercl), 3),
-           response = str_wrap(response, 15),
-           breakdown = factor(breakdown, levels = groups)) %>% 
-    filter(!is.na(question_text)) %>% 
-    group_by(breakdown) %>% 
-    e_charts(response) %>% 
-    e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
+    # plot object
+    df %>% 
+      filter(breakdown %in% groups) %>% 
+      mutate(value = round(as.numeric(.$value), 3),
+             lowercl = round(as.numeric(.$lowercl), 3),
+             uppercl = round(as.numeric(.$uppercl), 3),
+             response = str_wrap(response, 15),
+             breakdown = factor(breakdown, levels = groups)) %>% 
+      filter(!is.na(question_text)) %>% 
+      group_by(breakdown) %>% 
+      e_charts(response) %>% 
+      e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
       function(params){
       return('value: ' + Math.round(params.value[1] * 100, 3) + '%' +
         '<br/>breakdown: ' + params.seriesName +
         '<br/>group: ' + params.value[params.encode.x[0]]) 
         }"))) %>%
-    e_error_bar(lowercl, uppercl, name = .$breakdown,
-                itemStyle = list(opacity = 0.6),
-                tooltip = list(formatter = htmlwidgets::JS("
+      e_error_bar(lowercl, uppercl, name = .$breakdown,
+                  itemStyle = list(opacity = 0.6),
+                  tooltip = list(formatter = htmlwidgets::JS("
       function(params){
       return('breakdown: ' + params.seriesName +
       '</br>group: ' + params.value[params.encode.x[0]] +
       '<br/>upper CI: ' + Math.round(params.value[params.encode.y[1]] * 100, 3) +
         '%<br/>lower CI: ' + Math.round(params.value[params.encode.y[0]] * 100, 3) +
         '%') }"))) %>%
-    e_tooltip(trigger = "item") %>% 
-    e_grid(right = 180, left = 50) %>%
-    e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
-    e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
-    e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
-    e_legend(show = TRUE, type = "scroll", orient = "vertical",
-             right = 10, top = 35, bottom = 10,
-             itemHeight = 10, itemWidth = 20,
-             textStyle = list(fontSize = 12)) %>%
-    e_theme("westeros") %>%
-    e_title(plot_title) %>% 
-    e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
-                                                           image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
-    e_toolbox_feature(feature = c("dataZoom", "restore")) %>% 
-    e_theme_custom("phei.json")
+      e_tooltip(trigger = "item") %>% 
+      e_grid(right = 180, left = 50) %>%
+      e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+      e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
+      e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+      e_legend(show = TRUE, type = "scroll", orient = "vertical",
+               right = 10, top = 35, bottom = 10,
+               itemHeight = 10, itemWidth = 20,
+               textStyle = list(fontSize = 12)) %>%
+      e_theme("westeros") %>%
+      e_title(plot_title) %>% 
+      e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
+                                                             image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
+      e_toolbox_feature(feature = c("dataZoom", "restore")) %>% 
+      e_theme_custom("phei.json")
+
+  }
+
+create_multi_plot <- function(df,
+                              plot_title,
+                              binary) {
+  
+  df <- df %>% 
+    filter(!is.na(question_text)) %>% 
+    droplevels()
+  
+  if (binary) {
+    
+    df %>% 
+      filter(response == "Yes") %>% 
+      arrange(response) %>%
+      plot_ly(x = ~value, y = ~question_text, type = "bar", name = ~breakdown, color = ~breakdown,
+              colors = "Blues", legendgroup = ~breakdown, orientation = 'h',
+              hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ", 
+                                                              response, "<br>(CI:", lowercl, " to ", 
+                                                              uppercl, ")"), 30), "<extra></extra>")) %>%
+      layout(title = list(text = paste("<b>", plot_title, "</b>"), 
+                          yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
+             xaxis = list(title = "Percent", tickformat = "%", 
+                          range = list(0, 1)),
+             yaxis = list(title = "", autorange = "reversed")) %>%
+      plotly::config(displaylogo = FALSE, 
+                     modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+    
+  } else {
+    
+    groups <- unique(df$menu_text)
+    
+    button_list <- lapply(1:length(groups), function(x){
+      list(method = "restyle",
+           args = list("transforms[0].value", groups[x]),
+           label = groups[x])
+    })
+    
+    type_list <-  list(
+      type = 'dropdown',
+      active = 0,
+      xanchor = 'left',
+      yanchor = "top",
+      pad = list('r'= 0, 't'= 0, 'b' = 0),
+      y = 1.1,
+      x = 1.02,
+      buttons = button_list
+    )
+    
+    df %>%
+      arrange(response) %>%
+      plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
+              colors = "Blues", legendgroup = ~response, orientation = 'h',
+              hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ", 
+                                                              response, "<br>(CI:", lowercl, " to ", 
+                                                              uppercl, ")"), 30), "<extra></extra>"),
+              transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
+      layout(barmode = "stack", 
+             title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
+             xaxis = list(title = "Percent", tickformat = "%"),
+             updatemenus = list(type_list),
+             yaxis = list(title = "", autorange = "reversed")) %>%
+      plotly::config(displaylogo = FALSE, 
+                     modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+    
+  }
+  
   
 }
 
