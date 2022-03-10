@@ -915,6 +915,36 @@
         "Built": "R 3.6.3; ; 2021-02-09 11:41:57 UTC; unix"
       }
     },
+    "crosstalk": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "crosstalk",
+        "Type": "Package",
+        "Title": "Inter-Widget Interactivity for HTML Widgets",
+        "Version": "1.1.1",
+        "Authors@R": "c(\n    person(\"Joe\", \"Cheng\", role = \"aut\", email = \"joe@rstudio.com\"),\n    person(\"Carson\", \"Sievert\", role = c(\"aut\", \"cre\"),\n    email = \"carson@rstudio.com\", comment = c(ORCID = \"0000-0002-4958-2844\")),\n    person(family = \"RStudio\", role = \"cph\"),\n    person(family = \"jQuery Foundation\", role = \"cph\",\n    comment = \"jQuery library and jQuery UI library\"),\n    person(family = \"jQuery contributors\", role = c(\"ctb\", \"cph\"),\n    comment = \"jQuery library; authors listed in inst/www/shared/jquery-AUTHORS.txt\"),\n    person(\"Mark\", \"Otto\", role = \"ctb\",\n    comment = \"Bootstrap library\"),\n    person(\"Jacob\", \"Thornton\", role = \"ctb\",\n    comment = \"Bootstrap library\"),\n    person(family = \"Bootstrap contributors\", role = \"ctb\",\n    comment = \"Bootstrap library\"),\n    person(family = \"Twitter, Inc\", role = \"cph\",\n    comment = \"Bootstrap library\"),\n    person(\"Brian\", \"Reavis\", role = c(\"ctb\", \"cph\"),\n    comment = \"selectize.js library\"),\n    person(\"Kristopher Michael\", \"Kowal\", role = c(\"ctb\", \"cph\"),\n    comment = \"es5-shim library\"),\n    person(family = \"es5-shim contributors\", role = c(\"ctb\", \"cph\"),\n    comment = \"es5-shim library\"),\n    person(\"Denis\", \"Ineshin\", role = c(\"ctb\", \"cph\"),\n    comment = \"ion.rangeSlider library\"),\n    person(\"Sami\", \"Samhuri\", role = c(\"ctb\", \"cph\"),\n    comment = \"Javascript strftime library\")\n    )",
+        "Description": "Provides building blocks for allowing HTML widgets to communicate\n    with each other, with Shiny or without (i.e. static .html files). Currently\n    supports linked brushing and filtering.",
+        "License": "MIT + file LICENSE",
+        "Imports": "htmltools (>= 0.3.6), jsonlite, lazyeval, R6",
+        "Suggests": "shiny, ggplot2, testthat (>= 2.1.0)",
+        "URL": "https://rstudio.github.io/crosstalk/",
+        "BugReports": "https://github.com/rstudio/crosstalk/issues",
+        "RoxygenNote": "7.1.1",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-01-11 23:28:16 UTC; cpsievert",
+        "Author": "Joe Cheng [aut],\n  Carson Sievert [aut, cre] (<https://orcid.org/0000-0002-4958-2844>),\n  RStudio [cph],\n  jQuery Foundation [cph] (jQuery library and jQuery UI library),\n  jQuery contributors [ctb, cph] (jQuery library; authors listed in\n    inst/www/shared/jquery-AUTHORS.txt),\n  Mark Otto [ctb] (Bootstrap library),\n  Jacob Thornton [ctb] (Bootstrap library),\n  Bootstrap contributors [ctb] (Bootstrap library),\n  Twitter, Inc [cph] (Bootstrap library),\n  Brian Reavis [ctb, cph] (selectize.js library),\n  Kristopher Michael Kowal [ctb, cph] (es5-shim library),\n  es5-shim contributors [ctb, cph] (es5-shim library),\n  Denis Ineshin [ctb, cph] (ion.rangeSlider library),\n  Sami Samhuri [ctb, cph] (Javascript strftime library)",
+        "Maintainer": "Carson Sievert <carson@rstudio.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-01-12 10:00:02 UTC",
+        "Built": "R 3.6.3; ; 2021-01-13 20:01:52 UTC; unix"
+      }
+    },
     "curl": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -2252,6 +2282,35 @@
         "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2020-09-02 23:13:37 UTC; unix"
       }
     },
+    "lazyeval": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "lazyeval",
+        "Version": "0.2.2",
+        "Title": "Lazy (Non-Standard) Evaluation",
+        "Description": "An alternative approach to non-standard evaluation using\n    formulas. Provides a full implementation of LISP style 'quasiquotation',\n    making it easier to generate code with other code.",
+        "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", ,\"hadley@rstudio.com\", c(\"aut\", \"cre\")),\n    person(\"RStudio\", role = \"cph\")\n    )",
+        "License": "GPL-3",
+        "LazyData": "true",
+        "Depends": "R (>= 3.1.0)",
+        "Suggests": "knitr, rmarkdown (>= 0.2.65), testthat, covr",
+        "VignetteBuilder": "knitr",
+        "RoxygenNote": "6.1.1",
+        "NeedsCompilation": "yes",
+        "Packaged": "2019-03-15 14:18:01 UTC; lionel",
+        "Author": "Hadley Wickham [aut, cre],\n  RStudio [cph]",
+        "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2019-03-15 17:50:07 UTC",
+        "Encoding": "UTF-8",
+        "Built": "R 3.6.2; x86_64-pc-linux-gnu; 2019-12-20 18:02:23 UTC; unix"
+      }
+    },
     "lifecycle": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -2720,6 +2779,37 @@
         "Repository": "RSPM",
         "Date/Publication": "2020-05-29 05:10:08 UTC",
         "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2020-06-01 12:48:17 UTC; unix"
+      }
+    },
+    "plotly": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "plotly",
+        "Title": "Create Interactive Web Graphics via 'plotly.js'",
+        "Version": "4.9.3",
+        "Authors@R": "c(person(\"Carson\", \"Sievert\", role = c(\"aut\", \"cre\"),\n    email = \"cpsievert1@gmail.com\", comment = c(ORCID = \"0000-0002-4958-2844\")),\n    person(\"Chris\", \"Parmer\", role = \"aut\",\n    email = \"chris@plot.ly\"),\n    person(\"Toby\", \"Hocking\", role = \"aut\",\n    email = \"tdhock5@gmail.com\"),\n    person(\"Scott\", \"Chamberlain\", role = \"aut\",\n    email = \"myrmecocystus@gmail.com\"),\n    person(\"Karthik\", \"Ram\", role = \"aut\",\n    email = \"karthik.ram@gmail.com\"),\n    person(\"Marianne\", \"Corvellec\", role = \"aut\",\n    email = \"marianne.corvellec@igdore.org\", comment = c(ORCID = \"0000-0002-1994-3581\")),\n    person(\"Pedro\", \"Despouy\", role = \"aut\",\n    email = \"pedro@plot.ly\"),\n    person(\"Salim\", \"Brüggemann\", role = \"ctb\",\n    email = \"salim-b@pm.me\", comment = c(ORCID = \"0000-0002-5329-5987\")),\n    person(\"Plotly Technologies Inc.\", role = \"cph\"))",
+        "License": "MIT + file LICENSE",
+        "Description": "Create interactive web graphics from 'ggplot2' graphs and/or a custom interface to the (MIT-licensed) JavaScript library 'plotly.js' inspired by the grammar of graphics.",
+        "URL": "https://plotly-r.com, https://github.com/ropensci/plotly#readme,\nhttps://plotly.com/r/",
+        "BugReports": "https://github.com/ropensci/plotly/issues",
+        "Depends": "R (>= 3.2.0), ggplot2 (>= 3.0.0)",
+        "Imports": "tools, scales, httr (>= 1.3.0), jsonlite (>= 1.6), magrittr,\ndigest, viridisLite, base64enc, htmltools (>= 0.3.6),\nhtmlwidgets (>= 1.5.2.9001), tidyr, RColorBrewer, dplyr, vctrs,\ntibble, lazyeval (>= 0.2.0), rlang, crosstalk, purrr,\ndata.table, promises",
+        "Suggests": "MASS, maps, hexbin, ggthemes, GGally, testthat, knitr,\ndevtools, shiny (>= 1.1.0), shinytest (>= 1.3.0), curl,\nrmarkdown, vdiffr, Cairo, broom, webshot, listviewer,\ndendextend, sf, maptools, rgeos, png, IRdisplay, processx,\nplotlyGeoAssets, forcats, palmerpenguins",
+        "LazyData": "true",
+        "RoxygenNote": "7.1.1",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-01-04 18:33:10 UTC; cpsievert",
+        "Author": "Carson Sievert [aut, cre] (<https://orcid.org/0000-0002-4958-2844>),\n  Chris Parmer [aut],\n  Toby Hocking [aut],\n  Scott Chamberlain [aut],\n  Karthik Ram [aut],\n  Marianne Corvellec [aut] (<https://orcid.org/0000-0002-1994-3581>),\n  Pedro Despouy [aut],\n  Salim Brüggemann [ctb] (<https://orcid.org/0000-0002-5329-5987>),\n  Plotly Technologies Inc. [cph]",
+        "Maintainer": "Carson Sievert <cpsievert1@gmail.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-01-10 14:30:02 UTC",
+        "Built": "R 3.6.3; ; 2021-01-11 23:45:00 UTC; unix"
       }
     },
     "plyr": {
@@ -4387,7 +4477,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "8674be1d9158be2cc58a372d47fb8da6"
+      "checksum": "d6bb3eb2c50ea63b0eb392ec51f9ad0d"
     },
     "packrat/desc/askpass": {
       "checksum": "c6570d743f523d378138d1d5e3025393"
@@ -4454,6 +4544,9 @@
     },
     "packrat/desc/crayon": {
       "checksum": "c6da43e6a723b794fa957a9ef57a659f"
+    },
+    "packrat/desc/crosstalk": {
+      "checksum": "ae654113ed55b49608b389d99ade4bdf"
     },
     "packrat/desc/curl": {
       "checksum": "cd977d58e7bba71e5ee0bd969807f5dc"
@@ -4581,6 +4674,9 @@
     "packrat/desc/lattice": {
       "checksum": "8888bcf59991c5244702b441d44652ad"
     },
+    "packrat/desc/lazyeval": {
+      "checksum": "d6a900e56a7d36273e0b079f6a8424cd"
+    },
     "packrat/desc/lifecycle": {
       "checksum": "59528064e79d6f03917abb2de538e3c6"
     },
@@ -4634,6 +4730,9 @@
     },
     "packrat/desc/pkgload": {
       "checksum": "6a1479863a52a646fdab4b8da4872b73"
+    },
+    "packrat/desc/plotly": {
+      "checksum": "e995fe1b4ebf46cf031e5a27c2791a26"
     },
     "packrat/desc/plyr": {
       "checksum": "ebe1d8797708bfa9c8ee56a96f16a601"
@@ -4801,22 +4900,22 @@
       "checksum": "ecf98c821df5535ec5c6c49ac036d22d"
     },
     "packrat/packrat.lock": {
-      "checksum": "8cdb035a22c93c21dbb6f45dc6c34128"
+      "checksum": "6e614894a4c44882eaa3cc8945c42588"
     },
     "R/explore_mod.R": {
-      "checksum": "034b4c442f8967b6a01f651fea77def3"
+      "checksum": "cc551422c0afac0ef780b2da1af8f9e2"
     },
     "R/global_utils.R": {
-      "checksum": "7ce82d03c3ce48234333490764ed3675"
+      "checksum": "dd8035c1daa5a1d6828fb35a60e87e5f"
     },
     "R/inequalities_mod.R": {
-      "checksum": "35a23c31d1dc8ecbc9dc2447416184a6"
+      "checksum": "da55042a7a2e52a3733b68867df2e1c4"
     },
     "R/key_mod.R": {
-      "checksum": "c550ce32bd48edf59616896f9f9f061a"
+      "checksum": "175cc94e02ac22403bc6a83342362655"
     },
     "R/report_utils.R": {
-      "checksum": "c7d48752c46c7f1fbe655ad6464680bf"
+      "checksum": "123efedc461dac8c7d0a93082e1421c8"
     },
     "www/img/logo_phei.png": {
       "checksum": "afe8f24410c4074479f2aa0c39a5ef6c"
