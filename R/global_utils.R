@@ -24,9 +24,8 @@ get_params <- function(board = board) {
   
 }
 
-get_data <- function(board = board, 
-                     params,
-                     data) {
+get_data <- function(data, 
+                     params) {
   
   output <- list()
   
@@ -40,7 +39,7 @@ get_data <- function(board = board,
     purrr::map_dfr(~ as.character(.))
   
   # survey data
-  output$data <- pin_get(params$data_pin, board = "rsconnect") %>%
+  output$data <- pin_get(data, board = "rsconnect") %>%
     mutate(
       imd_quintile = case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
       imd_quintile = case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),

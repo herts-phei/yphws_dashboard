@@ -122,7 +122,7 @@ inequalities_mod_server <- function(id,
                lower_ci = "lowercl.x")
         
         
-      }, height = function() {70 * (length(for_height()))})
+      }, height = function() {60 * (length(for_height()))})
       
       # Intro text --------------------------------------------------------------------
       

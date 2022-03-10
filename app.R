@@ -4,8 +4,6 @@
 library(tidyverse)
 library(rmarkdown)
 library(pins)
-library(echarts4r)
-library(reactable)
 library(shiny)
 library(tablerDash)
 library(shinyWidgets)
@@ -13,6 +11,9 @@ library(shinydashboard)
 library(shinydashboardPlus)
 library(shinybusy)
 library(bs4Dash)
+library(plotly)
+library(echarts4r)
+library(reactable)
 
 year <- "2021"
 board_register("rsconnect",
@@ -119,8 +120,8 @@ server <- function(input, output) {
   # --Load all data-----
   rv <- reactiveValues()
   rv$params <- get_params() # params
-  rv$data <- get_data(params = isolate(rv$params), data = isolate(params$data_pin)) # Raw data
-  rv$data_old <- get_data(params = isolate(rv$params), data = isolate(params$prev_data_pin)) # Raw data, previous. 
+  rv$data <- get_data(data = isolate(rv$params$data_pin), params = isolate(rv$params)) # Raw data
+  rv$data_old <- get_data(isolate(rv$params$prev_data_pin), params = isolate(rv$params)) # Raw data, previous. 
   
   # --Generate statistics using raw data
   observe({ 
@@ -129,6 +130,20 @@ server <- function(input, output) {
       group = input$comp,
       q_coded = rv$data$q_coded
     ) 
+    
+    # Last year's data
+    if (input$comp %in% rv$data_old$q_coded_prev$question_coded){
+      group_old <- input$comp 
+      } else { 
+        group_old <- "sex"
+      }
+    
+    rv$stats_old <- get_stats(
+      data = rv$data_old$data,
+      group = group_old,
+      q_coded = rv$data_old$q_coded_prev
+    )
+      
   })
   
   observe({
@@ -139,6 +154,19 @@ server <- function(input, output) {
     rv$diffs <- get_stats_diffs(stats = rv$stats, 
                                 levels = c("All Responses", sel_comp), 
                                 compare_to_all = F) # TODO
+    
+    # comparisons with last year
+    old <- rv$stats_old %>% 
+      mutate(breakdown = paste("Previous", breakdown)) %>% 
+      filter(!is.na(breakdown))
+    
+    rv$diffs_w_old <- get_stats_diffs(stats = bind_rows(old, rv$stats), 
+                            levels = c("All Responses", unique(old$breakdown), sel_comp),
+                            compare_to_all = T) %>% 
+      mutate(question_text.x = case_when(is.na(question_text.x) ~ question_text.y, 
+                                         TRUE ~ question_text.x))
+
+    
   })
   
   # Key Points --------------------------------------------------------------
@@ -151,9 +179,11 @@ server <- function(input, output) {
 
   explore_mod_server("explore",
                      stats = reactive(rv$stats),
+                     stats_old = reactive(rv$stats_old),
                      diffs = reactive(rv$diffs),
                      comp = reactive(input$comp),
-                     q_coded = reactive(rv$data$q_coded))
+                     q_coded = reactive(rv$data$q_coded),
+                     q_coded_old = reactive(rv$data_old$q_coded_prev))
 
   # Inequalities ------------------------------------------------------------
   

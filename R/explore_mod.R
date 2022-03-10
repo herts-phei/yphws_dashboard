@@ -44,9 +44,11 @@ explore_mod <- function(id,
 
 explore_mod_server <- function(id,
                                stats,
+                               stats_old,
                                diffs,
                                comp,
-                               q_coded) {
+                               q_coded,
+                               q_coded_old) {
   
   moduleServer(
     id,
@@ -80,9 +82,8 @@ explore_mod_server <- function(id,
       # Data --------------------------------------------------------------------
       
       chk_var <- reactive({
-        
+
         q_coded <- q_coded()
-        
         # vector of selected vars
         single <- q_coded %>% 
           filter(question_theme %in% input$domains)
@@ -99,15 +100,20 @@ explore_mod_server <- function(id,
       # filtered datasets
       chk_stats <- reactive({
         stats <- stats()
-        
         stats %>% 
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
           filter(question_coded_gen %in% chk_var())
           
         })
       
+      chk_stats_old <- reactive({
+        stats_old <- stats_old()
+        stats_old %>%
+          left_join(select(q_coded_old(), -question_text), by = c("question" = "question_coded")) %>%
+          filter(question_coded_gen %in% chk_var())
+      })
+      
       chk_diff <- reactive({
-        stats <- stats()
         diffs <- diffs()
         diffs %>% 
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
@@ -118,6 +124,7 @@ explore_mod_server <- function(id,
       boxes <- reactive({
         
         stats <- stats()
+        stats_old <- stats_old()
         diffs <- diffs()
         comp <- comp()
         q_coded <- q_coded()
@@ -127,6 +134,12 @@ explore_mod_server <- function(id,
           
           # Current question
           current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+          current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
+            mutate(multi_cat = as.logical(multi_cat),
+                   multi_binary = as.logical(multi_binary),
+                   year = "2021") %>% 
+            bind_rows(mutate(current, year = "2020"))  
+          
           multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
           
@@ -135,6 +148,8 @@ explore_mod_server <- function(id,
             int_plot <- create_multi_plot(df = current,
                                           plot_title = "",
                                           binary = multi_bin)
+            
+            trend_plot <- ""
             
             if(!multi_bin) {
               
@@ -163,12 +178,7 @@ explore_mod_server <- function(id,
               
             }
             
-            
           } else {
-            
-            int_plot <- create_basic_plot(df = current,
-                                          plot_custom_grp = unique(current$breakdown),
-                                          plot_title = "")
             
             text <- create_sum_sentence(dataset = current,
                                         multi = multi,
@@ -179,7 +189,28 @@ explore_mod_server <- function(id,
                                         group_of_interest = unique(current$breakdown)[2],
                                         q_coded = q_coded)
             
+            int_plot <- create_basic_plot(df = current,
+                                          plot_custom_grp = unique(current$breakdown),
+                                          plot_title = "")
+            
+            trend_plot <- current_old %>% 
+              ggplot(aes(x = response, y = value, group = year)) +
+              geom_bar(
+                aes(color = year, fill = year),
+                stat = "identity", position = position_dodge(0.8),
+                width = 0.7
+              ) +
+              geom_errorbar(aes(ymin = lowercl, ymax = uppercl, group = year), 
+                             width = 0.2, colour = "black", alpha = 0.5,
+                            position = position_dodge(0.95)) +
+              facet_wrap(~breakdown) +
+              theme_minimal()
+            
+            trend_plot <- ggplotly(trend_plot)
+
+            
           }
+          
           
 
           # --Create boxes --
@@ -193,6 +224,11 @@ explore_mod_server <- function(id,
                                                 ),
                                                 br(),
                                                 int_plot
+                                       ),
+                                       tabPanel(
+                                         "Trend",
+                                         br(),
+                                         trend_plot
                                        ),
                                        tabPanel(
                                          "Table", 
@@ -211,8 +247,7 @@ explore_mod_server <- function(id,
                                                        lowercl = colDef(maxWidth = 70),
                                                        uppercl = colDef(maxWidth = 70)
                                                      ))
-                                       )) 
-          )
+                                       )) )
         }
         
         return(l)
