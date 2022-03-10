@@ -179,11 +179,9 @@ server <- function(input, output) {
 
   explore_mod_server("explore",
                      stats = reactive(rv$stats),
-                     stats_old = reactive(rv$stats_old),
                      diffs = reactive(rv$diffs),
                      comp = reactive(input$comp),
-                     q_coded = reactive(rv$data$q_coded),
-                     q_coded_old = reactive(rv$data_old$q_coded_prev))
+                     q_coded = reactive(rv$data$q_coded))
 
   # Inequalities ------------------------------------------------------------
   

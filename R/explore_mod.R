@@ -17,13 +17,12 @@ explore_mod <- function(id,
   tablerTabItem(
     tabName = "ExploreData",
     fluidRow(
-      column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}"))
-             # tagList(
-             #   fluidRow(
-             #     tablerCard(width = 2, 
-             #                htmlOutput(ns("explore_links")))
-             #   )
-             #   )
+      column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
+             tagList(
+               fluidRow(
+                 tablerCard(width = 2, 
+                            htmlOutput(ns("explore_links")))
+               ))
       ),
       column(offset = 3, 10, 
              # pick survey topic
@@ -45,11 +44,9 @@ explore_mod <- function(id,
 
 explore_mod_server <- function(id,
                                stats,
-                               stats_old,
                                diffs,
                                comp,
-                               q_coded,
-                               q_coded_old) {
+                               q_coded) {
   
   moduleServer(
     id,
@@ -83,8 +80,9 @@ explore_mod_server <- function(id,
       # Data --------------------------------------------------------------------
       
       chk_var <- reactive({
-
+        
         q_coded <- q_coded()
+        
         # vector of selected vars
         single <- q_coded %>% 
           filter(question_theme %in% input$domains)
@@ -101,31 +99,25 @@ explore_mod_server <- function(id,
       # filtered datasets
       chk_stats <- reactive({
         stats <- stats()
+        
         stats %>% 
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
           filter(question_coded_gen %in% chk_var())
-          
-        })
-      
-      chk_stats_old <- reactive({
-        stats_old <- stats_old()
-        stats_old %>%
-          left_join(select(q_coded_old(), -question_text), by = c("question" = "question_coded")) %>%
-          filter(question_coded_gen %in% chk_var())
+        
       })
       
       chk_diff <- reactive({
+        stats <- stats()
         diffs <- diffs()
         diffs %>% 
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
           filter(question_coded_gen %in% chk_var())
-        })
+      })
       
       # Boxes -------------------------------------------------------------------
       boxes <- reactive({
         
         stats <- stats()
-        stats_old <- stats_old()
         diffs <- diffs()
         comp <- comp()
         q_coded <- q_coded()
@@ -135,20 +127,14 @@ explore_mod_server <- function(id,
           
           # Current question
           current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
-          current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
-            mutate(multi_cat = as.logical(multi_cat),
-                   multi_binary = as.logical(multi_binary),
-                   year = "2021") %>% 
-            bind_rows(mutate(current, year = "2020"))  
-          
           multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
           
           # --Create text and plots based on type of question--
           if (multi) { 
-            int_plot <- ""
-            
-            trend_plot <- ""
+            int_plot <- create_multi_plot(df = current,
+                                          plot_title = "",
+                                          binary = multi_bin)
             
             if(!multi_bin) {
               
@@ -177,7 +163,12 @@ explore_mod_server <- function(id,
               
             }
             
+            
           } else {
+            
+            int_plot <- create_basic_plot(df = current,
+                                          plot_custom_grp = unique(current$breakdown),
+                                          plot_title = "")
             
             text <- create_sum_sentence(dataset = current,
                                         multi = multi,
@@ -188,47 +179,20 @@ explore_mod_server <- function(id,
                                         group_of_interest = unique(current$breakdown)[2],
                                         q_coded = q_coded)
             
-            int_plot <- create_basic_plot(df = current,
-                                          plot_custom_grp = unique(current$breakdown),
-                                          plot_title = "")
-            
-            trend_plot <- current_old %>% 
-              ggplot(aes(x = response, y = value, group = year)) +
-              geom_bar(
-                aes(color = year, fill = year),
-                stat = "identity", position = position_dodge(0.8),
-                width = 0.7
-              ) +
-              geom_errorbar(aes(ymin = lowercl, ymax = uppercl, group = year), 
-                             width = 0.2, colour = "black", alpha = 0.5,
-                            position = position_dodge(0.95)) +
-              facet_wrap(~breakdown) +
-              theme_minimal()
-            
-            trend_plot <- ""
-
-            
           }
           
           
-
           # --Create boxes --
           l[[i]] <- tabItem("name", 
-                            bs4Dash::bs4TabCard(width = 12, side = "right", status = "success",
+                            bs4TabCard(width = 12, side = "right", status = "success",
                                        collapsible = FALSE, 
-                                       title = "",
-                                         #HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
+                                       title = HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
                                        tabPanel("Summary", 
                                                 HTML(
                                                   text
                                                 ),
                                                 br(),
                                                 int_plot
-                                       ),
-                                       tabPanel(
-                                         "Trend",
-                                         br(),
-                                         trend_plot
                                        ),
                                        tabPanel(
                                          "Table", 
@@ -247,7 +211,8 @@ explore_mod_server <- function(id,
                                                        lowercl = colDef(maxWidth = 70),
                                                        uppercl = colDef(maxWidth = 70)
                                                      ))
-                                       )) )
+                                       )) 
+          )
         }
         
         return(l)
@@ -255,36 +220,36 @@ explore_mod_server <- function(id,
         
       })
       
-
+      
       # TOC Links ---------------------------------------------------------------
-      # links <- reactive({
-      #   
-      #   stats <- stats()
-      #   diffs <- diffs()
-      #   comp <- comp()
-      #   q_coded <- q_coded()
-      #   
-      #   l <- list()
-      #   for (i in 1:length(chk_var())){
-      #     
-      #     # Current question
-      #     current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
-      #     
-      #     q_coded <- q_coded
-      #     text <- q_coded$question_coded_gen[q_coded$question_coded_gen %in% current$question_coded_gen] # for TOC
-      #     
-      #     l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
-      #     
-      #   }
-      #   
-      #   output <- paste(unlist(l), collapse = "")
-      #   
-      #   return(output)
-      #   
-      # })
+      links <- reactive({
+        
+        stats <- stats()
+        diffs <- diffs()
+        comp <- comp()
+        q_coded <- q_coded()
+        
+        l <- list()
+        for (i in 1:length(chk_var())){
+          
+          # Current question
+          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+          
+          q_coded <- q_coded
+          text <- q_coded$question_coded_gen[q_coded$question_coded_gen %in% current$question_coded_gen] # for TOC
+          
+          l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
+          
+        }
+        
+        output <- paste(unlist(l), collapse = "")
+        
+        return(output)
+        
+      })
       
       output$explore_boxes <- renderUI(boxes())
-      #output$explore_links <- renderText(links())
+      output$explore_links <- renderText(links())
       
     }
   )
