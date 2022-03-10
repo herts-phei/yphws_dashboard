@@ -143,18 +143,18 @@ server <- function(input, output) {
   
   # Key Points --------------------------------------------------------------
   
-  key_mod_server("key", 
+  key_mod_server("key",
                  stats = reactive(rv$stats),
                  comp = reactive(input$comp))
-  
+
   # Explore data --------------------------------------------------------------------
-  
+
   explore_mod_server("explore",
                      stats = reactive(rv$stats),
                      diffs = reactive(rv$diffs),
                      comp = reactive(input$comp),
                      q_coded = reactive(rv$data$q_coded))
-  
+
   # Inequalities ------------------------------------------------------------
   
   inequalities_mod_server("ineq",

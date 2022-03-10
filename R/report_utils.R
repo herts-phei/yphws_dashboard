@@ -400,7 +400,7 @@ tartan <- function(df,
                    axis.title.y = element_blank(),
                    legend.title = element_blank(),
                    panel.background = element_rect(fill = "#f8f8f8"),
-                   legend.position = "bottom")
+                   legend.position = "bottom") 
   
 }
 
