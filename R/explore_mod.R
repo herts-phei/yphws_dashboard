@@ -17,15 +17,15 @@ explore_mod <- function(id,
   tablerTabItem(
     tabName = "ExploreData",
     fluidRow(
-      column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}"))
-             # tagList(
-             #   fluidRow(
-             #     tablerCard(width = 2, 
-             #                htmlOutput(ns("explore_links")))
-             #   )
-             #   )
-      ),
-      column(offset = 3, 10, 
+      # column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
+      #        tagList(
+      #          fluidRow(
+      #            tablerCard(width = 2,
+      #                       htmlOutput(ns("explore_links")))
+      #          )
+      #          )
+      # ),
+      column(12, 
              # pick survey topic
              pickerInput(
                inputId = ns("domains"), 
