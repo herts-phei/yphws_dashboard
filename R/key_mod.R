@@ -57,8 +57,7 @@ key_mod_server <- function(id,
         tablerStatCard(
           value = max(value),
           title = "Been bullied",
-          width = 12, 
-          trend = -10 #TODO
+          width = 12
         )
         
       })
@@ -76,8 +75,7 @@ key_mod_server <- function(id,
         tablerStatCard(
           value = max(value),
           title = "Self-harmed",
-          width = 12,
-          trend = -10 #TODO
+          width = 12
         )
         
       })
@@ -95,8 +93,7 @@ key_mod_server <- function(id,
         tablerStatCard(
           value = max(value),
           title = "Regular smokers",
-          width = 12,
-          trend = -15 #TODO
+          width = 12
         )
         
       })
@@ -114,8 +111,7 @@ key_mod_server <- function(id,
         tablerStatCard(
           value = max(value),
           title = "Regular drug use",
-          width = 12,
-          trend = +20 #TODO
+          width = 12
         )
         
       })
@@ -133,8 +129,7 @@ key_mod_server <- function(id,
         tablerStatCard(
           value = max(value),
           title = "Domestic violence",
-          width = 12,
-          trend = -90 #TODO
+          width = 12
         )
         
       })
@@ -152,8 +147,7 @@ key_mod_server <- function(id,
         tablerStatCard(
           value = max(value),
           title = "Feel overweight",
-          width = 12,
-          trend = -10 #TODO
+          width = 12
         )
         
       })
