@@ -224,8 +224,8 @@ explore_mod_server <- function(id,
                                                          HTML(
                                                            text
                                                          ),
-                                                         br(),
-                                                         int_plot
+                                                         br()
+                                                         #int_plot
                                                 ),
                                                 tabPanel(
                                                   "Trend",
