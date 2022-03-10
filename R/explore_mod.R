@@ -216,7 +216,7 @@ explore_mod_server <- function(id,
           
           # --Create boxes --
           l[[i]] <- tabItem("name", 
-                            bs4TabCard(width = 12, side = "right", status = "success",
+                            tabBox(width = 12, side = "right", status = "success",
                                        collapsible = FALSE, 
                                        title = "",
                                        #HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
