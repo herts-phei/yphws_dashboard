@@ -69,6 +69,37 @@
         "Built": "R 3.6.3; ; 2021-01-19 13:55:50 UTC; unix"
       }
     },
+    "DT": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "DT",
+        "Type": "Package",
+        "Title": "A Wrapper of the JavaScript Library 'DataTables'",
+        "Version": "0.17",
+        "Authors@R": "c(\n    person(\"Yihui\", \"Xie\", email = \"xie@yihui.name\", role = c(\"aut\", \"cre\")),\n    person(\"Joe\", \"Cheng\", role = \"aut\"),\n    person(\"Xianying\", \"Tan\", role = \"aut\"),\n    person(\"JJ\", \"Allaire\", role = \"ctb\"),\n    person(\"Maximilian\", \"Girlich\", role = \"ctb\"),\n    person(\"Greg\", \"Freedman Ellis\", role = \"ctb\"),\n    person(\"Johannes\", \"Rauh\", role = \"ctb\"),\n    person(\"jQuery contributors\", role = c(\"ctb\", \"cph\"), comment = \"jQuery in htmlwidgets/lib\"),\n    person(\"SpryMedia Limited\", role = c(\"ctb\", \"cph\"), comment = \"DataTables in htmlwidgets/lib\"),\n    person(\"Brian\", \"Reavis\", role = c(\"ctb\", \"cph\"), comment = \"selectize.js in htmlwidgets/lib\"),\n    person(\"Leon\", \"Gersen\", role = c(\"ctb\", \"cph\"), comment = \"noUiSlider in htmlwidgets/lib\"),\n    person(\"Bartek\", \"Szopka\", role = c(\"ctb\", \"cph\"), comment = \"jquery.highlight.js in htmlwidgets/lib\"),\n    person(\"RStudio, PBC\", role = \"cph\")\n    )",
+        "Maintainer": "Yihui Xie <xie@yihui.name>",
+        "Description": "Data objects in R can be rendered as HTML tables using the\n    JavaScript library 'DataTables' (typically via R Markdown or Shiny). The\n    'DataTables' library has been included in this R package. The package name\n    'DT' is an abbreviation of 'DataTables'.",
+        "URL": "https://github.com/rstudio/DT",
+        "BugReports": "https://github.com/rstudio/DT/issues",
+        "License": "GPL-3 | file LICENSE",
+        "Imports": "htmltools (>= 0.3.6), htmlwidgets (>= 1.3), jsonlite (>=\n0.9.16), magrittr, crosstalk, promises",
+        "Suggests": "knitr (>= 1.8), rmarkdown, shiny (>= 1.2.0), testit",
+        "VignetteBuilder": "knitr",
+        "RoxygenNote": "7.1.1",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-01-05 05:27:09 UTC; yihui",
+        "Author": "Yihui Xie [aut, cre],\n  Joe Cheng [aut],\n  Xianying Tan [aut],\n  JJ Allaire [ctb],\n  Maximilian Girlich [ctb],\n  Greg Freedman Ellis [ctb],\n  Johannes Rauh [ctb],\n  jQuery contributors [ctb, cph] (jQuery in htmlwidgets/lib),\n  SpryMedia Limited [ctb, cph] (DataTables in htmlwidgets/lib),\n  Brian Reavis [ctb, cph] (selectize.js in htmlwidgets/lib),\n  Leon Gersen [ctb, cph] (noUiSlider in htmlwidgets/lib),\n  Bartek Szopka [ctb, cph] (jquery.highlight.js in htmlwidgets/lib),\n  RStudio, PBC [cph]",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-01-06 16:01:25 UTC",
+        "Built": "R 3.6.3; ; 2021-01-07 11:26:52 UTC; unix"
+      }
+    },
     "MASS": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -402,6 +433,38 @@
         "Built": "R 3.6.2; ; 2020-01-21 14:28:26 UTC; unix"
       }
     },
+    "bookdown": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "bookdown",
+        "Type": "Package",
+        "Title": "Authoring Books and Technical Documents with R Markdown",
+        "Version": "0.22",
+        "Authors@R": "c(\n    person(\"Yihui\", \"Xie\", role = c(\"aut\", \"cre\"), email = \"xie@yihui.name\", comment = c(ORCID = \"0000-0003-0645-5666\")),\n    person(\"JJ\", \"Allaire\", role = \"ctb\"),\n    person(\"Albert\", \"Kim\", role = \"ctb\"),\n    person(\"Alessandro\", \"Samuel-Rosa\", role = \"ctb\"),\n    person(\"Andrzej\", \"Oles\", role = \"ctb\"),\n    person(\"Atsushi\", \"Yasumoto\", role = \"ctb\", comment = c(ORCID = \"0000-0002-8335-495X\")),\n    person(\"Aust\", \"Frederik\", role = \"ctb\", comment = c(ORCID = \"0000-0003-4900-788X\")),\n    person(\"Bastiaan\", \"Quast\", role = \"ctb\"),\n    person(\"Ben\", \"Marwick\", role = \"ctb\"),\n    person(\"Chester\", \"Ismay\", role = \"ctb\"),\n    person(\"Christophe\", \"Dervieux\", role = \"ctb\"),\n    person(\"Clifton\", \"Franklund\", role = \"ctb\"),\n    person(\"Daniel\", \"Emaasit\", role = \"ctb\"),\n    person(\"David\", \"Shuman\", role = \"ctb\"),\n    person(\"Dean\", \"Attali\", role = \"ctb\"),\n    person(\"Drew\", \"Tyre\", role = \"ctb\"),\n    person(\"Ellis\", \"Valentiner\", role = \"ctb\"),\n    person(\"Frans\", \"van Dunne\", role = \"ctb\"),\n    person(\"Hadley\", \"Wickham\", role = \"ctb\"),\n    person(\"Jeff\", \"Allen\", role = \"ctb\"),\n    person(\"Jennifer\", \"Bryan\", role = \"ctb\"),\n    person(\"Jonathan\", \"McPhers\", role = \"ctb\"),\n    person(\"JooYoung\", \"Seo\", role=\"ctb\", comment = c(ORCID = \"0000-0002-4064-6012\")),\n    person(\"Joyce\", \"Robbins\", role = \"ctb\"),\n    person(\"Junwen\", \"Huang\", role = \"ctb\"),\n    person(\"Kevin\", \"Cheung\", role = \"ctb\"),\n    person(\"Kevin\", \"Ushey\", role = \"ctb\"),\n    person(\"Kim\", \"Seonghyun\", role = \"ctb\"),\n    person(\"Kirill\", \"Muller\", role = \"ctb\"),\n    person(\"Luciano\", \"Selzer\", role = \"ctb\"),\n    person(\"Matthew\", \"Lincoln\", role = \"ctb\"),\n    person(\"Maximilian\", \"Held\", role = \"ctb\"),\n    person(\"Michael\", \"Sachs\", role = \"ctb\"),\n    person(\"Michal\", \"Bojanowski\", role = \"ctb\"),\n    person(\"Nathan\", \"Werth\", role = \"ctb\"),\n    person(\"Noam\", \"Ross\", role = \"ctb\"),\n    person(\"Peter\", \"Hickey\", role = \"ctb\"),\n    person(\"Pedro Rafael D.\", \"Marinho\", role=\"ctb\", comment = c(ORCID = \"0000-0003-1591-8300\")),\n    person(\"Romain\", \"Lesur\", role = \"ctb\", comment = c(ORCID = \"0000-0002-0721-5595\")),\n    person(\"Sahir\", \"Bhatnagar\", role = \"ctb\"),\n    person(\"Shir\", \"Dekel\", role = \"ctb\", comment = c(ORCID = \"0000-0003-1773-2446\")),\n    person(\"Steve\", \"Simpson\", role = \"ctb\"),\n    person(\"Thierry\", \"Onkelinx\", role = \"ctb\", comment = c(ORCID = \"0000-0001-8804-4216\")),\n    person(\"Vincent\", \"Fulco\", role = \"ctb\"),\n    person(\"Yixuan\", \"Qiu\", role = \"ctb\"),\n    person(\"Zhuoer\", \"Dong\", role = \"ctb\"),\n    person(family = \"RStudio, PBC\", role = \"cph\"),\n    person(\"Bartek\", \"Szopka\", role = \"ctb\", comment = \"The jQuery Highlight plugin\"),\n    person(\"Zeno\", \"Rocha\", role = \"cph\", comment = \"clipboard.js library\"),\n    person(family = \"jQuery Foundation\", role = \"cph\", comment = \"jQuery library\"),\n    person(family = \"jQuery contributors\", role = c(\"ctb\", \"cph\"), comment = \"jQuery library; authors listed in inst/resources/AUTHORS\"),\n    person(family = \"MathQuill contributors\", role = \"ctb\", comment = \"The MathQuill library; authors listed in inst/resources/AUTHORS\"),\n    person(family = \"FriendCode Inc\", role = c(\"cph\", \"ctb\"), comment = \"The gitbook style, with modifications\")\n    )",
+        "Maintainer": "Yihui Xie <xie@yihui.name>",
+        "Description": "Output formats and utilities for authoring books and technical documents with R Markdown.",
+        "License": "GPL-3",
+        "Imports": "htmltools (>= 0.3.6), knitr (>= 1.22), rmarkdown (>= 2.6),\nxfun (>= 0.22), tinytex (>= 0.12), yaml (>= 2.1.19)",
+        "Suggests": "bslib (>= 0.2.4), downlit (>= 0.2.1), htmlwidgets, jsonlite,\nrstudioapi, miniUI, rsconnect (>= 0.4.3), servr (>= 0.13),\nshiny, tibble, testit (>= 0.9), tufte, xml2, webshot",
+        "URL": "https://github.com/rstudio/bookdown,\nhttps://pkgs.rstudio.com/bookdown/",
+        "BugReports": "https://github.com/rstudio/bookdown/issues",
+        "SystemRequirements": "Pandoc (>= 1.17.2)",
+        "RoxygenNote": "7.1.1",
+        "Encoding": "UTF-8",
+        "VignetteBuilder": "knitr",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-04-22 13:04:35 UTC; yihui",
+        "Author": "Yihui Xie [aut, cre] (<https://orcid.org/0000-0003-0645-5666>),\n  JJ Allaire [ctb],\n  Albert Kim [ctb],\n  Alessandro Samuel-Rosa [ctb],\n  Andrzej Oles [ctb],\n  Atsushi Yasumoto [ctb] (<https://orcid.org/0000-0002-8335-495X>),\n  Aust Frederik [ctb] (<https://orcid.org/0000-0003-4900-788X>),\n  Bastiaan Quast [ctb],\n  Ben Marwick [ctb],\n  Chester Ismay [ctb],\n  Christophe Dervieux [ctb],\n  Clifton Franklund [ctb],\n  Daniel Emaasit [ctb],\n  David Shuman [ctb],\n  Dean Attali [ctb],\n  Drew Tyre [ctb],\n  Ellis Valentiner [ctb],\n  Frans van Dunne [ctb],\n  Hadley Wickham [ctb],\n  Jeff Allen [ctb],\n  Jennifer Bryan [ctb],\n  Jonathan McPhers [ctb],\n  JooYoung Seo [ctb] (<https://orcid.org/0000-0002-4064-6012>),\n  Joyce Robbins [ctb],\n  Junwen Huang [ctb],\n  Kevin Cheung [ctb],\n  Kevin Ushey [ctb],\n  Kim Seonghyun [ctb],\n  Kirill Muller [ctb],\n  Luciano Selzer [ctb],\n  Matthew Lincoln [ctb],\n  Maximilian Held [ctb],\n  Michael Sachs [ctb],\n  Michal Bojanowski [ctb],\n  Nathan Werth [ctb],\n  Noam Ross [ctb],\n  Peter Hickey [ctb],\n  Pedro Rafael D. Marinho [ctb] (<https://orcid.org/0000-0003-1591-8300>),\n  Romain Lesur [ctb] (<https://orcid.org/0000-0002-0721-5595>),\n  Sahir Bhatnagar [ctb],\n  Shir Dekel [ctb] (<https://orcid.org/0000-0003-1773-2446>),\n  Steve Simpson [ctb],\n  Thierry Onkelinx [ctb] (<https://orcid.org/0000-0001-8804-4216>),\n  Vincent Fulco [ctb],\n  Yixuan Qiu [ctb],\n  Zhuoer Dong [ctb],\n  RStudio, PBC [cph],\n  Bartek Szopka [ctb] (The jQuery Highlight plugin),\n  Zeno Rocha [cph] (clipboard.js library),\n  jQuery Foundation [cph] (jQuery library),\n  jQuery contributors [ctb, cph] (jQuery library; authors listed in\n    inst/resources/AUTHORS),\n  MathQuill contributors [ctb] (The MathQuill library; authors listed in\n    inst/resources/AUTHORS),\n  FriendCode Inc [cph, ctb] (The gitbook style, with modifications)",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-04-22 13:50:02 UTC",
+        "Built": "R 3.6.3; ; 2021-04-23 11:34:15 UTC; unix"
+      }
+    },
     "box": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -432,6 +495,30 @@
         "Repository": "RSPM",
         "Date/Publication": "2021-09-13 10:30:02 UTC",
         "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2021-09-14 22:50:24 UTC; unix"
+      }
+    },
+    "brew": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "brew",
+        "Type": "Package",
+        "Title": "Templating Framework for Report Generation",
+        "Version": "1.0-6",
+        "Date": "2010-09-30",
+        "Author": "Jeffrey Horner",
+        "Maintainer": "Jeffrey Horner <jeffrey.horner@gmail.com>",
+        "Description": "brew implements a templating framework for mixing text and\n        R code for report generation. brew template syntax is similar\n        to PHP, Ruby's erb module, Java Server Pages, and Python's psp\n        module.",
+        "License": "GPL-2",
+        "Packaged": "2011-04-13 14:36:39 UTC; hornerj",
+        "Repository": "RSPM",
+        "Date/Publication": "2011-04-13 15:16:08",
+        "Encoding": "UTF-8",
+        "Built": "R 3.6.1; ; 2019-12-20 18:06:05 UTC; unix"
       }
     },
     "brio": {
@@ -852,6 +939,38 @@
         "Built": "R 3.6.3; ; 2020-05-25 19:01:44 UTC; unix"
       }
     },
+    "covr": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Encoding": "UTF-8",
+        "Package": "covr",
+        "Title": "Test Coverage for Packages",
+        "Version": "3.5.1",
+        "Authors@R": "c(\n    person(\"Jim\", \"Hester\", email = \"james.f.hester@gmail.com\", role = c(\"aut\", \"cre\")),\n    person(\"Willem\", \"Ligtenberg\", role = \"ctb\"),\n    person(\"Kirill\", \"Müller\", role = \"ctb\"),\n    person(\"Henrik\", \"Bengtsson\", role = \"ctb\"),\n    person(\"Steve\", \"Peak\", role = \"ctb\"),\n    person(\"Kirill\", \"Sevastyanenko\", role = \"ctb\"),\n    person(\"Jon\", \"Clayden\", role = \"ctb\"),\n    person(\"Robert\", \"Flight\", role = \"ctb\"),\n    person(\"Eric\", \"Brown\", role = \"ctb\"),\n    person(\"Brodie\", \"Gaslam\", role = \"ctb\"),\n    person(\"Will\", \"Beasley\", role = \"ctb\"),\n    person(\"Robert\", \"Krzyzanowski\", role = \"ctb\"),\n    person(\"Markus\", \"Wamser\", role = \"ctb\"),\n    person(\"Karl\", \"Forner\", role = \"ctb\"),\n    person(\"Gergely\", \"Daróczi\", role = \"ctb\"),\n    person(\"Jouni\", \"Helske\", role = \"ctb\"),\n    person(\"Kun\", \"Ren\", role = \"ctb\"),\n    person(\"Jeroen\", \"Ooms\", role = \"ctb\"),\n    person(\"Ken\", \"Williams\", role = \"ctb\"),\n    person(\"Chris\", \"Campbell\", role = \"ctb\"),\n    person(\"David\", \"Hugh-Jones\", role = \"ctb\"),\n    person(\"Qin\", \"Wang\", role = \"ctb\"),\n    person(\"Ivan\", \"Sagalaev\", role = c(\"ctb\", \"cph\"), comment = \"highlight.js library\"),\n    person(\"Mark\", \"Otto\", role = \"ctb\", comment = \"Bootstrap library\"),\n    person(\"Jacob\", \"Thornton\", role = \"ctb\", comment = \"Bootstrap library\"),\n    person(family = \"Bootstrap contributors\", role = \"ctb\", comment = \"Bootstrap library\"),\n    person(family = \"Twitter, Inc\", role = \"cph\", comment = \"Bootstrap library\")\n    )",
+        "Description": "Track and report code coverage for your package and (optionally)\n    upload the results to a coverage service like 'Codecov' <https://codecov.io> or\n    'Coveralls' <https://coveralls.io>. Code coverage is a measure of the amount of\n    code being exercised by a set of tests. It is an indirect measure of test\n    quality and completeness. This package is compatible with any testing\n    methodology or framework and tracks coverage of both R code and compiled\n    C/C++/FORTRAN code.",
+        "URL": "https://covr.r-lib.org, https://github.com/r-lib/covr",
+        "BugReports": "https://github.com/r-lib/covr/issues",
+        "Depends": "R (>= 3.1.0), methods",
+        "Imports": "digest, stats, utils, jsonlite, rex, httr, crayon, withr (>=\n1.0.2), yaml",
+        "Suggests": "R6, curl, knitr, rmarkdown, htmltools, DT (>= 0.2), testthat,\nrlang, rstudioapi (>= 0.2), xml2 (>= 1.0.0), parallel, memoise,\nmockery",
+        "License": "GPL-3",
+        "LazyData": "true",
+        "VignetteBuilder": "knitr",
+        "RoxygenNote": "7.1.0",
+        "NeedsCompilation": "yes",
+        "Packaged": "2020-09-16 20:09:53 UTC; jhester",
+        "Author": "Jim Hester [aut, cre],\n  Willem Ligtenberg [ctb],\n  Kirill Müller [ctb],\n  Henrik Bengtsson [ctb],\n  Steve Peak [ctb],\n  Kirill Sevastyanenko [ctb],\n  Jon Clayden [ctb],\n  Robert Flight [ctb],\n  Eric Brown [ctb],\n  Brodie Gaslam [ctb],\n  Will Beasley [ctb],\n  Robert Krzyzanowski [ctb],\n  Markus Wamser [ctb],\n  Karl Forner [ctb],\n  Gergely Daróczi [ctb],\n  Jouni Helske [ctb],\n  Kun Ren [ctb],\n  Jeroen Ooms [ctb],\n  Ken Williams [ctb],\n  Chris Campbell [ctb],\n  David Hugh-Jones [ctb],\n  Qin Wang [ctb],\n  Ivan Sagalaev [ctb, cph] (highlight.js library),\n  Mark Otto [ctb] (Bootstrap library),\n  Jacob Thornton [ctb] (Bootstrap library),\n  Bootstrap contributors [ctb] (Bootstrap library),\n  Twitter, Inc [cph] (Bootstrap library)",
+        "Maintainer": "Jim Hester <james.f.hester@gmail.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-09-16 21:10:13 UTC",
+        "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2020-09-17 10:52:03 UTC; unix"
+      }
+    },
     "cpp11": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -913,6 +1032,39 @@
         "Repository": "RSPM",
         "Date/Publication": "2021-02-08 19:50:02 UTC",
         "Built": "R 3.6.3; ; 2021-02-09 11:41:57 UTC; unix"
+      }
+    },
+    "credentials": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "credentials",
+        "Type": "Package",
+        "Title": "Tools for Managing SSH and Git Credentials",
+        "Version": "1.3.0",
+        "Authors@R": "person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), \n    email = \"jeroen@berkeley.edu\", comment = c(ORCID = \"0000-0002-4035-0289\"))",
+        "Description": "Setup and retrieve HTTPS and SSH credentials for use with 'git' and \n    other services. For HTTPS remotes the package interfaces the 'git-credential' \n    utility which 'git' uses to store HTTP usernames and passwords. For SSH \n    remotes we provide convenient functions to find or generate appropriate SSH \n    keys. The package both helps the user to setup a local git installation, and\n    also provides a back-end for git/ssh client libraries to authenticate with \n    existing user credentials.",
+        "License": "MIT + file LICENSE",
+        "SystemRequirements": "git (optional)",
+        "Encoding": "UTF-8",
+        "Imports": "openssl (>= 1.3), sys (>= 2.1), curl, jsonlite, askpass",
+        "Suggests": "testthat, knitr, rmarkdown",
+        "RoxygenNote": "7.1.1",
+        "VignetteBuilder": "knitr",
+        "Language": "en-US",
+        "URL": "https://docs.ropensci.org/credentials (website)\nhttps://github.com/r-lib/credentials",
+        "BugReports": "https://github.com/r-lib/credentials/issues",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-07-21 08:38:12 UTC; jeroen",
+        "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>)",
+        "Maintainer": "Jeroen Ooms <jeroen@berkeley.edu>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-07-21 09:10:06 UTC",
+        "Built": "R 3.6.3; ; 2021-01-27 23:23:48 UTC; unix"
       }
     },
     "crosstalk": {
@@ -1076,6 +1228,38 @@
         "Repository": "RSPM",
         "Date/Publication": "2018-05-01 20:48:05 UTC",
         "Built": "R 3.6.2; ; 2019-12-20 19:09:46 UTC; unix"
+      }
+    },
+    "devtools": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "devtools",
+        "Title": "Tools to Make Developing R Packages Easier",
+        "Version": "2.3.2",
+        "Authors@R": "\n    c(person(given = \"Hadley\",\n             family = \"Wickham\",\n             role = \"aut\"),\n      person(given = \"Jim\",\n             family = \"Hester\",\n             role = c(\"aut\", \"cre\"),\n             email = \"jim.hester@rstudio.com\"),\n      person(given = \"Winston\",\n             family = \"Chang\",\n             role = \"aut\"),\n      person(given = \"RStudio\",\n             role = \"cph\"),\n      person(given = \"R Core team\",\n             role = \"ctb\",\n             comment = \"Some namespace and vignette code extracted from base R\"))",
+        "Description": "Collection of package development tools.",
+        "License": "GPL (>= 2)",
+        "URL": "https://devtools.r-lib.org/, https://github.com/r-lib/devtools",
+        "BugReports": "https://github.com/r-lib/devtools/issues",
+        "Depends": "R (>= 3.0.2), usethis (>= 1.6.3)",
+        "Imports": "callr (>= 3.4.4), cli (>= 2.0.2), covr (>= 3.5.1), desc (>=\n1.2.0), DT (>= 0.15), ellipsis (>= 0.3.1), httr (>= 1.4.2),\njsonlite (>= 1.7.1), memoise (>= 1.1.0), pkgbuild (>= 1.1.0),\npkgload (>= 1.1.0), rcmdcheck (>= 1.3.3), remotes (>= 2.2.0),\nrlang (>= 0.4.7), roxygen2 (>= 7.1.1), rstudioapi (>= 0.11),\nrversions (>= 2.0.2), sessioninfo (>= 1.1.1), stats, testthat\n(>= 2.3.2), tools, utils, withr (>= 2.2.0)",
+        "Suggests": "BiocManager (>= 1.30.10), curl (>= 4.3), digest (>= 0.6.25),\nfoghorn (>= 1.3.1), gmailr (>= 1.0.0), knitr (>= 1.29), lintr\n(>= 2.0.1), MASS, mockery (>= 0.4.2), pingr (>= 2.0.1), pkgdown\n(>= 1.6.1), rhub (>= 1.1.1), rmarkdown (>= 2.3), spelling (>=\n2.1)",
+        "VignetteBuilder": "knitr",
+        "Encoding": "UTF-8",
+        "Language": "en-US",
+        "RoxygenNote": "7.1.1",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-09-17 19:11:59 UTC; jhester",
+        "Author": "Hadley Wickham [aut],\n  Jim Hester [aut, cre],\n  Winston Chang [aut],\n  RStudio [cph],\n  R Core team [ctb] (Some namespace and vignette code extracted from base\n    R)",
+        "Maintainer": "Jim Hester <jim.hester@rstudio.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-09-18 07:20:11 UTC",
+        "Built": "R 3.6.3; ; 2020-09-21 11:30:38 UTC; unix"
       }
     },
     "diffobj": {
@@ -1625,6 +1809,39 @@
         "Built": "R 3.6.3; ; 2020-11-02 11:54:18 UTC; unix"
       }
     },
+    "gert": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Type": "Package",
+        "Package": "gert",
+        "Title": "Simple Git Client for R",
+        "Version": "1.1.0",
+        "Authors@R": "c(\n    person(\"Jeroen\", \"Ooms\", role = c(\"aut\", \"cre\"), email = \"jeroen@berkeley.edu\",\n      comment = c(ORCID = \"0000-0002-4035-0289\")),\n    person(\"Jennifer\", \"Bryan\", role = \"ctb\", email = \"jenny@rstudio.com\",\n      comment = c(ORCID = \"0000-0002-6983-2759\")))",
+        "Description": "Simple git client for R based on 'libgit2' with support for SSH and \n    HTTPS remotes. All functions in 'gert' use basic R data types (such as vectors\n    and data-frames) for their arguments and return values. User credentials are\n    shared with command line 'git' through the git-credential store and ssh keys\n    stored on disk or ssh-agent. On Linux, a somewhat recent version of 'libgit2'\n    is required; we provide a 'PPA' for older Ubuntu 'LTS' versions. ",
+        "License": "MIT + file LICENSE",
+        "URL": "https://docs.ropensci.org/gert/ (website),\nhttps://github.com/r-lib/gert (devel), https://libgit2.org\n(upstream)",
+        "BugReports": "https://github.com/r-lib/gert/issues",
+        "Imports": "askpass, credentials (>= 1.2.1), openssl (>= 1.4.1),\nrstudioapi (>= 0.11), sys, zip (>= 2.1.0)",
+        "Suggests": "spelling, knitr, rmarkdown, testthat",
+        "VignetteBuilder": "knitr",
+        "Encoding": "UTF-8",
+        "RoxygenNote": "7.1.1",
+        "SystemRequirements": "libgit2 (>= 0.26): libgit2-devel (rpm) or\nlibgit2-dev (deb). A PPA is available for older Ubuntu LTS\nversions.",
+        "Language": "en-US",
+        "NeedsCompilation": "yes",
+        "Packaged": "2021-01-25 18:34:42 UTC; jeroen",
+        "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),\n  Jennifer Bryan [ctb] (<https://orcid.org/0000-0002-6983-2759>)",
+        "Maintainer": "Jeroen Ooms <jeroen@berkeley.edu>",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-01-25 21:50:09 UTC",
+        "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2021-01-27 23:24:57 UTC; unix"
+      }
+    },
     "ggplot2": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -1657,6 +1874,68 @@
         "Repository": "RSPM",
         "Date/Publication": "2020-12-30 15:30:02 UTC",
         "Built": "R 3.6.3; ; 2020-12-31 10:52:52 UTC; unix"
+      }
+    },
+    "gh": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "gh",
+        "Title": "'GitHub' 'API'",
+        "Version": "1.2.0",
+        "Authors@R": "\n    c(person(given = \"Gábor\",\n             family = \"Csárdi\",\n             role = c(\"cre\", \"ctb\"),\n             email = \"csardi.gabor@gmail.com\"),\n      person(given = \"Jennifer\",\n             family = \"Bryan\",\n             role = \"aut\"),\n      person(given = \"Hadley\",\n             family = \"Wickham\",\n             role = \"aut\"),\n      person(given = \"RStudio\",\n             role = c(\"cph\", \"fnd\")))",
+        "Description": "Minimal client to access the 'GitHub' 'API'.",
+        "License": "MIT + file LICENSE",
+        "URL": "https://gh.r-lib.org/, https://github.com/r-lib/gh#readme",
+        "BugReports": "https://github.com/r-lib/gh/issues",
+        "Imports": "cli (>= 2.0.1), gitcreds, httr (>= 1.2), ini, jsonlite",
+        "Suggests": "covr, knitr, rmarkdown, rprojroot, spelling, testthat (>=\n2.3.2), withr",
+        "VignetteBuilder": "knitr",
+        "Encoding": "UTF-8",
+        "Language": "en-US",
+        "LazyData": "true",
+        "RoxygenNote": "7.1.1.9000",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-11-27 13:28:47 UTC; gaborcsardi",
+        "Author": "Gábor Csárdi [cre, ctb],\n  Jennifer Bryan [aut],\n  Hadley Wickham [aut],\n  RStudio [cph, fnd]",
+        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-11-27 13:50:02 UTC",
+        "Built": "R 3.6.3; ; 2020-11-30 11:45:51 UTC; unix"
+      }
+    },
+    "gitcreds": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "gitcreds",
+        "Title": "Query 'git' Credentials from 'R'",
+        "Version": "0.1.1",
+        "Author": "Gábor Csárdi",
+        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+        "Description": "Query, set, delete credentials from the 'git' credential\n    store. Manage 'GitHub' tokens and other 'git' credentials. This package\n    is to be used by other packages that need to authenticate to 'GitHub'\n    and/or other 'git' repositories.",
+        "License": "MIT + file LICENSE",
+        "LazyData": "true",
+        "URL": "https://github.com/r-lib/gitcreds",
+        "BugReports": "https://github.com/r-lib/gitcreds/issues",
+        "RoxygenNote": "7.1.1.9000",
+        "Suggests": "codetools, testthat, knitr, mockery, oskeyring, rmarkdown,\nwithr",
+        "Encoding": "UTF-8",
+        "SystemRequirements": "git",
+        "VignetteBuilder": "knitr",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-12-04 13:45:29 UTC; gaborcsardi",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-12-04 14:00:03 UTC",
+        "Built": "R 3.6.3; ; 2020-12-07 11:48:01 UTC; unix"
       }
     },
     "glue": {
@@ -2064,6 +2343,36 @@
         "Built": "R 3.6.1; ; 2019-12-09 00:24:12 UTC; unix"
       }
     },
+    "ini": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "ini",
+        "Type": "Package",
+        "Title": "Read and Write '.ini' Files",
+        "Version": "0.3.1",
+        "Date": "2018-05-19",
+        "Author": "David Valentim Dias",
+        "Maintainer": "David Valentim Dias <dvdscripter@gmail.com>",
+        "Description": "Parse simple '.ini' configuration files to an structured list. Users\n  can manipulate this resulting list with lapply() functions. This same\n  structured list can be used to write back to file after modifications.",
+        "License": "GPL-3",
+        "URL": "https://github.com/dvdscripter/ini",
+        "BugReports": "https://github.com/dvdscripter/ini/issues",
+        "LazyData": "FALSE",
+        "RoxygenNote": "6.0.1",
+        "Suggests": "testthat",
+        "NeedsCompilation": "no",
+        "Packaged": "2018-05-19 23:19:45 UTC; CLIENTE",
+        "Repository": "RSPM",
+        "Date/Publication": "2018-05-20 03:26:39 UTC",
+        "Encoding": "UTF-8",
+        "Built": "R 3.6.2; ; 2019-12-20 18:09:14 UTC; unix"
+      }
+    },
     "isoband": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -2444,6 +2753,35 @@
         "Built": "R 3.6.2; x86_64-pc-linux-gnu; 2019-12-20 18:44:30 UTC; unix"
       }
     },
+    "memoise": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "memoise",
+        "Title": "Memoisation of Functions",
+        "Version": "2.0.0",
+        "Authors@R": "\n    c(person(given = \"Hadley\",\n             family = \"Wickham\",\n             role = \"aut\",\n             email = \"hadley@rstudio.com\"),\n      person(given = \"Jim\",\n             family = \"Hester\",\n             role = c(\"aut\", \"cre\"),\n             email = \"jim.hester@rstudio.com\"),\n      person(given = \"Winston\",\n             family = \"Chang\",\n             role = \"aut\",\n             email = \"winston@rstudio.com\"),\n      person(given = \"Kirill\",\n             family = \"Müller\",\n             role = \"aut\",\n             email = \"krlmlr+r@mailbox.org\"),\n      person(given = \"Daniel\",\n             family = \"Cook\",\n             role = \"aut\",\n             email = \"danielecook@gmail.com\"),\n      person(given = \"Mark\",\n             family = \"Edmondson\",\n             role = \"ctb\",\n             email = \"r@sunholo.com\"))",
+        "Description": "Cache the results of a function so that when you\n    call it again with the same arguments it returns the pre-computed\n    value.",
+        "License": "MIT + file LICENSE",
+        "URL": "https://github.com/r-lib/memoise",
+        "BugReports": "https://github.com/r-lib/memoise/issues",
+        "Imports": "rlang (>= 0.4.10), cachem",
+        "Suggests": "digest, aws.s3, covr, googleAuthR, googleCloudStorageR, httr,\ntestthat",
+        "Encoding": "UTF-8",
+        "RoxygenNote": "7.1.1",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-01-26 16:15:31 UTC; winston",
+        "Author": "Hadley Wickham [aut],\n  Jim Hester [aut, cre],\n  Winston Chang [aut],\n  Kirill Müller [aut],\n  Daniel Cook [aut],\n  Mark Edmondson [ctb]",
+        "Maintainer": "Jim Hester <jim.hester@rstudio.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-01-26 17:20:02 UTC",
+        "Built": "R 3.6.3; ; 2021-01-27 11:14:40 UTC; unix"
+      }
+    },
     "mgcv": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -2624,6 +2962,37 @@
         "Repository": "RSPM",
         "Date/Publication": "2020-09-18 12:00:02 UTC",
         "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2021-01-27 23:22:47 UTC; unix"
+      }
+    },
+    "pacman": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "pacman",
+        "Type": "Package",
+        "Title": "Package Management Tool",
+        "Version": "0.5.1",
+        "Authors@R": "c(person(\"Tyler\", \"Rinker\", role = c(\"aut\", \"cre\", \"ctb\"),\n        email = \"tyler.rinker@gmail.com\"), person(\"Dason\",\n        \"Kurkiewicz\", role = c(\"aut\", \"ctb\"), email =\n        \"dasonk@gmail.com\"), person(\"Keith\", \"Hughitt\", role =\n        c(\"ctb\")), person(\"Albert\", \"Wang\", role = c(\"ctb\")),\n        person(\"Garrick\", \"Aden-Buie\", role = c(\"ctb\")),\n        person(\"Albert\", \"Wang\", role = c(\"ctb\")),\n        person(\"Lukas\", \"Burk\", role = c(\"ctb\")))",
+        "Depends": "R (>= 3.5.0)",
+        "Imports": "remotes, methods, stats, utils",
+        "Suggests": "BiocManager, knitr, lattice, testthat (>= 0.9.0), XML",
+        "BugReports": "https://github.com/trinker/pacman/issues?state=open",
+        "Description": "Tools to more conveniently perform tasks associated with\n        add-on packages. pacman conveniently wraps library and package\n        related functions and names them in an intuitive and consistent\n        fashion.  It seeks to combine functionality from lower level\n        functions which can speed up workflow.",
+        "License": "GPL-2",
+        "URL": "https://github.com/trinker/pacman",
+        "RoxygenNote": "6.1.1",
+        "NeedsCompilation": "no",
+        "Packaged": "2019-03-11 01:37:03 UTC; trinker",
+        "Author": "Tyler Rinker [aut, cre, ctb],\n  Dason Kurkiewicz [aut, ctb],\n  Keith Hughitt [ctb],\n  Albert Wang [ctb],\n  Garrick Aden-Buie [ctb],\n  Albert Wang [ctb],\n  Lukas Burk [ctb]",
+        "Maintainer": "Tyler Rinker <tyler.rinker@gmail.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2019-03-11 11:50:07 UTC",
+        "Encoding": "UTF-8",
+        "Built": "R 3.6.2; ; 2019-12-20 17:55:46 UTC; unix"
       }
     },
     "pillar": {
@@ -2872,6 +3241,40 @@
         "Built": "R 3.6.1; ; 2019-12-20 18:29:05 UTC; unix"
       }
     },
+    "prettydoc": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "prettydoc",
+        "Type": "Package",
+        "Title": "Creating Pretty Documents from R Markdown",
+        "Version": "0.4.1",
+        "Date": "2021-01-10",
+        "Authors@R": "c(\n    person(\"Yixuan\", \"Qiu\", , \"yixuan.qiu@cos.name\", c(\"aut\", \"cre\")),\n    person(\"Jason\", \"Long\", , \"jlong@github.com\", \"ctb\",\n           comment = \"the Cayman, Tactile and Architect themes\"),\n    person(\"Renyuan\", \"Zou\", , \"zourenyuan@gmail.com\", \"ctb\",\n           comment = \"the Leonids theme\"),\n    person(\"Michael\", \"Rose\", role = \"ctb\",\n           comment = \"the HPSTR theme\"),\n    person(\"JJ\", \"Allaire\", , \"jj.allaire@gmail.com\", \"ctb\",\n           comment = \"pandoc template for rmarkdown\"),\n    person(\"Hadley\", \"Wickham\", , \"h.wickham@gmail.com\", \"ctb\",\n           comment = \"the html_vignette() function\"),\n    person(\"Yihui\", \"Xie\", , \"xie@yihui.name\", \"ctb\",\n           comment = \"the html_vignette() function\"),\n    person(\"Steve\", \"Matteson\", role = \"ctb\",\n           comment = \"the Open Sans fonts\"),\n    person(\"Emily\", \"Eisenberg\", role = \"ctb\",\n           comment = \"the KaTeX library\"),\n    person(\"Sophie\", \"Alpert\", role = \"ctb\",\n           comment = \"the KaTeX library\")\n    )",
+        "Description": "Creating tiny yet beautiful documents and vignettes from R\n    Markdown. The package provides the 'html_pretty' output format as an\n    alternative to the 'html_document' and 'html_vignette' engines that\n    convert R Markdown into HTML pages. Various themes and syntax highlight\n    styles are supported.",
+        "Imports": "rmarkdown (>= 1.17)",
+        "Suggests": "knitr, KernSmooth",
+        "SystemRequirements": "pandoc (>= 1.12.3)",
+        "VignetteBuilder": "knitr, rmarkdown",
+        "URL": "https://github.com/yixuan/prettydoc",
+        "BugReports": "https://github.com/yixuan/prettydoc/issues",
+        "License": "Apache License (>= 2.0)",
+        "Encoding": "UTF-8",
+        "LazyData": "true",
+        "RoxygenNote": "7.1.1",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-01-10 09:47:23 UTC; qyx",
+        "Author": "Yixuan Qiu [aut, cre],\n  Jason Long [ctb] (the Cayman, Tactile and Architect themes),\n  Renyuan Zou [ctb] (the Leonids theme),\n  Michael Rose [ctb] (the HPSTR theme),\n  JJ Allaire [ctb] (pandoc template for rmarkdown),\n  Hadley Wickham [ctb] (the html_vignette() function),\n  Yihui Xie [ctb] (the html_vignette() function),\n  Steve Matteson [ctb] (the Open Sans fonts),\n  Emily Eisenberg [ctb] (the KaTeX library),\n  Sophie Alpert [ctb] (the KaTeX library)",
+        "Maintainer": "Yixuan Qiu <yixuan.qiu@cos.name>",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-01-10 11:40:03 UTC",
+        "Built": "R 3.6.3; ; 2021-01-11 23:42:35 UTC; unix"
+      }
+    },
     "prettyunits": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -3084,6 +3487,35 @@
         "Repository": "RSPM",
         "Date/Publication": "2021-01-31 05:40:02 UTC",
         "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2021-02-01 12:42:08 UTC; unix"
+      }
+    },
+    "rcmdcheck": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "rcmdcheck",
+        "Title": "Run 'R CMD check' from 'R' and Capture Results",
+        "Version": "1.3.3",
+        "Author": "Gábor Csárdi",
+        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+        "Description": "Run 'R CMD check' from 'R' and capture the\n    results of the individual checks. Supports running checks in the\n    background, timeouts, pretty printing and comparing check results.",
+        "License": "MIT + file LICENSE",
+        "LazyData": "true",
+        "URL": "https://github.com/r-Lib/rcmdcheck#readme",
+        "BugReports": "https://github.com/r-Lib/rcmdcheck/issues",
+        "RoxygenNote": "6.1.1",
+        "Suggests": "covr, knitr, mockery, rmarkdown, testthat",
+        "Imports": "callr (>= 3.1.1.9000), cli (>= 1.1.0), crayon, desc (>=\n1.2.0), digest, pkgbuild, prettyunits, R6, rprojroot,\nsessioninfo (>= 1.1.1), utils, withr, xopen",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2019-05-07 11:39:19 UTC; gaborcsardi",
+        "Repository": "RSPM",
+        "Date/Publication": "2019-05-07 12:00:02 UTC",
+        "Built": "R 3.6.2; ; 2019-12-20 19:31:42 UTC; unix"
       }
     },
     "reactR": {
@@ -3301,6 +3733,38 @@
         "Built": "R 3.6.3; ; 2020-05-04 19:06:25 UTC; unix"
       }
     },
+    "remotes": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "remotes",
+        "Title": "R Package Installation from Remote Repositories, Including\n'GitHub'",
+        "Version": "2.2.0",
+        "Authors@R": "c(\n    person(\"Jim\", \"Hester\", , \"jim.hester@rstudio.com\", role = c(\"aut\", \"cre\")),\n    person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = c(\"aut\")),\n    person(\"Hadley\", \"Wickham\", role = c(\"aut\")),\n    person(\"Winston\", \"Chang\", role = \"aut\"),\n    person(\"RStudio\", role = \"cph\"),\n    person(\"Martin\", \"Morgan\", role = \"aut\"),\n    person(\"Dan\", \"Tenenbaum\", role = \"aut\"),\n    person(\"Mango Solutions\", role = \"cph\")\n    )",
+        "Description": "Download and install R packages stored in 'GitHub', 'GitLab', \n    'Bitbucket', 'Bioconductor', or plain 'subversion' or 'git' repositories. \n    This package provides the 'install_*' functions in 'devtools'. Indeed most \n    of the code was copied over from 'devtools'.",
+        "License": "GPL (>= 2)",
+        "URL": "https://remotes.r-lib.org, https://github.com/r-lib/remotes#readme",
+        "BugReports": "https://github.com/r-lib/remotes/issues",
+        "Imports": "methods, stats, tools, utils",
+        "Suggests": "brew, callr, codetools, curl, covr, git2r (>= 0.23.0), knitr,\nmockery, pkgbuild (>= 1.0.1), pingr, rmarkdown, rprojroot,\ntestthat, withr",
+        "Depends": "R (>= 3.0.0)",
+        "VignetteBuilder": "knitr",
+        "RoxygenNote": "7.1.1",
+        "SystemRequirements": "Subversion for install_svn, git for install_git",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-07-20 18:04:55 UTC; jhester",
+        "Author": "Jim Hester [aut, cre],\n  Gábor Csárdi [aut],\n  Hadley Wickham [aut],\n  Winston Chang [aut],\n  RStudio [cph],\n  Martin Morgan [aut],\n  Dan Tenenbaum [aut],\n  Mango Solutions [cph]",
+        "Maintainer": "Jim Hester <jim.hester@rstudio.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-07-21 08:40:07 UTC",
+        "Built": "R 3.6.3; ; 2020-07-23 12:13:30 UTC; unix"
+      }
+    },
     "reprex": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -3333,6 +3797,38 @@
         "Repository": "RSPM",
         "Date/Publication": "2021-04-02 18:20:02 UTC",
         "Built": "R 3.6.3; ; 2021-04-05 11:44:29 UTC; unix"
+      }
+    },
+    "rex": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "rex",
+        "Type": "Package",
+        "Title": "Friendly Regular Expressions",
+        "Version": "1.2.0",
+        "Authors@R": "c(\n    person(\"Kevin\", \"Ushey\", email = \"kevinushey@gmail.com\", role = \"aut\"),\n    person(\"Jim\", \"Hester\", email = \"james.f.hester@gmail.com\", role = c(\"aut\", \"cre\")),\n    person(\"Robert\", \"Krzyzanowski\", email = \"rkrzyzanowski@gmail.com\", role = \"aut\")\n    )",
+        "Maintainer": "Jim Hester <james.f.hester@gmail.com>",
+        "URL": "https://github.com/kevinushey/rex",
+        "BugReports": "https://github.com/kevinushey/rex/issues",
+        "Description": "A friendly interface for the construction of regular expressions.",
+        "Imports": "lazyeval",
+        "License": "MIT + file LICENSE",
+        "Suggests": "testthat, knitr, rmarkdown, dplyr, ggplot2, magrittr, Hmisc,\nstringr, rvest, roxygen2, covr",
+        "VignetteBuilder": "knitr",
+        "Collate": "'aaa.R' 'utils.R' 'escape.R' 'capture.R' 'character_class.R'\n'counts.R' 'lookarounds.R' 'match.R' 'or.R' 'rex-mode.R'\n'rex.R' 'shortcuts.R' 'wildcards.R' 'zzz.R'",
+        "RoxygenNote": "7.1.0",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-04-21 17:14:58 UTC; jhester",
+        "Author": "Kevin Ushey [aut],\n  Jim Hester [aut, cre],\n  Robert Krzyzanowski [aut]",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-04-21 18:20:06 UTC",
+        "Encoding": "UTF-8",
+        "Built": "R 3.6.3; ; 2020-04-23 11:53:11 UTC; unix"
       }
     },
     "rlang": {
@@ -3403,6 +3899,69 @@
         "Built": "R 3.6.3; ; 2021-09-21 22:54:23 UTC; unix"
       }
     },
+    "rmdformats": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "rmdformats",
+        "Maintainer": "Julien Barnier <julien.barnier@cnrs.fr>",
+        "Authors@R": "c(person(\"Julien\", \"Barnier\", email=\"julien.barnier@cnrs.fr\",\n    role=c(\"aut\",\"cre\")))",
+        "Version": "1.0.3",
+        "Date": "2021-10-06",
+        "License": "GPL (>= 2)",
+        "Encoding": "UTF-8",
+        "Title": "HTML Output Formats and Templates for 'rmarkdown' Documents",
+        "Description": "HTML formats and templates for 'rmarkdown' documents, with some extra\n    features such as automatic table of contents, lightboxed figures, dynamic\n    crosstab helper.",
+        "Imports": "knitr, rmarkdown, bookdown, htmltools",
+        "Suggests": "questionr, DT, palmerpenguins, ggplot2",
+        "URL": "https://github.com/juba/rmdformats",
+        "BugReports": "https://github.com/juba/rmdformats/issues",
+        "RoxygenNote": "7.1.1",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-10-06 09:49:22 UTC; julien",
+        "Author": "Julien Barnier [aut, cre]",
+        "Repository": "RSPM",
+        "Date/Publication": "2021-10-06 11:50:09 UTC",
+        "Built": "R 3.6.3; ; 2021-10-07 16:50:10 UTC; unix"
+      }
+    },
+    "roxygen2": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "roxygen2",
+        "Title": "In-Line Documentation for R",
+        "Version": "7.1.1",
+        "Authors@R": "\n    c(person(given = \"Hadley\",\n             family = \"Wickham\",\n             role = c(\"aut\", \"cre\", \"cph\"),\n             email = \"hadley@rstudio.com\",\n             comment = c(\"ORCID\" = \"0000-0003-4757-117X\")),\n      person(given = \"Peter\",\n             family = \"Danenberg\",\n             role = c(\"aut\", \"cph\"),\n             email = \"pcd@roxygen.org\"),\n      person(given = \"Gábor\",\n             family = \"Csárdi\",\n             role = c(\"aut\"),\n             email = \"csardi.gabor@gmail.com\"),\n      person(given = \"Manuel\",\n             family = \"Eugster\",\n             role = c(\"aut\", \"cph\")),\n      person(given = \"RStudio\",\n             role = \"cph\"))",
+        "Description": "Generate your Rd documentation, 'NAMESPACE' file,\n    and collation field using specially formatted comments. Writing\n    documentation in-line with code makes it easier to keep your\n    documentation up-to-date as your requirements change. 'Roxygen2' is\n    inspired by the 'Doxygen' system for C++.",
+        "License": "GPL (>= 2)",
+        "URL": "https://roxygen2.r-lib.org/, https://github.com/r-lib/roxygen2",
+        "BugReports": "https://github.com/r-lib/roxygen2/issues",
+        "Depends": "R (>= 3.2)",
+        "Imports": "brew, commonmark, desc (>= 1.2.0), digest, knitr, methods,\npkgload (>= 1.0.2), purrr (>= 0.3.3), R6 (>= 2.1.2), Rcpp (>=\n0.11.0), rlang, stringi, stringr (>= 1.0.0), utils, xml2",
+        "Suggests": "covr, devtools, rmarkdown, testthat (>= 2.1.0), R.methodsS3,\nR.oo",
+        "LinkingTo": "Rcpp",
+        "VignetteBuilder": "knitr",
+        "Encoding": "UTF-8",
+        "RoxygenNote": "7.1.0.9000",
+        "Language": "en-GB",
+        "NeedsCompilation": "yes",
+        "Packaged": "2020-06-26 21:30:42 UTC; hadley",
+        "Author": "Hadley Wickham [aut, cre, cph]\n    (<https://orcid.org/0000-0003-4757-117X>),\n  Peter Danenberg [aut, cph],\n  Gábor Csárdi [aut],\n  Manuel Eugster [aut, cph],\n  RStudio [cph]",
+        "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-06-27 14:50:02 UTC",
+        "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2021-01-20 12:19:27 UTC; unix"
+      }
+    },
     "rprojroot": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -3462,6 +4021,35 @@
         "Repository": "RSPM",
         "Date/Publication": "2020-11-12 21:50:02 UTC",
         "Built": "R 3.6.3; ; 2021-01-27 23:21:42 UTC; unix"
+      }
+    },
+    "rversions": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "rversions",
+        "Title": "Query 'R' Versions, Including 'r-release' and 'r-oldrel'",
+        "Version": "2.0.2",
+        "Authors@R": "\n    c(person(given = \"Gábor\",\n             family = \"Csárdi\",\n             role = c(\"aut\", \"cre\"),\n             email = \"csardi.gabor@gmail.com\"),\n      person(given = \"Jeroen\",\n             family = \"Ooms\",\n             role = \"ctb\",\n             email = \"jeroen.ooms@stat.ucla.edu\"),\n      person(given = \"R Consortium\",\n             role = \"fnd\"))",
+        "Description": "Query the main 'R' 'SVN' repository to find the\n    versions 'r-release' and 'r-oldrel' refer to, and also all previous\n    'R' versions and their release dates.",
+        "License": "MIT + file LICENSE",
+        "URL": "https://github.com/r-hub/rversions,\nhttps://r-hub.github.io/rversions",
+        "BugReports": "https://github.com/r-hub/rversions/issues",
+        "Imports": "curl, utils, xml2 (>= 1.0.0)",
+        "Suggests": "mockery, testthat",
+        "Encoding": "UTF-8",
+        "RoxygenNote": "7.0.1",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-05-25 08:34:27 UTC; gaborcsardi",
+        "Author": "Gábor Csárdi [aut, cre],\n  Jeroen Ooms [ctb],\n  R Consortium [fnd]",
+        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-05-25 09:00:03 UTC",
+        "Built": "R 3.6.3; ; 2020-05-26 12:41:48 UTC; unix"
       }
     },
     "rvest": {
@@ -3591,6 +4179,35 @@
         "Date/Publication": "2019-11-20 07:30:03 UTC",
         "Encoding": "UTF-8",
         "Built": "R 3.6.2; ; 2019-12-20 18:35:10 UTC; unix"
+      }
+    },
+    "sessioninfo": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "sessioninfo",
+        "Title": "R Session Information",
+        "Version": "1.1.1",
+        "Author": "Gábor Csárdi, R core, Hadley Wickham, Winston Chang,\n    Robert M Flight, Kirill Müller, Jim Hester",
+        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+        "Description": "Query and print information about the current R session.\n    It is similar to 'utils::sessionInfo()', but includes more information\n    about packages, and where they were installed from.",
+        "License": "GPL-2",
+        "LazyData": "true",
+        "URL": "https://github.com/r-lib/sessioninfo#readme",
+        "BugReports": "https://github.com/r-lib/sessioninfo/issues",
+        "RoxygenNote": "6.1.0",
+        "Suggests": "callr, covr, mockery, testthat",
+        "Imports": "cli, tools, utils, withr",
+        "Encoding": "UTF-8",
+        "NeedsCompilation": "no",
+        "Packaged": "2018-11-05 16:32:45 UTC; gaborcsardi",
+        "Repository": "RSPM",
+        "Date/Publication": "2018-11-05 17:20:02 UTC",
+        "Built": "R 3.6.2; ; 2019-12-20 19:17:46 UTC; unix"
       }
     },
     "shiny": {
@@ -4110,6 +4727,40 @@
         "Built": "R 3.6.3; ; 2021-11-05 11:16:02 UTC; unix"
       }
     },
+    "usethis": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "usethis",
+        "Title": "Automate Package and Project Setup",
+        "Version": "2.0.0",
+        "Authors@R": "\n    c(person(given = \"Hadley\",\n             family = \"Wickham\",\n             role = \"aut\",\n             email = \"hadley@rstudio.com\",\n             comment = c(ORCID = \"0000-0003-4757-117X\")),\n      person(given = \"Jennifer\",\n             family = \"Bryan\",\n             role = c(\"aut\", \"cre\"),\n             email = \"jenny@rstudio.com\",\n             comment = c(ORCID = \"0000-0002-6983-2759\")),\n      person(given = \"RStudio\",\n             role = c(\"cph\", \"fnd\")))",
+        "Description": "Automate package and project setup tasks that are\n    otherwise performed manually. This includes setting up unit testing,\n    test coverage, continuous integration, Git, 'GitHub', licenses,\n    'Rcpp', 'RStudio' projects, and more.",
+        "License": "MIT + file LICENSE",
+        "URL": "https://usethis.r-lib.org, https://github.com/r-lib/usethis",
+        "BugReports": "https://github.com/r-lib/usethis/issues",
+        "Depends": "R (>= 3.2)",
+        "Imports": "cli, clipr (>= 0.3.0), crayon, curl (>= 2.7), desc, fs (>=\n1.3.0), gert (>= 1.0.2), gh (>= 1.2.0), glue (>= 1.3.0),\njsonlite, lifecycle, purrr, rappdirs, rlang (>= 0.4.3),\nrprojroot (>= 1.2), rstudioapi, stats, utils, whisker, withr\n(>= 2.3.0), yaml",
+        "Suggests": "covr, knitr, magick, mockr, rmarkdown, roxygen2, spelling (>=\n1.2), styler (>= 1.2.0), testthat (>= 3.0.0)",
+        "RdMacros": "lifecycle",
+        "Encoding": "UTF-8",
+        "Language": "en-US",
+        "LazyData": "true",
+        "RoxygenNote": "7.1.1",
+        "Config/testthat/edition": "3",
+        "NeedsCompilation": "no",
+        "Packaged": "2020-12-10 05:02:44 UTC; jenny",
+        "Author": "Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),\n  Jennifer Bryan [aut, cre] (<https://orcid.org/0000-0002-6983-2759>),\n  RStudio [cph, fnd]",
+        "Maintainer": "Jennifer Bryan <jenny@rstudio.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2020-12-10 09:00:02 UTC",
+        "Built": "R 3.6.3; ; 2020-12-11 10:59:16 UTC; unix"
+      }
+    },
     "utf8": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -4290,6 +4941,34 @@
         "Built": "R 3.6.3; ; 2020-11-10 11:25:48 UTC; unix"
       }
     },
+    "whisker": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "whisker",
+        "Maintainer": "Edwin de Jonge <edwindjonge@gmail.com>",
+        "License": "GPL-3",
+        "Title": "{{mustache}} for R, Logicless Templating",
+        "Type": "Package",
+        "LazyLoad": "yes",
+        "Author": "Edwin de Jonge",
+        "Description": "Implements 'Mustache' logicless templating.",
+        "Version": "0.4",
+        "URL": "http://github.com/edwindj/whisker",
+        "Suggests": "markdown",
+        "RoxygenNote": "6.1.1",
+        "NeedsCompilation": "no",
+        "Packaged": "2019-08-28 07:26:51 UTC; edwin",
+        "Repository": "RSPM",
+        "Date/Publication": "2019-08-28 08:50:02 UTC",
+        "Encoding": "UTF-8",
+        "Built": "R 3.6.2; ; 2019-12-20 18:39:34 UTC; unix"
+      }
+    },
     "withr": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -4387,6 +5066,37 @@
         "Built": "R 3.6.3; x86_64-pc-linux-gnu; 2020-04-27 11:48:28 UTC; unix"
       }
     },
+    "xopen": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "xopen",
+        "Title": "Open System Files, 'URLs', Anything",
+        "Version": "1.0.0",
+        "Authors@R": "c(\n    person(\"Gábor\", \"Csárdi\",, \"csardi.gabor@gmail.com\", c(\"aut\", \"cre\")),\n    person(\"Fathi\", \"Boudra\", role = \"aut\"),\n    person(\"Rex\", \"Dieter\", role = \"aut\"),\n    person(\"Kevin\", \"Krammer\", role = \"aut\"),\n    person(\"Jeremy\", \"White\", role = \"aut\"))",
+        "Description": "Cross platform solution to open files, directories or 'URLs'\n    with their associated programs.",
+        "License": "MIT + file LICENSE",
+        "LazyData": "true",
+        "URL": "https://github.com/r-lib/xopen#readme",
+        "BugReports": "https://github.com/r-lib/xopen/issues",
+        "RoxygenNote": "6.1.0",
+        "Imports": "processx",
+        "Suggests": "ps, testthat",
+        "Encoding": "UTF-8",
+        "Depends": "R (>= 3.1)",
+        "NeedsCompilation": "no",
+        "Packaged": "2018-09-10 20:47:53 UTC; gaborcsardi",
+        "Author": "Gábor Csárdi [aut, cre],\n  Fathi Boudra [aut],\n  Rex Dieter [aut],\n  Kevin Krammer [aut],\n  Jeremy White [aut]",
+        "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
+        "Repository": "RSPM",
+        "Date/Publication": "2018-09-17 13:10:03 UTC",
+        "Built": "R 3.6.2; ; 2019-12-20 18:04:43 UTC; unix"
+      }
+    },
     "xtable": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -4477,7 +5187,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "7584b7012a404c7349b912871cca35a2"
+      "checksum": "a5a3bbdf4e0cd80a52ac6f9a5c63349e"
     },
     "packrat/desc/askpass": {
       "checksum": "c6570d743f523d378138d1d5e3025393"
@@ -4497,8 +5207,14 @@
     "packrat/desc/blob": {
       "checksum": "82489fb75de2c6e43599c806ae45f5c8"
     },
+    "packrat/desc/bookdown": {
+      "checksum": "f8d2f23f8173395464df3a8194e072af"
+    },
     "packrat/desc/box": {
       "checksum": "52af2344068984d4e9cd0d1c983712b5"
+    },
+    "packrat/desc/brew": {
+      "checksum": "1711999b33a3ad66b9a4100cc15f1c1b"
     },
     "packrat/desc/brio": {
       "checksum": "769cf9154a83e2f432f6a3e9b279432f"
@@ -4539,11 +5255,17 @@
     "packrat/desc/countrycode": {
       "checksum": "aca5e3301df7a08d99257d83f687756a"
     },
+    "packrat/desc/covr": {
+      "checksum": "5e58156531349f9e098008efe54a2654"
+    },
     "packrat/desc/cpp11": {
       "checksum": "7d999c36aa243b263a5253c3404d7b1f"
     },
     "packrat/desc/crayon": {
       "checksum": "c6da43e6a723b794fa957a9ef57a659f"
+    },
+    "packrat/desc/credentials": {
+      "checksum": "d8f3517e17bbcf218bedec2eff83768f"
     },
     "packrat/desc/crosstalk": {
       "checksum": "ae654113ed55b49608b389d99ade4bdf"
@@ -4563,6 +5285,9 @@
     "packrat/desc/desc": {
       "checksum": "ca44ebc0154ae66ee2d5c2b473803337"
     },
+    "packrat/desc/devtools": {
+      "checksum": "65e0a6dadab356b38c8d8ccdbe05a65e"
+    },
     "packrat/desc/diffobj": {
       "checksum": "be96b23a8ad8cbbe6999dbf71fedb415"
     },
@@ -4571,6 +5296,9 @@
     },
     "packrat/desc/dplyr": {
       "checksum": "fbda03c0d4a2c3eb8c36a7a0f34a6440"
+    },
+    "packrat/desc/DT": {
+      "checksum": "e0c3802cdbed0bbf452165259532745c"
     },
     "packrat/desc/dtplyr": {
       "checksum": "16b9c72ef0b6043744c6366b2f8d77c7"
@@ -4614,8 +5342,17 @@
     "packrat/desc/generics": {
       "checksum": "ad624b35102bbb30ba93b4ad4b21740e"
     },
+    "packrat/desc/gert": {
+      "checksum": "f65fee732c4d0db29ba4775b9ffbbc7a"
+    },
     "packrat/desc/ggplot2": {
       "checksum": "b8bf036f4416cc42ff926fa6cd8eef03"
+    },
+    "packrat/desc/gh": {
+      "checksum": "b71c047c92a5cc5f98dc9ed6e53c460c"
+    },
+    "packrat/desc/gitcreds": {
+      "checksum": "aabf7e2f0bc8af14c6c491f271099abb"
     },
     "packrat/desc/glue": {
       "checksum": "4a6711cfb370b1d0b274ef280799221b"
@@ -4652,6 +5389,9 @@
     },
     "packrat/desc/ids": {
       "checksum": "a6bc8052f11c6fe0cd085ed279c76226"
+    },
+    "packrat/desc/ini": {
+      "checksum": "912ac28b445fa0e533dbece47872e5c0"
     },
     "packrat/desc/isoband": {
       "checksum": "39b8700657b4f00964613d8b79e93fa4"
@@ -4695,6 +5435,9 @@
     "packrat/desc/Matrix": {
       "checksum": "0a33893f3c8d4a8676f48fbbe0e72926"
     },
+    "packrat/desc/memoise": {
+      "checksum": "cfcabc1416c72c352c7a8c7f0be721ab"
+    },
     "packrat/desc/mgcv": {
       "checksum": "45314093a66446c45761345ced7a08b5"
     },
@@ -4712,6 +5455,9 @@
     },
     "packrat/desc/openssl": {
       "checksum": "00549892d9170af23b7861d27a3883ba"
+    },
+    "packrat/desc/pacman": {
+      "checksum": "032b3bc9c6c31f83294ea1c5ada62e5b"
     },
     "packrat/desc/PHEindicatormethods": {
       "checksum": "61ee62b13aca7b91d64548954da166f6"
@@ -4740,6 +5486,9 @@
     "packrat/desc/praise": {
       "checksum": "cf6f1070f69efb6c4ce64e26e05d519b"
     },
+    "packrat/desc/prettydoc": {
+      "checksum": "e2b6f1ccbe84096d8c0f1e363e80d9e5"
+    },
     "packrat/desc/prettyunits": {
       "checksum": "80249b52689398d49d4b5642ef7eafdb"
     },
@@ -4763,6 +5512,9 @@
     },
     "packrat/desc/rappdirs": {
       "checksum": "89d48f2debe3da5006ff1337211d42ab"
+    },
+    "packrat/desc/rcmdcheck": {
+      "checksum": "f2ce7740274a8ed8502a6bb37aada7e5"
     },
     "packrat/desc/RColorBrewer": {
       "checksum": "630f34e02b4068812a2924a8e14aa3f2"
@@ -4788,8 +5540,14 @@
     "packrat/desc/rematch2": {
       "checksum": "6b84ba75469d95676ff6d0e0fb9a74bf"
     },
+    "packrat/desc/remotes": {
+      "checksum": "2fbead50c01ac28a7e5f32ba39d4b3aa"
+    },
     "packrat/desc/reprex": {
       "checksum": "4ea9e36ffbecb8780e2031a533395051"
+    },
+    "packrat/desc/rex": {
+      "checksum": "1282136d5bbbeb99004d573a17d67d9d"
     },
     "packrat/desc/rlang": {
       "checksum": "62f7d2f340f7f8b1cb523cd18ee3d833"
@@ -4797,11 +5555,20 @@
     "packrat/desc/rmarkdown": {
       "checksum": "b0824698225313a26f453fb9a86ad804"
     },
+    "packrat/desc/rmdformats": {
+      "checksum": "8b82d8b87d6c79720b4746ad53cc5472"
+    },
+    "packrat/desc/roxygen2": {
+      "checksum": "414f5ce21e7af022c0e06892f800db13"
+    },
     "packrat/desc/rprojroot": {
       "checksum": "e5ed96a8a374ed8e3c10729f2d9d11f5"
     },
     "packrat/desc/rstudioapi": {
       "checksum": "c5eb8daa3419a917fb4226937fdfa0da"
+    },
+    "packrat/desc/rversions": {
+      "checksum": "4a060075090fa50dfb4910a06db7a42c"
     },
     "packrat/desc/rvest": {
       "checksum": "fa750ceb8e587a11bc8e3f4784412dab"
@@ -4814,6 +5581,9 @@
     },
     "packrat/desc/selectr": {
       "checksum": "027a7818f0b0becc548b2f419e36e5c8"
+    },
+    "packrat/desc/sessioninfo": {
+      "checksum": "a7e10a6bacd6b26fc896c308d2c6f2d7"
     },
     "packrat/desc/shiny": {
       "checksum": "ac8629ac314408e566ff2cdc34459c4c"
@@ -4863,6 +5633,9 @@
     "packrat/desc/tinytex": {
       "checksum": "d1dcc85b888e9a7a1a4a92f45fa3bd01"
     },
+    "packrat/desc/usethis": {
+      "checksum": "66a696c1d2f42918ee39f635fa815ee0"
+    },
     "packrat/desc/utf8": {
       "checksum": "0b2c3d5a144b718a6082bc17722807af"
     },
@@ -4881,6 +5654,9 @@
     "packrat/desc/waldo": {
       "checksum": "fcddc52fca37abdce0b9257abe25e3f3"
     },
+    "packrat/desc/whisker": {
+      "checksum": "f7de6c7e179c5a09eb10f7ba79de2da1"
+    },
     "packrat/desc/withr": {
       "checksum": "39332fc31d4dabdc4ff9e1a34c5bde83"
     },
@@ -4889,6 +5665,9 @@
     },
     "packrat/desc/xml2": {
       "checksum": "55178ecedf0916035b8307484449da43"
+    },
+    "packrat/desc/xopen": {
+      "checksum": "a1e739609e2f986f105e74a2bb74ce55"
     },
     "packrat/desc/xtable": {
       "checksum": "88362337b93580887a3778291c879e09"
@@ -4900,10 +5679,10 @@
       "checksum": "ecf98c821df5535ec5c6c49ac036d22d"
     },
     "packrat/packrat.lock": {
-      "checksum": "6e614894a4c44882eaa3cc8945c42588"
+      "checksum": "0d68c8cf1cd1648c325008039529a667"
     },
     "R/explore_mod.R": {
-      "checksum": "7042b367f2fae52330bb25d8b8315b76"
+      "checksum": "e32d5f7f73d3f29e3d849202c4339bb3"
     },
     "R/global_utils.R": {
       "checksum": "dd8035c1daa5a1d6828fb35a60e87e5f"
@@ -4912,16 +5691,25 @@
       "checksum": "da55042a7a2e52a3733b68867df2e1c4"
     },
     "R/key_mod.R": {
-      "checksum": "175cc94e02ac22403bc6a83342362655"
+      "checksum": "dd385e2dd675ef4ec592bd4ad318f231"
     },
     "R/report_utils.R": {
-      "checksum": "1a501a88f3d5fa640ccd5c28cf47e25c"
+      "checksum": "2c87efa6327a0617e791a88d781acef9"
+    },
+    "test.Rmd": {
+      "checksum": "e257b0fd169a0ae595dd3dd3ab170d19"
     },
     "www/img/logo_phei.png": {
       "checksum": "afe8f24410c4074479f2aa0c39a5ef6c"
     },
     "www/img/logo.png": {
       "checksum": "2602c8f6c1577b9b1f7d44caeb329895"
+    },
+    "www/img/yphws_logo_centered.png": {
+      "checksum": "2382274ded8dbe175b5aeaaa5383306e"
+    },
+    "www/img/yphws_logo_horizontal.png": {
+      "checksum": "7801c1f98d5eec3882b5f4c44a81b080"
     },
     "www/img/yphws_logo.png": {
       "checksum": "a7a47dde1d86165cef8cb9888794e63a"

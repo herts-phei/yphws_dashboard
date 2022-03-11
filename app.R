@@ -91,8 +91,8 @@ ui <- tablerDashPage(
           )
         ),
         tablerCard(width = 12, title = "Data table",
-                   reactableOutput("export"),
-                   downloadButton("exp_table", "Export table")
+                   downloadButton("exp_table", "Export table"), 
+                   reactableOutput("export")
         )
         
       )
@@ -258,14 +258,29 @@ server <- function(input, output) {
   
   output$export <- renderReactable({
     
-    reactable(rv$stats)
-    
+    rv$stats %>% 
+      select(breakdown, question, question_text, response, count, denominator, value, lowercl, uppercl) %>% 
+      mutate(value = round(value, 2), 
+             lowercl = round(lowercl, 2), 
+             uppercl = round(uppercl, 2)) %>% 
+    reactable(filterable = TRUE)
     
   })
   
   output$exp_table <- downloadHandler(
+    
     filename = "data_table.csv",
-    content = function(con) { write.csv(rv$stats, con)}
+    content = function(con) { 
+      
+      data <- rv$stats %>% 
+        select(breakdown, question, question_text, response, count, denominator, value, lowercl, uppercl) %>% 
+        mutate(value = round(value, 2), 
+               lowercl = round(lowercl, 2), 
+               uppercl = round(uppercl, 2)) 
+      
+      write.csv(data, con)
+      
+      }
     
   )
   
