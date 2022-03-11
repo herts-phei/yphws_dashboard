@@ -91,7 +91,8 @@ ui <- tablerDashPage(
           )
         ),
         tablerCard(width = 12, title = "Data table",
-                   reactableOutput("export")
+                   reactableOutput("export"),
+                   downloadButton("exp_table", "Export table")
         )
         
       )
@@ -261,6 +262,12 @@ server <- function(input, output) {
     
     
   })
+  
+  output$exp_table <- downloadHandler(
+    filename = "data_table.csv",
+    content = function(con) { write.csv(rv$stats, con)}
+    
+  )
   
   
 }
