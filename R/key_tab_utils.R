@@ -11,8 +11,12 @@ create_trend_table <- function(stats,
                                 "question" = "prev_question",
                                 "response" = "prev_response")) %>%
     mutate(`2020` = round(as.numeric(prev_value), 2),
+           `2021` = round(as.numeric(`2021`), 2))
+  
+  table_df <- table_df %>% 
+    mutate(`2020` = case_when(is.na(`2020`) ~ 0, TRUE ~ `2020`),
+           `2020` = case_when(is.na(`2020`) ~ 0, TRUE ~ `2020`),
            Trend = `2021` - `2020`,
-           `2021` = round(as.numeric(`2021`), 2),
            question_merged = paste(question, ":", response)) %>%
     select(Indicator = question_merged, Group = breakdown, `2020`, `2021`, Trend)
   

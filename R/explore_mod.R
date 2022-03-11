@@ -74,9 +74,9 @@ explore_mod_server <- function(id,
       #               options = list(`live-search` = TRUE))
       # })
       
-      observe({
-        if ("Education" %in% input$domains ) {browser()}
-      })
+      # observe({
+      #   if ("Education" %in% input$domains ) {browser()}
+      # })
       
       # Data --------------------------------------------------------------------
       

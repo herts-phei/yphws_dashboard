@@ -113,11 +113,11 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  observe({
-    
-    if ("ethnicity" %in% input$comp) { browser() }
-    
-  })
+  # observe({
+  #   
+  #   if ("District" %in% input$comp) { browser() }
+  #   
+  # })
   
   # --Load all data-----
   rv <- reactiveValues()
