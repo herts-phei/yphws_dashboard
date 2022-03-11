@@ -4477,7 +4477,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "d6bb3eb2c50ea63b0eb392ec51f9ad0d"
+      "checksum": "7584b7012a404c7349b912871cca35a2"
     },
     "packrat/desc/askpass": {
       "checksum": "c6570d743f523d378138d1d5e3025393"
@@ -4903,7 +4903,7 @@
       "checksum": "6e614894a4c44882eaa3cc8945c42588"
     },
     "R/explore_mod.R": {
-      "checksum": "cc551422c0afac0ef780b2da1af8f9e2"
+      "checksum": "7042b367f2fae52330bb25d8b8315b76"
     },
     "R/global_utils.R": {
       "checksum": "dd8035c1daa5a1d6828fb35a60e87e5f"
@@ -4915,7 +4915,7 @@
       "checksum": "175cc94e02ac22403bc6a83342362655"
     },
     "R/report_utils.R": {
-      "checksum": "123efedc461dac8c7d0a93082e1421c8"
+      "checksum": "1a501a88f3d5fa640ccd5c28cf47e25c"
     },
     "www/img/logo_phei.png": {
       "checksum": "afe8f24410c4074479f2aa0c39a5ef6c"
