@@ -546,6 +546,13 @@ tartan <- function(df,
   
 }
 
+trend_plot <- function() {
+  
+  
+  
+  
+}
+
 # Tables ------------------------------------------------------------------
 
 create_tbl <- function(stats_diff, 

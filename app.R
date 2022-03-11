@@ -15,6 +15,7 @@ library(plotly)
 library(echarts4r)
 library(reactable)
 library(glue)
+library(plyr)
 
 year <- "2021"
 board_register("rsconnect",
@@ -35,7 +36,7 @@ ui <- tablerDashPage(
   title = "Dashboard", 
   navbar = tablerDashNav(
     id = "nav",
-    src = "img/yphws_logo.png",
+    src = "img/yphws_logo_horizontal.png",
     tablerNavMenu(id = "tabs",
                   pickerInput("comp", label = "Select what to group by",
                               choices = list("Sex" = "sex", 
@@ -43,9 +44,7 @@ ui <- tablerDashPage(
                                              "Ethnicity" = "ethnicity",
                                              "IMD Quintile" = "imd_quintile",
                                              "Sexuality" = "sexuality", 
-                                             "Child looked after" = "cla",
                                              "Young carer" = "caring", 
-                                             "Adopted" = "adopted", 
                                              "Smoker" = "smoke_ever",
                                              "Self-harm" = "selfharm_ever",
                                              "Bullied" = "bullied",
@@ -173,8 +172,12 @@ server <- function(input, output) {
   # Key Points --------------------------------------------------------------
   
   key_mod_server("key",
+                 data = reactive(rv$data$data),
+                 data_old = reactive(rv$data_old$data),
                  stats = reactive(rv$stats),
-                 comp = reactive(input$comp))
+                 stats_old = reactive(rv$stats_old),
+                 comp = reactive(input$comp)
+                 )
   
   # Explore data --------------------------------------------------------------------
   

@@ -20,17 +20,16 @@ explore_mod <- function(id,
       column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
              tagList(
                fluidRow(
-                 tablerCard(width = 2, 
+                 tablerCard(width = 2,
                             htmlOutput(ns("explore_links")))
                ))
       ),
       column(offset = 3, 10, 
-             # pick survey topic
              pickerInput(
                inputId = ns("domains"), 
                label = "Select health topic/s:", 
                choices = c(domains),
-               selected = "Safety", multiple = T
+               selected = "Living Conditions", multiple = T
              ),
              uiOutput(ns("explore_boxes")))
     )
@@ -137,8 +136,7 @@ explore_mod_server <- function(id,
           current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
             mutate(multi_cat = as.logical(multi_cat),
                    multi_binary = as.logical(multi_binary),
-                   year = "2021") %>% 
-            bind_rows(mutate(current, year = "2020"))  
+                   year = "2020")
           
           multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
@@ -149,7 +147,7 @@ explore_mod_server <- function(id,
                                           plot_title = "",
                                           binary = multi_bin)
             
-            trend_plot <- ""
+            trend_plot <- "In development for this question"
             
             if(!multi_bin) {
               
@@ -193,20 +191,31 @@ explore_mod_server <- function(id,
                                           plot_custom_grp = unique(current$breakdown),
                                           plot_title = "")
             
-            trend_plot <- current_old %>% 
-              ggplot(aes(x = response, y = value, group = year)) +
-              geom_bar(
-                aes(color = year, fill = year),
-                stat = "identity", position = position_dodge(0.8),
-                width = 0.7
-              ) +
-              geom_errorbar(aes(ymin = lowercl, ymax = uppercl, group = year), 
-                            width = 0.2, colour = "black", alpha = 0.5,
-                            position = position_dodge(0.95)) +
-              facet_wrap(~breakdown) +
-              theme_minimal()
+            # trend_plot <- current_old %>% 
+            #   ggplot(aes(x = response, y = value, group = year)) +
+            #   geom_bar(
+            #     aes(color = year, fill = year),
+            #     stat = "identity", position = position_dodge(0.8),
+            #     width = 0.7
+            #   ) +
+            #   geom_errorbar(aes(ymin = lowercl, ymax = uppercl, group = year), 
+            #                 width = 0.2, colour = "black", alpha = 0.5,
+            #                 position = position_dodge(0.95)) +
+            #   facet_wrap(~breakdown) +
+            #   theme_minimal()
             
-            trend_plot <- ggplotly(trend_plot)
+            current_old <- mutate(current_old, `2020` = value) %>% 
+              filter(grepl(response_of_interest, response), 
+                     year == 2020)
+            
+            names(current_old) <- paste0("prev_", names(current_old))
+            
+            stats_ <- current %>% 
+              filter(grepl(response_of_interest, response))
+            
+            trend_plot <- create_trend_table(stats = stats_,
+                               colors = c("#d9f3ff", "#006cdf"),
+                               stats_old = current_old)
             
             
           }
@@ -217,7 +226,7 @@ explore_mod_server <- function(id,
           l[[i]] <- tabItem("name", 
                             bs4TabCard(width = 12, side = "right", status = "success",
                                        collapsible = FALSE, 
-                                       title = HTML(paste0("<hr><br><a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
+                                       title = HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
                                        tabPanel("Summary", 
                                                 HTML(
                                                   text
@@ -258,31 +267,31 @@ explore_mod_server <- function(id,
       
       # TOC Links ---------------------------------------------------------------
       links <- reactive({
-        
+
         stats <- stats()
         diffs <- diffs()
         comp <- comp()
         q_coded <- q_coded()
-        
+
         l <- list()
         for (i in 1:length(chk_var())){
-          
+
           # Current question
           current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
-          
+
           q_coded <- q_coded
-          text <- q_coded$question_coded_gen[q_coded$question_coded_gen %in% current$question_coded_gen] # for TOC
-          
+          text <- q_coded$survey_text[q_coded$question_coded_gen %in% current$question_coded_gen][1] # for TOC
+
           l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
-          
+
         }
-        
+
         output <- paste(unlist(l), collapse = "")
-        
+
         return(output)
-        
+
       })
-      
+
       output$explore_boxes <- renderUI(boxes())
       output$explore_links <- renderText(links())
       
