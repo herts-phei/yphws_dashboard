@@ -75,7 +75,7 @@ explore_mod_server <- function(id,
       # })
       
       # observe({
-      #   if ("Education" %in% input$domains ) {browser()}
+      #   if ("COVID-19" %in% input$domains ) {browser()}
       # })
       
       # Data --------------------------------------------------------------------
@@ -204,23 +204,27 @@ explore_mod_server <- function(id,
             #   facet_wrap(~breakdown) +
             #   theme_minimal()
             
-            current_old <- mutate(current_old, `2020` = value) %>% 
-              filter(grepl(response_of_interest, response), 
-                     year == 2020)
-            
-            names(current_old) <- paste0("prev_", names(current_old))
-            
-            stats_ <- current %>% 
-              filter(grepl(response_of_interest, response))
-            
-            trend_plot <- create_trend_table(stats = stats_,
-                               colors = c("#d9f3ff", "#006cdf"),
-                               stats_old = current_old)
-            
-            
+            if (nrow(current_old) > 0) {
+              
+              current_old <- mutate(current_old, `2020` = value) %>% 
+                filter(grepl(response_of_interest, response), 
+                       year == 2020)
+              
+              names(current_old) <- paste0("prev_", names(current_old))
+              
+              stats_ <- current %>% 
+                filter(grepl(response_of_interest, response))
+              
+              trend_plot <- create_trend_table(stats = stats_,
+                                               colors = c("#d9f3ff", "#006cdf"),
+                                               stats_old = current_old)
+              
+            } else {
+              
+              trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+              
+            }
           }
-          
-          
           
           # --Create boxes --
           l[[i]] <- tabItem("name", 

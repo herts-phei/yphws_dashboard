@@ -203,7 +203,8 @@ key_mod_server <- function(id,
         
         stats %>% 
           filter(question == "smoke_ever",
-                 response == "I smoke regularly (once a week or more)") %>% 
+                 response == "I smoke regularly (once a week or more)",
+                 breakdown != "All Responses") %>% 
           e_charts(breakdown) %>% 
           e_pie(count, radius = c("50%", "70%")) %>% 
           e_tooltip("item") %>% 
@@ -219,7 +220,8 @@ key_mod_server <- function(id,
         
         stats %>% 
           filter(question == "drug_ever",
-                 response == "I take drugs regularly (once a week or more)") %>% 
+                 response == "I take drugs regularly (once a week or more)",
+                 breakdown != "All Responses") %>% 
           e_charts(breakdown) %>% 
           e_pie(count, radius = c("50%", "70%")) %>% 
           e_tooltip("item") %>% 
