@@ -128,11 +128,11 @@ inequalities_mod_server <- function(id,
       
       output$ineq_text <- renderText({
         paste0("This tab can be used to view significant differences between groups across different questions/indicators. ",
-               "A tartan rug plot will be created based off of the selected health topic/s. You can select which indicators (questions) ",
+               "A tartan rug plot will be created based of the selected health topic/s. You can select which indicators (questions) ",
                "under the selected health topic/s you'd like to be added to the tartan rug. Please allow a few seconds after selection ", 
                "for the plot to update. <br><br> As shown in the legend, values coloured yellow are statistically similar to ", 
                "All Responses, while values that are dark blue or light blue were found to be statistically lower or statistically ",
-               "higher compared to All Responses, respectively. The statistical significance is determined by comparing the 95% ",
+               "higher compared to All Responses respectively. The statistical significance is determined by comparing the 95% ",
                "confidence intervals (CI) between groups and All Responses, as calculated using methods used by Public Health England. ",
                "All values are presented in percentages. To view the values of 95% CIs, see the Explore Data tab or Export tab.")
       })
