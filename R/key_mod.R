@@ -138,7 +138,7 @@ key_mod_server <- function(id,
         
         tablerStatCard(
           value = value,
-          title = "From IMD Quintile 1",
+          title = "From IMD Quintile 1 (most deprived)",
           width = 12
         )
       })
