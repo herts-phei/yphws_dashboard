@@ -207,6 +207,8 @@ key_mod_server <- function(id,
                  breakdown != "All Responses") %>% 
           e_charts(breakdown) %>% 
           e_pie(count, radius = c("50%", "70%")) %>% 
+          e_labels(formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`);}")) %>% 
           e_tooltip("item") %>% 
           e_legend(bottom = 0) %>% 
           e_title("Regular smokers") %>% 
@@ -224,6 +226,8 @@ key_mod_server <- function(id,
                  breakdown != "All Responses") %>% 
           e_charts(breakdown) %>% 
           e_pie(count, radius = c("50%", "70%")) %>% 
+          e_labels(formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`);}")) %>% 
           e_tooltip("item") %>% 
           e_legend(bottom = 0) %>% 
           e_title("Regular drug use") %>% 
