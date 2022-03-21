@@ -2,7 +2,7 @@
 
 Project Status: Inactive
 
-# Summary 
+# Introduction
 
 This project is a public dashboard showing the yearly survey data from the Young People's Health & Wellbeing Survey broken down by different groups (e.g. sex, age, ethnicity) and compared to other groups. 
 
