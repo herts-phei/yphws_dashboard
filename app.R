@@ -113,27 +113,31 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  # observe({
-  #   
-  #   if ("District" %in% input$comp) { browser() }
-  #   
-  # })
+  observe({
+
+    if ("District" %in% input$comp) { browser() }
+
+  })
   
   # --Load all data-----
   rv <- reactiveValues()
   rv$params <- get_params() # params
-  rv$data <- get_data(data = isolate(rv$params$data_pin), params = isolate(rv$params)) # Raw data
-  rv$data_old <- get_data(isolate(rv$params$prev_data_pin), params = isolate(rv$params)) # Raw data, previous. 
+  rv$data <- get_data(data = isolate(rv$params$data_pin), params = isolate(rv$params)) # Raw data, cumulative yearly
+  #rv$data_old <- get_data(isolate(rv$params$prev_data_pin), params = isolate(rv$params)) # Raw data, previous. 
   
   # --Generate statistics using raw data
   observe({ 
+    data_current <- filter(rv$data$data, survey_year == rv$params$year)
     rv$stats <- get_stats(
-      data = rv$data$data,
+      data = data_current,
       group = input$comp,
       q_coded = rv$data$q_coded
     ) 
     
-    # Last year's data
+    # Previous years data
+    
+    data_prev <- filter(rv$data$data, survey_year == as.character(as.numeric(rv$params$year) - 1))
+    
     if (input$comp %in% rv$data_old$q_coded_prev$question_coded){
       group_old <- input$comp 
     } else { 
@@ -141,11 +145,10 @@ server <- function(input, output) {
     }
     
     rv$stats_old <- get_stats(
-      data = rv$data_old$data,
+      data = data_prev,
       group = group_old,
-      q_coded = rv$data_old$q_coded_prev
+      q_coded = rv$data$q_coded
     )
-    
   })
   
   observe({
@@ -175,9 +178,9 @@ server <- function(input, output) {
   
   key_mod_server("key",
                  data = reactive(rv$data$data),
-                 data_old = reactive(rv$data_old$data),
                  stats = reactive(rv$stats),
                  stats_old = reactive(rv$stats_old),
+                 q_coded = reactive(rv$data$q_coded),
                  comp = reactive(input$comp)
                  )
   
@@ -188,8 +191,7 @@ server <- function(input, output) {
                      stats_old = reactive(rv$stats_old),
                      diffs = reactive(rv$diffs),
                      comp = reactive(input$comp),
-                     q_coded = reactive(rv$data$q_coded),
-                     q_coded_old = reactive(rv$data_old$q_coded_prev))
+                     q_coded = reactive(rv$data$q_coded))
   
   # Inequalities ------------------------------------------------------------
   

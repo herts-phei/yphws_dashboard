@@ -68,13 +68,14 @@ inequalities_mod_server <- function(id,
 
         questions <- q_coded() %>%
           mutate(survey_text = as.character(survey_text)) %>%
-          filter(question_theme %in% input$ineq_domains)
+          filter(question_theme %in% input$ineq_domains, 
+                 response_of_interest == "TRUE")
 
         checkboxGroupInput(
           inputId = ns("ineq_questions"),
           label = "Choose the indicators:", 
-          choices = as.character(unique(questions$survey_text)),
-          selected = as.character(unique(questions$survey_text))
+          choices = as.character(unique(questions$question_response)),
+          selected = as.character(unique(questions$question_response))
         )
 
       })
@@ -90,23 +91,19 @@ inequalities_mod_server <- function(id,
         diffs <- diffs()
         
         df <- diffs %>% 
-          left_join(select(q_coded, -question_text), by = c("question" = "question_coded")) %>% 
-          filter(survey_text %in% input$ineq_questions) %>% 
-          group_by(breakdown.x, question, response) %>% 
-          filter(grepl(response_of_interest, response)) %>% 
-          ungroup()
+          left_join(select(q_coded, -question_text), by = c("question" = "question_coded", 
+                                                            "response" = "response")) %>% 
+          filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 
         
         categories <- as.character(unique(df$breakdown.x))
         categories <- categories[which(!grepl("All Responses", categories))]
-        
-        #themes <- params$domains
-        
+
         rug_df <- df %>% 
+          #filter(response %in% resp_interest) %>% 
           mutate(Timeperiod = as.character(params$year),
                  TimeperiodSortable = as.character(params$year),
                  value.x = as.numeric(gsub("%", "", as.character(value.x))),
-                 diff = ifelse(is.na(diff), "statistically similar", diff),
-                 question_response = paste0(question_text.x, ": '", response, "'"))
+                 diff = ifelse(is.na(diff), "statistically similar", diff)) 
         
         tartan(df = rug_df,
                indicators = unique(rug_df$question_response),

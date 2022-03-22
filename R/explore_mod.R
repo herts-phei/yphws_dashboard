@@ -25,11 +25,13 @@ explore_mod <- function(id,
                ))
       ),
       column(offset = 3, 10, 
-             pickerInput(
-               inputId = ns("domains"), 
-               label = "Select health topic/s:", 
-               choices = c(domains),
-               selected = "Living Conditions", multiple = T
+             shinyWidgets::prettyRadioButtons(
+               inputId = ns("domains"),
+               label = "Choose a topic:", 
+               choices = domains,
+               inline = TRUE, 
+               status = "danger",
+               fill = TRUE
              ),
              uiOutput(ns("explore_boxes")))
     )
@@ -74,9 +76,9 @@ explore_mod_server <- function(id,
       #               options = list(`live-search` = TRUE))
       # })
       
-      # observe({
-      #   if ("COVID-19" %in% input$domains ) {browser()}
-      # })
+      observe({
+        if ("COVID-19" %in% input$domains ) {browser()}
+      })
       
       # Data --------------------------------------------------------------------
       
@@ -100,7 +102,8 @@ explore_mod_server <- function(id,
       chk_stats <- reactive({
         stats <- stats()
         stats %>% 
-          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
+          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                              "response" = "response")) %>% 
           filter(question_coded_gen %in% chk_var())
         
       })
@@ -108,14 +111,16 @@ explore_mod_server <- function(id,
       chk_stats_old <- reactive({
         stats_old <- stats_old()
         stats_old %>%
-          left_join(select(q_coded_old(), -question_text), by = c("question" = "question_coded")) %>%
+          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                                  "response" = "response")) %>%
           filter(question_coded_gen %in% chk_var())
       })
       
       chk_diff <- reactive({
         diffs <- diffs()
         diffs %>% 
-          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded")) %>% 
+          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                                   "response" = "response")) %>% 
           filter(question_coded_gen %in% chk_var())
       })
       
@@ -207,13 +212,12 @@ explore_mod_server <- function(id,
             if (nrow(current_old) > 0) {
               
               current_old <- mutate(current_old, `2020` = value) %>% 
-                filter(grepl(response_of_interest, response), 
-                       year == 2020)
+                filter(response_of_interest == "TRUE")
               
               names(current_old) <- paste0("prev_", names(current_old))
               
               stats_ <- current %>% 
-                filter(grepl(response_of_interest, response))
+                filter(response_of_interest == "TRUE")
               
               trend_plot <- create_trend_table(stats = stats_,
                                                colors = c("#d9f3ff", "#006cdf"),
@@ -230,7 +234,7 @@ explore_mod_server <- function(id,
           l[[i]] <- tabItem("name", 
                             bs4TabCard(width = 12, side = "right", status = "success",
                                        collapsible = FALSE, 
-                                       title = HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", chk_var()[i],"<br>")),
+                                       title = HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", current$heading[1],"<br>")),
                                        tabPanel("Summary", 
                                                 HTML(
                                                   text
@@ -282,9 +286,8 @@ explore_mod_server <- function(id,
 
           # Current question
           current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
-
-          q_coded <- q_coded
-          text <- q_coded$survey_text[q_coded$question_coded_gen %in% current$question_coded_gen][1] # for TOC
+          
+          text <- q_coded$heading[q_coded$question_coded_gen %in% current$question_coded_gen][1] # for TOC
 
           l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
 

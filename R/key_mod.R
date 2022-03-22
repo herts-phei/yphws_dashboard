@@ -28,9 +28,9 @@ key_mod <- function(id,
 
       ),
       fluidRow(
-        tablerCard(title = "Trend Summary", width = 8, 
+        tablerCard(title = "Trend Summary", width = 6, 
                    reactableOutput(ns("mhw_summary"))),
-        tablerCard(width = 4, 
+        tablerCard(width = 6, 
                    echarts4rOutput(ns("worries_graph")),
                    echarts4rOutput(ns("coping_graph")))
         # tablerCard(title = "Lifestyle Summary", width = 6, 
@@ -50,6 +50,7 @@ key_mod_server <- function(id,
                            data_old,
                            stats, 
                            stats_old,
+                           q_coded,
                            comp) {
   moduleServer(
     id, 
@@ -63,7 +64,7 @@ key_mod_server <- function(id,
         value <- max(stats()$denominator, na.rm = TRUE) 
         tablerStatCard(
           value = value,
-          title = "Total responses this year",
+          title = "Responses this year",
           width = 12
         )
       })
@@ -138,7 +139,7 @@ key_mod_server <- function(id,
         
         tablerStatCard(
           value = value,
-          title = "From IMD Quintile 1 (most deprived)",
+          title = "IMD Quint. 1(most deprived)",
           width = 12
         )
       })
@@ -163,11 +164,19 @@ key_mod_server <- function(id,
 
         stats <- stats()
 
-        stats_old <- mutate(stats_old(), `2020` = value)
+        stats_old <- stats_old() %>% 
+          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                              "response" = "response")) %>%
+          filter(response_of_interest == "TRUE") %>% 
+          mutate(`2020` = value)
+        
         names(stats_old) <- paste0("prev_", names(stats_old))
         
         stats_ <- stats %>% 
-          filter((question == "life_satisfied" & response == "low") |
+          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                              "response" = "response")) %>% 
+          filter(response_of_interest == "TRUE", 
+                 (question == "life_satisfied" & response == "low") |
                  (question == "life_satisfied_before_covid" & response == "low") |
                  (question == "weight" & response %in% c("Overweight", "Underweight")) |
                  (question == "mental_howaccess" & response == "No"))

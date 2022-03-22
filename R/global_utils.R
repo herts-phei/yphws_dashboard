@@ -4,11 +4,9 @@ get_params <- function(board = board) {
   
   output <- list()
   
-  output$year <- 2021 #year of survey
-  output$data_pin <- "ayu/YPHWS_2021"
-  output$q_coded <- "hau/YPHWS_question_lookup_2021"
-  output$q_coded_prev <- "bkimpton/YPHWS_question_lookup"
-  output$prev_data_pin <- "bkimpton/youth_survey_responses"
+  output$year <- "2021" #year of survey
+  output$data_pin <- "ayu/yphws_data_cumulative"
+  output$q_coded <- "ayu/yphws_lookup"
   
   output$districts <- c("Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire",
                         "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield")
@@ -35,19 +33,16 @@ get_data <- function(data,
     mutate(multi_cat = as.logical(multi_cat),
            multi_binary = as.logical(multi_binary))
   
-  output$q_coded_prev <- pin_get(params$q_coded_prev, board = "rsconnect") %>%
-    purrr::map_dfr(~ as.character(.))
-  
   # survey data
   output$data <- pin_get(data, board = "rsconnect") %>%
+    purrr::map_dfr(~ as.character(.)) %>% 
     mutate(
       imd_quintile = case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
       imd_quintile = case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),
       imd_quintile = case_when(imd_quintile %in% "3" ~ "Quintile 3", TRUE ~ imd_quintile),
       imd_quintile = case_when(imd_quintile %in% "4" ~ "Quintile 4", TRUE ~ imd_quintile),
       imd_quintile = case_when(imd_quintile %in% "5" ~ "Quintile 5 - Least Deprived", TRUE ~ imd_quintile)
-    ) %>%
-    select(-lsoa_code)
+    ) 
   
   return(output)
   
@@ -234,7 +229,7 @@ summarystats <- function(data, by, q_coded, omit_pivot = F) {
   
 }
 
-# Common functions --------------------------------------------------------
+# Data processing functions --------------------------------------------------------
 
 #' Generates a dataset of summary statistics - counts, percentages, CIs
 
