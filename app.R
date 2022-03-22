@@ -85,6 +85,7 @@ ui <- tablerDashPage(
           fluidRow(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
+                       closable = FALSE,
                        uiOutput("exp_report_comp"),
                        uiOutput("exp_report_cat")
                        #downloadButton("exp_report", "Export report")
@@ -92,6 +93,7 @@ ui <- tablerDashPage(
           )
         ),
         tablerCard(width = 12, title = "Data table",
+                   closable = FALSE,
                    downloadButton("exp_table", "Export table"), 
                    reactableOutput("export")
         )

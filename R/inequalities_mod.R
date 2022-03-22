@@ -10,12 +10,14 @@ inequalities_mod <- function(id,
     tagList(
       fluidRow(
         tablerCard(title = "Introduction",
+                   closable = FALSE,
                    width = 12, 
                    htmlOutput(ns("ineq_text"))
         )
       ),
       fluidRow(
         tablerCard(title = "Filters",
+                   closable = FALSE,
                    width = 4, 
                    uiOutput(ns("ineq_domains")),
                    uiOutput(ns("ineq_questions"))),
