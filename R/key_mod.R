@@ -29,6 +29,7 @@ key_mod <- function(id,
       ),
       fluidRow(
         tablerCard(title = "Trend Summary", width = 6, 
+                   closable = FALSE,
                    reactableOutput(ns("mhw_summary"))),
         tablerCard(width = 6, 
                    echarts4rOutput(ns("worries_graph")),

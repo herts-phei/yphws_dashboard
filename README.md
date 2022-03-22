@@ -2,9 +2,33 @@
 
 Project Status: Inactive
 
+# Introduction
+
+This project is a public dashboard showing the yearly survey data from the Young People's Health & Wellbeing Survey broken down by different groups (e.g. sex, age, ethnicity) and compared to other groups. 
+
+### Summary tab
+
+to be written
+
+### Explore Data tab 
+
+Similar to the format of the full 2020 YPHWS Overview Report. to be written
+
+### Inequalities tab 
+
+Tartan rugs. to be written
+
+### Export tab
+
+This tab allows the user to either export a custom/thematic report or export the dataset as a .csv (with filtering).
+
 # Data
 
-## Lookup
+- Yearly survey data (currently pinned)
+- Yearly question lookups
+
+### Lookup
+
 - question_raw: Question code as specified in SmartSurvey
 - question_theme: Section of the survey the question appears in
 - question_coded: unique variable name of indicator
