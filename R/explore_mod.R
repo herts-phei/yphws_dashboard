@@ -42,6 +42,7 @@ explore_mod <- function(id,
 # Server ------------------------------------------------------------------
 
 explore_mod_server <- function(id,
+                               params,
                                stats,
                                stats_old,
                                diffs,
@@ -75,7 +76,7 @@ explore_mod_server <- function(id,
       # })
       
       # observe({
-      #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
+      #   if ("Safety" %in% input$domains ) {browser()}
       # })
       
       # Data --------------------------------------------------------------------
@@ -127,6 +128,7 @@ explore_mod_server <- function(id,
       # Boxes -------------------------------------------------------------------
       boxes <- reactive({
         
+        params <- params()
         stats <- stats()
         stats_old <- stats_old()
         diffs <- diffs()
@@ -147,13 +149,38 @@ explore_mod_server <- function(id,
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
           
           # --Create text and plots based on type of question--
+          # --Multicat questions
           if (multi) { 
+            
+            # multicat style plot
             int_plot <- create_multi_plot(df = current,
                                           plot_title = "",
                                           binary = multi_bin)
             
-            trend_plot <- "In development for this question"
+            # trend table
+            if (nrow(current_old) > 0) {
+              
+              current_old <- current_old %>% 
+                mutate(year = as.character(as.numeric(params$year) - 1),
+                       `2020` = value) %>% 
+                filter(response_of_interest == "TRUE")
+              
+              names(current_old) <- paste0("prev_", names(current_old))
+              
+              stats_ <- current %>% 
+                filter(response_of_interest == "TRUE")
+              
+              trend_plot <- create_trend_table(stats = stats_,
+                                               stats_old = current_old,
+                                               params = params)
+              
+            } else {
+              
+              trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+              
+            }
             
+            # text differs depending on type of question
             if(!multi_bin) {
             
               resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
@@ -184,8 +211,10 @@ explore_mod_server <- function(id,
               
             }
             
-          } else {
+            # --Single cat questions
+          } else { 
             
+            # text summary
             text <- create_sum_sentence(dataset = current,
                                         multi = multi,
                                         value_of_interest = "Yes",
@@ -196,23 +225,12 @@ explore_mod_server <- function(id,
                                         q_coded = q_coded,
                                         top = NA)
             
+            # interactive plot
             int_plot <- create_basic_plot(df = current,
                                           plot_custom_grp = unique(current$breakdown),
                                           plot_title = "")
             
-            # trend_plot <- current_old %>% 
-            #   ggplot(aes(x = response, y = value, group = year)) +
-            #   geom_bar(
-            #     aes(color = year, fill = year),
-            #     stat = "identity", position = position_dodge(0.8),
-            #     width = 0.7
-            #   ) +
-            #   geom_errorbar(aes(ymin = lowercl, ymax = uppercl, group = year), 
-            #                 width = 0.2, colour = "black", alpha = 0.5,
-            #                 position = position_dodge(0.95)) +
-            #   facet_wrap(~breakdown) +
-            #   theme_minimal()
-            
+            # trend table
             if (nrow(current_old) > 0) {
               
               current_old <- mutate(current_old, `2020` = value) %>% 
@@ -224,8 +242,8 @@ explore_mod_server <- function(id,
                 filter(response_of_interest == "TRUE")
               
               trend_plot <- create_trend_table(stats = stats_,
-                                               colors = c("#d9f3ff", "#006cdf"),
-                                               stats_old = current_old)
+                                               stats_old = current_old,
+                                               params = params)
               
             } else {
               

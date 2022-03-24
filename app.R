@@ -14,6 +14,7 @@ library(bs4Dash)
 library(plotly)
 library(echarts4r)
 library(reactable)
+library(sparkline)
 library(glue)
 library(plyr)
 
@@ -114,11 +115,11 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  observe({
-
-    if ("District" %in% input$comp) { browser() }
-
-  })
+  # observe({
+  # 
+  #   if ("District" %in% input$comp) { browser() }
+  # 
+  # })
   
   # --Load all data-----
   rv <- reactiveValues()
@@ -188,6 +189,7 @@ server <- function(input, output) {
   # Explore data --------------------------------------------------------------------
   
   explore_mod_server("explore",
+                     params = reactive(rv$params),
                      stats = reactive(rv$stats),
                      stats_old = reactive(rv$stats_old),
                      diffs = reactive(rv$diffs),

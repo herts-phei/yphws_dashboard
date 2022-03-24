@@ -4403,6 +4403,36 @@
         "Built": "R 3.6.2; x86_64-pc-linux-gnu; 2019-12-27 21:16:16 UTC; unix"
       }
     },
+    "sparkline": {
+      "Source": "CRAN",
+      "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
+      "GithubRepo": null,
+      "GithubUsername": null,
+      "GithubRef": null,
+      "GithubSha1": null,
+      "description": {
+        "Package": "sparkline",
+        "Type": "Package",
+        "Title": "'jQuery' Sparkline 'htmlwidget'",
+        "Version": "2.0",
+        "Date": "2016-11-10",
+        "Authors@R": "c(\n    person(\"Ramnath\", \"Vaidyanathan\", email = \"ramnath.vaidya@gmail.com\", role = c(\"aut\", \"cre\")),\n    person(\"Kent\", \"Russell\", email = \"kent.russell@timelyportfolio.com\", role = c(\"aut\", \"ctb\")),\n    person(\"Gareth\", \"Watts\", role = c(\"aut\", \"cph\"), comment = \"jquery.sparkline library in htmlwidgets/lib, https://github.com/gwatts/jquery.sparkline\"),\n    person(family = \"jQuery Foundation\", role = \"cph\", comment = \"jQuery library\"),\n    person(family = \"jQuery contributors\", role = c(\"ctb\", \"cph\"),\n      comment = \"jQuery library; authors listed in inst/htmlwidgets/lib/jquery/jquery-AUTHORS.txt\"\n    )\n  )",
+        "Maintainer": "Ramnath Vaidyanathan <ramnath.vaidya@gmail.com>",
+        "Description": "Include interactive sparkline charts\n    <http://omnipotent.net/jquery.sparkline> in \n    all R contexts with the convenience of 'htmlwidgets'.  ",
+        "Imports": "htmltools, htmlwidgets (>= 0.8)",
+        "Suggests": "formattable, knitr, rmarkdown, shiny",
+        "License": "MIT + file LICENSE",
+        "RoxygenNote": "5.0.1",
+        "VignetteBuilder": "knitr",
+        "NeedsCompilation": "no",
+        "Packaged": "2016-11-11 03:18:46 UTC; Kent",
+        "Author": "Ramnath Vaidyanathan [aut, cre],\n  Kent Russell [aut, ctb],\n  Gareth Watts [aut, cph] (jquery.sparkline library in htmlwidgets/lib,\n    https://github.com/gwatts/jquery.sparkline),\n  jQuery Foundation [cph] (jQuery library),\n  jQuery contributors [ctb, cph] (jQuery library; authors listed in\n    inst/htmlwidgets/lib/jquery/jquery-AUTHORS.txt)",
+        "Repository": "RSPM",
+        "Date/Publication": "2016-11-12 01:06:40",
+        "Encoding": "UTF-8",
+        "Built": "R 3.6.1; ; 2019-12-09 05:14:54 UTC; unix"
+      }
+    },
     "stringi": {
       "Source": "CRAN",
       "Repository": "https://hertscc.managed.mango-solutions.com/rspm/cran/__linux__/centos8/latest",
@@ -5187,7 +5217,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "a5a3bbdf4e0cd80a52ac6f9a5c63349e"
+      "checksum": "dabd565dd65d4d53354b099365cb6d16"
     },
     "packrat/desc/askpass": {
       "checksum": "c6570d743f523d378138d1d5e3025393"
@@ -5603,6 +5633,9 @@
     "packrat/desc/sourcetools": {
       "checksum": "e45f78ef9a07e0708b93dde18032dcdb"
     },
+    "packrat/desc/sparkline": {
+      "checksum": "40a9d4a25559a8eea8d8a587848ec0bb"
+    },
     "packrat/desc/stringi": {
       "checksum": "8df66981dc1b93d32095367a8c709b95"
     },
@@ -5679,22 +5712,19 @@
       "checksum": "ecf98c821df5535ec5c6c49ac036d22d"
     },
     "packrat/packrat.lock": {
-      "checksum": "0d68c8cf1cd1648c325008039529a667"
+      "checksum": "e314e59ff80c453ff70c7a4d369ba7f7"
     },
     "R/explore_mod.R": {
-      "checksum": "e32d5f7f73d3f29e3d849202c4339bb3"
+      "checksum": "b8c7b7884573d29440c877df6e115af8"
     },
     "R/global_utils.R": {
-      "checksum": "dd8035c1daa5a1d6828fb35a60e87e5f"
+      "checksum": "9a1854ff76f576c44e337c0c7ca88843"
     },
     "R/inequalities_mod.R": {
-      "checksum": "da55042a7a2e52a3733b68867df2e1c4"
+      "checksum": "6c1a616e6295baab1400a96d7e1889fd"
     },
     "R/key_mod.R": {
-      "checksum": "dd385e2dd675ef4ec592bd4ad318f231"
-    },
-    "R/report_utils.R": {
-      "checksum": "2c87efa6327a0617e791a88d781acef9"
+      "checksum": "3e281d8260a78f7e6978de1df31bcac9"
     },
     "test.Rmd": {
       "checksum": "e257b0fd169a0ae595dd3dd3ab170d19"

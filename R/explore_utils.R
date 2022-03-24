@@ -186,147 +186,6 @@ create_sum_sentence <- function(dataset,
   
 }
 
-# compare_last_yr <- function(df_new, 
-#                             df_old,
-#                             var,
-#                             sch = "All Schools", 
-#                             multicat = F, 
-#                             response_interest = NA) {
-#   
-#   # df_new <- stats
-#   # df_old <- stats_old
-#   # var <- chk_var
-#   # if there were no responses to this question, print message:   
-#   if(!sch %in% unique(df_new$school[df_new$question == chk_var])) { return("") }
-#   
-#   if (!sch %in% df_old$school) { return("") }
-#   # filtering to key groups
-#   df_new <- df_new %>%
-#     dplyr::filter(question %in% var, breakdown == "All Responses")
-#   
-#   df_old <- df_old %>%
-#     dplyr::filter(question %in% var, breakdown == "All Responses")
-#   
-#   df_old_comp <- mutate(df_old, breakdown = "Previous All Responses")
-#   
-#   new_diffs <- yphws$get_stats_diffs(bind_rows(df_new, df_old_comp), 
-#                                      levels = c("All Responses", "Previous All Responses"), 
-#                                      school = sch) %>% 
-#     filter(breakdown.x == "All Responses", 
-#            breakdown.y == "Previous All Responses",
-#            school.y != "All Schools") %>% 
-#     mutate(question_text.x = case_when(is.na(question_text.x) ~ question_text.y, TRUE ~ question_text.x))
-#   
-#   names(new_diffs) <- gsub(".x", "", names(new_diffs))
-#   
-#   if (nrow(new_diffs) == 0) { return("") }
-#   
-#   # match number of rows so cols can be binded
-#   if(nrow(df_new) > nrow(df_old)) {
-#     
-#     df_new <- df_new %>% 
-#       dplyr::semi_join(df_old, by = c("breakdown", "school", "question", "response"))
-#     
-#   } else if (nrow(df_new) < nrow(df_old)) {
-#     
-#     df_old <- df_old %>% 
-#       dplyr::semi_join(df_new, by = c("breakdown", "school", "question", "response"))
-#     
-#   }
-#   
-#   names(df_old) <- paste0(names(df_old), "_old")
-#   
-#   # category of interest may be different depending on type of question ( single vs multi-category ). Also needs extra cleaning. 
-#   if (multicat == F) { 
-#     
-#     resp_var <- "response" 
-#     
-#   } else { 
-#     
-#     resp_var <- "question" 
-#     df_old <- df_old %>% 
-#       filter(response_old == response_interest)
-#     
-#     df_new <- df_new %>% 
-#       filter(response == response_interest)
-#     
-#   }
-#   
-#   # main df with comparisons and correct text for sentences
-#   df <- dplyr::bind_cols(df_new, df_old) %>% 
-#     dplyr::filter(breakdown %in% c("All Responses"),
-#                   school == sch) %>% 
-#     left_join(select(new_diffs, response, question, diff), by = unique(c(resp_var, "response"))) %>% 
-#     dplyr::mutate(school = dplyr::case_when(school == "All Schools" ~ "Hertfordshire", TRUE ~ school),
-#                   school_old = dplyr::case_when(school_old == "All Schools" ~ "Hertfordshire", TRUE ~ school_old),
-#                   val_comp = case_when(value > value_old ~ "HIGHER than", 
-#                                        value < value_old ~ "LOWER than", 
-#                                        value == value_old ~ "the SAME as"),
-#                   val_diff = abs(value - value_old),
-#                   diff = case_when(is.na(diff) ~ "statistically similar to", 
-#                                    diff == "significantly higher than" ~ "statistically HIGHER than", 
-#                                    diff == "significantly lower than" ~ "statistically LOWER than"),
-#                   question_text = case_when(is.na(question_text) ~ question_text_old, TRUE ~ question_text_old)) %>% 
-#     dplyr::distinct()
-#   
-#   # if response_interest isn't given, default to the category with highest proportion and those that had differences.
-#   if (is.na(response_interest)[1]) {
-#     
-#     main_grp <- c(df[[resp_var]][df$value == max(df$value)][1],
-#                   df[[resp_var]][df$diff != "statistically SIMILAR to"])
-#     main_grp <- sort(unique(main_grp))
-#     
-#   } else {
-#     
-#     main_grp <- c(response_interest, df[[resp_var]][df$diff != "statistically similar to"])
-#     main_grp <- sort(unique(main_grp))
-#     
-#   }
-#   
-#   # If question is multicategory, sentence needs to be changed
-#   if (multicat) { 
-#     addition <- paste0(" for '", df$question_text, "'")
-#     main_grp <- rep(response_interest, nrow(df))
-#   } else {
-#     addition <- paste0("")
-#   }
-#   
-#   # get rows of interest for the sentences.
-#   main_df <- df %>% 
-#     dplyr::filter(school == sch, breakdown == "All Responses", response %in% main_grp) %>% 
-#     arrange(!!ensym(resp_var))
-#   
-#   main_val <- round(as.numeric(dplyr::pull(main_df, value)) * 100, 1) #percentage
-#   main_comp <- dplyr::pull(main_df, diff) #whether it's higher/lower/same
-#   main_val_old <- round(as.numeric(dplyr::pull(main_df, value_old)) * 100, 1) #percentage of previous year
-#   
-#   if (multicat == FALSE) { addition <- rep("", length(main_val)) }
-#   
-#   # main sentence
-#   sentence <- glue::glue("This year, {main_val[1]}% of those who responded from {sch} answered '{main_grp[1]}'{addition[1]}, which was {main_comp[1]} last year ({main_val_old[1]}%).")
-#   
-#   # if a vector is given for response_interest, adjust the sentence so it summarises more than one category.
-#   if (length(main_val) > 1) {
-#     
-#     if (length(main_val) == 2) { 
-#       
-#       sentence <- glue::glue("{sentence} Additionally, {main_val[-1]}% answered '{main_grp[-1]}'{addition[-1]}, which was {main_comp[-1]} last year ({main_val_old[-1]}%).")
-#       
-#     } else if (length(main_val) > 2) {
-#       
-#       main_comp <- gsub(" than| to", "", main_comp)
-#       
-#       glue::glue("{sentence} Additionally, {
-#                  glue::glue_collapse(glue::glue(
-#                  'the proportion of young people that answered {glue::single_quote({main_grp[-1]})} {addition[-1]} was {main_comp[-1]}')
-#                  , ', ', last = ', and ')}.") -> sentence
-#       
-#     }
-#   }
-#   
-#   return(sentence)
-#   
-# }
 
 # Graphs --------------------------------------------------------------
 
@@ -593,28 +452,30 @@ create_tbl <- function(stats_diff,
 
 create_trend_table <- function(stats,
                                stats_old,
-                               colors = c("#ffffff", "#ff013c")) {
+                               params) {
   
   table_df <- stats %>%
-    mutate(`2021` = value) %>%
+    mutate(year = params$year, 
+           `2021` = value) %>%
     left_join(stats_old, by = c("breakdown" = "prev_breakdown",
                                 "question" = "prev_question",
                                 "response" = "prev_response")) %>%
-    mutate(`2020` = round(as.numeric(prev_value), 2),
-           `2021` = round(as.numeric(`2021`), 2))
-  
-  table_df <- table_df %>% 
-    mutate(`2020` = case_when(is.na(`2020`) ~ 0, TRUE ~ `2020`),
+    mutate(`2020` = round(as.numeric(prev_value), 4) * 100,
+           `2021` = round(as.numeric(`2021`), 4) * 100,
            `2020` = case_when(is.na(`2020`) ~ 0, TRUE ~ `2020`),
-           Trend = round(`2021` - `2020`, 2)) %>%
-    select(Indicator = question_response, Group = breakdown, `2020`, `2021`, Trend)
-  
-  red_pal <- function(x) rgb(colorRamp(colors)(x), maxColorValue = 255)
+           `2020` = case_when(is.na(`2020`) ~ 0, TRUE ~ `2020`),
+           Trend = map2(`2020`, `2021`, c), 
+           Change = round(`2021` - `2020`, 2)) %>%
+    select(Indicator = question_response, Group = breakdown, `2020`, `2021`, 
+           Trend, Change) %>% 
+    mutate(`2020` = paste0(`2020`, "%"),
+           `2021` = paste0(`2021`, "%"))
   
   table_df %>%
     reactable(defaultSorted = c("Indicator", "Group"), defaultPageSize = 100,
               columns = list(
                 Indicator = colDef(
+                  sortable = F,
                   style = JS("function(rowInfo, colInfo, state) {
         const firstSorted = state.sorted[0]
         // Merge cells if unsorted or sorting by school
@@ -625,9 +486,18 @@ create_trend_table <- function(stats,
           }
         }
       }")),
-
+      Group = colDef(sortable = F),
+      `2020` = colDef(sortable = F),
+      `2021` = colDef(sortable = F), 
       Trend = colDef(
-        header = span("Trend", class = "sr-only"),
+        sortable = F,
+        cell = function(value, index) {
+          sparkline(table_df$Trend[[index]], 
+                    chartRangeMin = 0, chartRangeMax = 100)
+        }
+      ),
+      Change = colDef(
+        header = span("Change", class = "sr-only"),
         sortable = FALSE,
         align = "center",
         width = 40,
