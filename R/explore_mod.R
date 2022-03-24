@@ -5,12 +5,10 @@ explore_mod <- function(id,
   
   ns <- NS(id)
   
-  domains <- c("Living Conditions", "Diet and Lifestyle",
-               "Education", "Demographics",
-               "Mental Health and Wellbeing", "Smoking and Vaping",
-               "Alcohol Consumption", "Drug Use",
-               "Sexual Health", "Safety",
-               "Sustainability", "COVID-19")
+  domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
+               "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
+               "Sexual Health", "Mental Health and Wellbeing", "Safety",
+               "Education", "Sustainability", "COVID-19")
   
   names(domains) <- domains
   
@@ -76,9 +74,9 @@ explore_mod_server <- function(id,
       #               options = list(`live-search` = TRUE))
       # })
       
-      observe({
-        if ("COVID-19" %in% input$domains ) {browser()}
-      })
+      # observe({
+      #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
+      # })
       
       # Data --------------------------------------------------------------------
       
@@ -87,11 +85,13 @@ explore_mod_server <- function(id,
         q_coded <- q_coded()
         # vector of selected vars
         single <- q_coded %>% 
+          arrange(question_raw) %>% 
           filter(question_theme %in% input$domains)
         
         #TODO deduplicate multicat questions.
         chk_var <- q_coded %>%
-          filter(question_coded %in% single$question_coded) %>%
+          filter(question_coded %in% single$question_coded,
+                 !is.na(response)) %>%
           pull(question_coded_gen)
         
         return(unique(chk_var))
@@ -155,7 +155,7 @@ explore_mod_server <- function(id,
             trend_plot <- "In development for this question"
             
             if(!multi_bin) {
-              
+            
               resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
                                      collapse = "|")
               resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
@@ -166,10 +166,12 @@ explore_mod_server <- function(id,
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
                                           group_of_interest = unique(current$breakdown)[2],
-                                          q_coded = q_coded)
+                                          q_coded = q_coded,
+                                          top = NA)
               
             } else {
               
+              if (grepl("internet_", current$question)) { top <- NA } else { top <- 5 }
               text <- create_sum_sentence(dataset = current,
                                           multi = multi,
                                           value_of_interest = "Yes",
@@ -177,7 +179,8 @@ explore_mod_server <- function(id,
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
                                           group_of_interest = unique(current$breakdown)[2],
-                                          q_coded = q_coded)
+                                          q_coded = q_coded,
+                                          top = top)
               
             }
             
@@ -190,7 +193,8 @@ explore_mod_server <- function(id,
                                         diffs = chk_diff(),
                                         custom_grp = unique(current$breakdown),
                                         group_of_interest = unique(current$breakdown)[2],
-                                        q_coded = q_coded)
+                                        q_coded = q_coded,
+                                        top = NA)
             
             int_plot <- create_basic_plot(df = current,
                                           plot_custom_grp = unique(current$breakdown),

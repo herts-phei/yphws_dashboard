@@ -8,7 +8,8 @@ create_sum_sentence <- function(dataset,
                                 diffs,
                                 custom_grp,
                                 group_of_interest,
-                                q_coded) {
+                                q_coded,
+                                top = NA) {
   
   if (nrow(dataset) == 0) { return ("") }
   
@@ -82,9 +83,8 @@ create_sum_sentence <- function(dataset,
           ungroup() %>% 
           distinct() 
         
-        sentence <- paste(sentence, "<br><br>", paste0("The most common response for ", group_of_interest, " was '", most_common$most_common, 
-                                                       "', which made up ", most_common$most_v, " of responses and the least common response for ", 
-                                                       group_of_interest, " was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
+        sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "</b> was '", most_common$most_common, 
+                                                       "', which made up ", most_common$most_v, " of responses and the least common response was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
                                                        collapse = "<br><br>"))
         
       } else {
@@ -99,6 +99,10 @@ create_sum_sentence <- function(dataset,
     
     
   } else { #run the following instead if it's a multi-check question
+    
+    q_coded <- select(q_coded, order, question_raw, question_theme, question_text, 
+                      reworded, question_coded) %>% 
+      distinct()
     
     reps <- unique(dataset$question)
     data <- filter(dataset, !is.na(question_text))
@@ -141,16 +145,26 @@ create_sum_sentence <- function(dataset,
           grp_df <- data %>% 
             filter(breakdown == c("All Responses", group_of_interest)[group]) 
           
-          group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "students", grp_df$breakdown)
+          group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "students (total)", 
+                               paste0("<b>", grp_df$breakdown, "</b>"))
           
           # generate the values used for the sentences. 
           df <- grp_df %>% 
-            filter(question %in% reps, response == value_of_interest) %>% 
+            filter(question %in% reps, response_of_interest == "TRUE") %>% 
             left_join(q_coded, by = c("question" = "question_coded")) %>% 
             #drop_na(reworded) %>% 
             arrange(desc(count))
           
           if (binary) {
+            
+            # if we only want the top N responses, subset df
+            
+            if (!is.na(top)) { 
+              df <- df %>% 
+                arrange(desc(value)) %>% 
+                slice(1:top)
+              } 
+            
             temp <- paste0("Out of responses from ", group_name, ", ", 
                            glue_collapse(glue("{df$value} selected '{df$question_text.x}'"), ", ", last = ", and "))
           } else{
@@ -388,8 +402,7 @@ create_multi_plot <- function(df,
                                                               uppercl, ")"), 30), "<extra></extra>")) %>%
       layout(title = list(text = paste("<b>", plot_title, "</b>"), 
                           yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
-             xaxis = list(title = "Percent", tickformat = "%", 
-                          range = list(0, 1)),
+             xaxis = list(title = "Percent", tickformat = "%"),
              yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
                      modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))

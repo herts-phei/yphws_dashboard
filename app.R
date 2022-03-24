@@ -22,12 +22,11 @@ board_register("rsconnect",
                server = "srv-gcp-ms-connect:3939",
                key = Sys.getenv("CONNECT_API_KEY"))
 
-domains <- c("Living Conditions", "Diet and Lifestyle",     
-             "Education", "Demographics",
-             "Mental Health and Wellbeing", "Smoking and Vaping",         
-             "Alcohol Consumption", "Drug Use",                   
-             "Sexual Health", "Safety",                  
-             "Sustainability", "COVID-19")
+domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
+             "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
+             "Sexual Health", "Mental Health and Wellbeing", "Safety",
+             "Education", "Sustainability", "COVID-19")
+
 names(domains) <- domains
 
 # UI ----------------------------------------------------------------
