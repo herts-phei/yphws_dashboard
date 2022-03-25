@@ -14,6 +14,7 @@ library(bs4Dash)
 library(plotly)
 library(echarts4r)
 library(reactable)
+library(sparkline)
 library(glue)
 library(plyr)
 
@@ -22,12 +23,11 @@ board_register("rsconnect",
                server = "srv-gcp-ms-connect:3939",
                key = Sys.getenv("CONNECT_API_KEY"))
 
-domains <- c("Living Conditions", "Diet and Lifestyle",     
-             "Education", "Demographics",
-             "Mental Health and Wellbeing", "Smoking and Vaping",         
-             "Alcohol Consumption", "Drug Use",                   
-             "Sexual Health", "Safety",                  
-             "Sustainability", "COVID-19")
+domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
+             "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
+             "Sexual Health", "Mental Health and Wellbeing", "Safety",
+             "Education", "Sustainability", "COVID-19")
+
 names(domains) <- domains
 
 # UI ----------------------------------------------------------------
@@ -87,8 +87,8 @@ ui <- tablerDashPage(
                        width = 12, 
                        closable = FALSE,
                        uiOutput("exp_report_comp"),
-                       uiOutput("exp_report_cat")
-                       #downloadButton("exp_report", "Export report")
+                       uiOutput("exp_report_cat"),
+                       downloadButton("exp_report", "Export report")
                        )
           )
         ),
@@ -115,11 +115,11 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  observe({
-
-    if ("District" %in% input$comp) { browser() }
-
-  })
+  # observe({
+  # 
+  #   if ("District" %in% input$comp) { browser() }
+  # 
+  # })
   
   # --Load all data-----
   rv <- reactiveValues()
@@ -189,6 +189,7 @@ server <- function(input, output) {
   # Explore data --------------------------------------------------------------------
   
   explore_mod_server("explore",
+                     params = reactive(rv$params),
                      stats = reactive(rv$stats),
                      stats_old = reactive(rv$stats_old),
                      diffs = reactive(rv$diffs),
@@ -238,28 +239,28 @@ server <- function(input, output) {
     
   })
   
-  # output$exp_report <- downloadHandler(
-  #   filename = "report.html",
-  #   content = function(file) {
-  #     tempReport <- file.path(tempdir(), "test.Rmd")
-  #     file.copy("test.Rmd", tempReport, overwrite = TRUE)
-  #     
-  #     # Set up parameters to pass to Rmd document
-  #     params <- list(var = input$comp,
-  #                    cat = input$exp_report_cat)
-  #     
-  #     # Knit the document, passing in the `params` list, and eval it in a
-  #     # child of the global environment (this isolates the code in the document
-  #     # from the code in this app).
-  #     show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
-  #     rmarkdown::render(tempReport, output_file = file,
-  #                       params = params,
-  #                       envir = new.env(parent = globalenv())
-  #     )
-  #     remove_modal_spinner() # remove it when done
-  #     
-  #   }
-  # )
+  output$exp_report <- downloadHandler(
+    filename = "report.html",
+    content = function(file) {
+      tempReport <- file.path(tempdir(), "test.Rmd")
+      file.copy("test.Rmd", tempReport, overwrite = TRUE)
+
+      # Set up parameters to pass to Rmd document
+      params <- list(var = input$comp,
+                     cat = input$exp_report_cat)
+
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+      remove_modal_spinner() # remove it when done
+
+    }
+  )
   
   output$export <- renderReactable({
     

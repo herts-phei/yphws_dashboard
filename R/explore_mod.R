@@ -5,12 +5,10 @@ explore_mod <- function(id,
   
   ns <- NS(id)
   
-  domains <- c("Living Conditions", "Diet and Lifestyle",
-               "Education", "Demographics",
-               "Mental Health and Wellbeing", "Smoking and Vaping",
-               "Alcohol Consumption", "Drug Use",
-               "Sexual Health", "Safety",
-               "Sustainability", "COVID-19")
+  domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
+               "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
+               "Sexual Health", "Mental Health and Wellbeing", "Safety",
+               "Education", "Sustainability", "COVID-19")
   
   names(domains) <- domains
   
@@ -44,6 +42,7 @@ explore_mod <- function(id,
 # Server ------------------------------------------------------------------
 
 explore_mod_server <- function(id,
+                               params,
                                stats,
                                stats_old,
                                diffs,
@@ -76,9 +75,9 @@ explore_mod_server <- function(id,
       #               options = list(`live-search` = TRUE))
       # })
       
-      observe({
-        if ("COVID-19" %in% input$domains ) {browser()}
-      })
+      # observe({
+      #   if ("Living Conditions" %in% input$domains ) {browser()}
+      # })
       
       # Data --------------------------------------------------------------------
       
@@ -87,11 +86,13 @@ explore_mod_server <- function(id,
         q_coded <- q_coded()
         # vector of selected vars
         single <- q_coded %>% 
+          arrange(question_raw) %>% 
           filter(question_theme %in% input$domains)
         
         #TODO deduplicate multicat questions.
         chk_var <- q_coded %>%
-          filter(question_coded %in% single$question_coded) %>%
+          filter(question_coded %in% single$question_coded,
+                 !is.na(response)) %>%
           pull(question_coded_gen)
         
         return(unique(chk_var))
@@ -127,6 +128,7 @@ explore_mod_server <- function(id,
       # Boxes -------------------------------------------------------------------
       boxes <- reactive({
         
+        params <- params()
         stats <- stats()
         stats_old <- stats_old()
         diffs <- diffs()
@@ -147,15 +149,40 @@ explore_mod_server <- function(id,
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
           
           # --Create text and plots based on type of question--
+          # --Multicat questions
           if (multi) { 
+            
+            # multicat style plot
             int_plot <- create_multi_plot(df = current,
                                           plot_title = "",
                                           binary = multi_bin)
             
-            trend_plot <- "In development for this question"
-            
-            if(!multi_bin) {
+            # trend table
+            if (nrow(current_old) > 0) {
               
+              current_old <- current_old %>% 
+                mutate(year = as.character(as.numeric(params$year) - 1),
+                       `2020` = value) %>% 
+                filter(response_of_interest == "TRUE")
+              
+              names(current_old) <- paste0("prev_", names(current_old))
+              
+              stats_ <- current %>% 
+                filter(response_of_interest == "TRUE")
+              
+              trend_plot <- create_trend_table(stats = stats_,
+                                               stats_old = current_old,
+                                               params = params)
+              
+            } else {
+              
+              trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+              
+            }
+            
+            # text differs depending on type of question
+            if(!multi_bin) {
+            
               resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
                                      collapse = "|")
               resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
@@ -166,10 +193,12 @@ explore_mod_server <- function(id,
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
                                           group_of_interest = unique(current$breakdown)[2],
-                                          q_coded = q_coded)
+                                          q_coded = q_coded,
+                                          top = NA)
               
             } else {
               
+              if (any(grepl("internet_", current$question))) { top <- NA } else { top <- 5 }
               text <- create_sum_sentence(dataset = current,
                                           multi = multi,
                                           value_of_interest = "Yes",
@@ -177,12 +206,15 @@ explore_mod_server <- function(id,
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
                                           group_of_interest = unique(current$breakdown)[2],
-                                          q_coded = q_coded)
+                                          q_coded = q_coded,
+                                          top = top)
               
             }
             
-          } else {
+            # --Single cat questions
+          } else { 
             
+            # text summary
             text <- create_sum_sentence(dataset = current,
                                         multi = multi,
                                         value_of_interest = "Yes",
@@ -190,25 +222,15 @@ explore_mod_server <- function(id,
                                         diffs = chk_diff(),
                                         custom_grp = unique(current$breakdown),
                                         group_of_interest = unique(current$breakdown)[2],
-                                        q_coded = q_coded)
+                                        q_coded = q_coded,
+                                        top = NA)
             
+            # interactive plot
             int_plot <- create_basic_plot(df = current,
                                           plot_custom_grp = unique(current$breakdown),
                                           plot_title = "")
             
-            # trend_plot <- current_old %>% 
-            #   ggplot(aes(x = response, y = value, group = year)) +
-            #   geom_bar(
-            #     aes(color = year, fill = year),
-            #     stat = "identity", position = position_dodge(0.8),
-            #     width = 0.7
-            #   ) +
-            #   geom_errorbar(aes(ymin = lowercl, ymax = uppercl, group = year), 
-            #                 width = 0.2, colour = "black", alpha = 0.5,
-            #                 position = position_dodge(0.95)) +
-            #   facet_wrap(~breakdown) +
-            #   theme_minimal()
-            
+            # trend table
             if (nrow(current_old) > 0) {
               
               current_old <- mutate(current_old, `2020` = value) %>% 
@@ -220,8 +242,8 @@ explore_mod_server <- function(id,
                 filter(response_of_interest == "TRUE")
               
               trend_plot <- create_trend_table(stats = stats_,
-                                               colors = c("#d9f3ff", "#006cdf"),
-                                               stats_old = current_old)
+                                               stats_old = current_old,
+                                               params = params)
               
             } else {
               
@@ -254,6 +276,7 @@ explore_mod_server <- function(id,
                                                   lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
                                                   uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
                                            ) %>% 
+                                           filter(question_coded_gen %in% chk_var()[i]) %>% 
                                            select(breakdown, question = question_text, response, value, count, denominator,
                                                   lowercl, uppercl) %>% 
                                            reactable(groupBy = c("breakdown", "question"),

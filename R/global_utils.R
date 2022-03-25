@@ -11,12 +11,10 @@ get_params <- function(board = board) {
   output$districts <- c("Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire",
                         "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield")
   
-  output$domains <- c("Living Conditions", "Diet and Lifestyle",     
-                      "Education", "Demographics",
-                      "Mental Health and Wellbeing", "Smoking and Vaping",         
-                      "Alcohol Consumption", "Drug Use",                   
-                      "Sexual Health", "Safety",                  
-                      "Sustainability", "COVID-19")
+  output$domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
+                      "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
+                      "Sexual Health", "Mental Health and Wellbeing", "Safety",
+                      "Education", "Sustainability", "COVID-19")
   
   return(output)
   

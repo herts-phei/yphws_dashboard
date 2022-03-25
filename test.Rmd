@@ -71,7 +71,7 @@ data <- pin_get(data_pin, board = "rsconnect") %>%
 # get list of schools with more than 50 responses
 school_vec <- data %>%
   group_by(school) %>%
-  summarise(count = n()) %>%
+  dplyr::summarise(count = n()) %>%
   arrange(desc(count)) %>%
   filter(count >= 60) %>%
   pull(school)
@@ -81,9 +81,9 @@ responses_per_district <- data %>%
   select(school, District) %>%
   filter(school %in% school_vec) %>%
   group_by(District) %>%
-  mutate(school_count = n()) %>%
+  dplyr::mutate(school_count = n()) %>%
   distinct() %>%
-  summarise(District, school_count, schools_per_district = n()) %>%
+  dplyr::summarise(District, school_count, schools_per_district = n()) %>%
   distinct() %>%
   mutate(comparison = case_when(
     school_count >= 250 & schools_per_district > 1 ~ TRUE,
@@ -824,7 +824,7 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
     
     prevent_dupes <- df %>%
       group_by(question, response) %>%
-      summarise(count = n()) %>%
+      dplyr::summarise(count = n()) %>%
       filter(response %in% c("Yes", "No")) %>%
       arrange(question)
     
@@ -1194,2951 +1194,2951 @@ plot_title = "Religion"
 
 `r create_sum_sentence_herts()`
 
-### Comparisons
+<!-- ### Comparisons -->
 
-```{r religion_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r religion_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp, 
-                  rotate = 60,
-                  plot_title = plot_title)
-```
-
-### Table
-```{r, echo = FALSE, eval = TRUE}
-create_tbl(chk_diff)
-```
-
-## Ethnicity  {.tabset}
-**"What is your ethnic group?"**
-
-``` {r ethnicity_summary}
-chk_var <- c('ethnicity')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-plot_title <- "Ethnicity"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons     
-
-```{r ethnicity_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r ethnicity_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp,                    
-                  plot_title = plot_title)
-```
-
-### Table
-```{r ethnicity_table}
-create_tbl(chk_diff)
-```
-
-# Living Conditions
-
-This section contains information about the living conditions of the students who responded including physical or mental long-standing conditions, their home living situations, their caring responsibilities, and their views on whether they feel their additional needs are supported by the school.
-
-## Long-standing conditions/disabilities  {.tabset}
-**Do you have any of the following long-standing conditions/disabilities?**
-
-``` {r conditions_summary}
-chk_var <- c('condition_physical', 'condition_mental', 'condition_disability',
-             'condition_send')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-plot_title <- "Long-standing conditions or disabilities"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
-
-### Comparisons
-
-```{r conditions_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
-
-<!-- ### Graph: Count -->
-<!-- ```{r fig.height=6.5} -->
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- ```{r religion_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
 <!-- ``` -->
 
-### Graph
-```{r, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)
-```
-
-
-
-### Table
-```{r conditions_table}
-create_tbl(chk_diff, multi_response = T)
-```
-
-## School support {.tabset}
-**"Do you feel supported by your school and feel they offer you help with any difficulties you have?"**
-
-``` {r school_supported_summary}
-chk_var <- c('school_supported')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "School support"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r school_supported_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r schoolsupp_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp,                    
-                  plot_title = plot_title)
-```
-
-### Table
-```{r school_supported_table}
-create_tbl(chk_diff)
-```
-
-## Living situation {.tabset}
-**"Who do you live with?"**
-
-``` {r living_situation_summary}
-chk_var <- c('living_situation')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Living situation"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r living_situation_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r livingsit_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp,                    
-                  plot_title = plot_title)
-```
-
-### Table
-```{r living_situation_table}
-create_tbl(chk_diff)
-```
-
-## Caring responsibilities {.tabset}
-**"Do you help to look after someone in your family who has a serious, mental or physical, illness or disability?"**
-
-``` {r caring_summary}
-chk_var <- c('caring')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Caring responsibilities"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r caring_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r caring_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r caring_table}
-create_tbl(chk_diff)
-```
-
-## Child looked after {.tabset}
-**"Are you currently or have you ever been a child looked after (e.g., lived with foster carers/lived in a care home)?"**
-
-``` {r cla_summary}
-chk_var <- c('cla')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Child looked after"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r cla_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r cla_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r cla_table}
-create_tbl(chk_diff)
-```
-
-## Adopted {.tabset}
-**"Are you adopted?"**
-
-``` {r adopted_summary}
-chk_var <- c('adopted')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Adopted"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r adopted_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r adopted_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r adopted_table}
-create_tbl(chk_diff)
-```
-
-# Diet and Lifestyle
-
-This section contains information about the diet and lifestyle of the students including foods eaten, portions of fruits and vegetables eaten, views on body weight/shape, dental hygiene, and physical activity.
-
-## Diet {.tabset}
-**How often do you have the following foods/drinks?**
-
-``` {r diet_summary}
-chk_var <- c('diet_water','diet_fastfood','diet_fizzydrink','diet_energydrink','diet_sweets', 'diet_breakfast')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-plot_title = "Dietary intake"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts(multi = T, value_of_interest = c("On most days"))`
-
-### Comparisons
-
-```{r diet_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
-
-### Graph
-```{r diet_graph, fig.height=6.5}
-chk_stats$response <- ordered(chk_stats$response, levels = c("On most days", "2-3 days a week", "Once a week or less", "Rarely or never"))
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
-
-
-
-### Table
-```{r diet_table}
-create_tbl(chk_diff, multi_response = T)
-```
-
-## Portions of fruits and vegetables{.tabset}
-**"How many portions of fruits or vegetables did you eat yesterday?"**
-
-``` {r portions_summary}
-chk_var <- c('portions')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Portions of fruit or vegetables"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-
-```{r portions_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r portion_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r portions_table}
-create_tbl(chk_diff)
-```
-
-## Perception of weight {.tabset}
-**"How would you describe your current weight?"**
-
-``` {r weight_summary}
-chk_var <- c('weight')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Perception of weight"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-
-### Comparisons
-
-```{r weight_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r weight_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r weight_table}
-create_tbl(chk_diff)
-```
-
-## Brushing teeth {.tabset}
-**"Yesterday, how many times did you brush your teeth?"**
-
-``` {r brushteeth_summary}
-chk_var <- c('brushteeth')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Brushing teeth"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r brushteeth_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r brushteeth_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r brushteeth_table}
-create_tbl(chk_diff)
-```
-
-## Dentist check-up {.tabset}
-**"Within the last year have you had a check-up at the dentist?"**
-
-``` {r dentist_summary}
-chk_var <- c('dentist')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Annual dentist check-up"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r dentist_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r dentist_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r dentist_table}
-create_tbl(chk_diff)
-```
-
-## Physical activity: 60 minutes or more per day {.tabset}
-**"In the past week, on how many days have you done at least an hour (60 minutes or more) of physical activity, which was enough to raise your breathing rate? This may include sport, exercise, and brisk walking or cycling."**
-
-``` {r pa_60_summary}
-chk_var <- c('pa_60')
-
-chk_stats <- filter(stats, question %in% chk_var)
-
-chk_stats$response <- ordered(chk_stats$response, levels = c("none", "1-3", "4-5", "6-7"))
-
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))%>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
-plot_title = "Physical activity for at least 1 hour"
-
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r pa_60_bullets}
- create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r pa_60_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r pa60_table}
-create_tbl(chk_diff)
-```
-
-## Physical activity: 30 to 59 minutes {.tabset}
-**"In the past week, on how many days have you done at least half an hour but less than an hour (30-59 minutes) of physical activity, which was enough to raise your breathing rate? This may include sport, exercise, and brisk walking or cycling." (This question was only asked to those reporting they did fewer than 5 days with 60 minutes of activity each day)**
-
-``` {r pa_30_summary}
-chk_var <- c('pa_30') #merge the 60 and 30 minute together?
-#***
-chk_stats <- filter(stats, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
-plot_title = "Physical activity for at least 30 minutes"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r pa_30_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r pa30_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r pa30_table}
-create_tbl(chk_diff)
-```
-
-# Smoking and Vaping
-
-This section contains information about the smoking/vaping habits of students including whether they smoke, how often they smoke, where they buy cigarettes, second-hand smoking, and whether they are trying to reduce or stop smoking.
-
-## Second-hand smoke {.tabset}
-**“Thinking about those around you who may smoke…Do your parents/carers smoke cigarettes around you? / Does anyone at home smoke when you are in the room? / Does anyone smoke in a car when you are in it?”**
-
-``` {r smoke_parents_summary}
-chk_var <- c('smoke_parents', 'smoke_home', 'smoke_car')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Exposure to second-hand smoke"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
-
-### Comparisons
-
-```{r smoke_parents_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
-
-<!-- ### Graph: Count -->
-<!-- ```{r fig.height=6.5} -->
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- ### Graph -->
+
+<!-- ```{r religion_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,  -->
+<!--                   rotate = 60, -->
+<!--                   plot_title = plot_title) -->
 <!-- ``` -->
 
-### Graph
-```{r fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
-
-
-
-### Table
-```{r smoke_parents_table}
-create_tbl(chk_diff, multi_response = T)
-```
-
-## Smoking {.tabset}
-**“Thinking about smoking (excluding vaping / e-cigarettes) which of the following best describes you?”**
-
-``` {r smoke_ever_summary}
-chk_var <- c('smoke_ever')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Smoking"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-<!-- In 2018, 1% of Year 8 boys and 6% of Year 10 boys reported that they smoke regularly or occasionally. In 2020, 0.2% of Year 8 boys and 2% of Year 10 boys reported they smoke regularly or occasionally. -->
-
-<!-- In 2018, 1% of Year 8 girls and 10% of Year 10 girls reported that they smoke regularly or occasionally. In 2020, 0.4% of Year 8 girls and 1% of Year 10 girls reported they smoke regularly or occasionally.* -->
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r smoke_ever_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r smokeever_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r smoke_ever_table}
-create_tbl(chk_diff)
-```
-
-## Vaping {.tabset}
-**“Thinking about vaping / e-cigarettes only, which of the following best describes you?”**
-
-``` {r vaping_summary}
-chk_var <- c('vaping')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Vaping"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r vaping_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r vaping_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r vaping_table}
-create_tbl(chk_diff)
-```
-
-## Reduce smoking {.tabset}
-**"Do you want to reduce or stop smoking?" (This question was only asked to respondents who stated that they had smoked.)**
-
-``` {r smoke_reduce_summary}
-chk_var <- c('smoke_reduce')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Reduce or stop smoking"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20 | nrow(chk_diff) == 0){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r smoke_reduce_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r smokereduce_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r smoke_reduce_table}
-create_tbl(chk_diff)
-```
-
-## Buying cigarettes {.tabset}
-**"Where do you usually buy/get cigarettes?" (This question was only asked to respondents who stated that they had smoked.)**
-
-``` {r buy_cigarettes_summary}
-chk_var <- c('buycig_pubbar', 'buycig_supermarker','buycig_smallshop','buycig_friend','buycig_internet') #**misspelled supermarket
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Buying cigarettes"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
-
-### Comparisons
-
-```{r buy_cigarettes_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
-
-<!-- ### Graph: Count -->
-<!-- ```{r fig.height=6.5} -->
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- ### Table -->
+<!-- ```{r, echo = FALSE, eval = TRUE} -->
+<!-- create_tbl(chk_diff) -->
 <!-- ``` -->
 
-### Graph
-```{r fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- ## Ethnicity  {.tabset} -->
+<!-- **"What is your ethnic group?"** -->
 
+<!-- ``` {r ethnicity_summary} -->
+<!-- chk_var <- c('ethnicity') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
 
-### Table
-```{r buy_cig_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- plot_title <- "Ethnicity" -->
+<!-- ``` -->
 
-## Reducing smoking through vaping {.tabset}
-**"Have you used vaping / e-cigarettes to reduce or quit your smoking?" (This question was only asked to respondents who stated that they had smoked.)**
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-``` {r vaping_reducesmoke_summary}
-chk_var <- c('vaping_reducesmoke')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts()` -->
 
+<!-- ### Comparisons      -->
 
+<!-- ```{r ethnicity_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Reducing smoking through vaping"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r ethnicity_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,                     -->
+<!--                   plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r ethnicity_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- # Living Conditions -->
 
-### Comparisons
+<!-- This section contains information about the living conditions of the students who responded including physical or mental long-standing conditions, their home living situations, their caring responsibilities, and their views on whether they feel their additional needs are supported by the school. -->
 
-```{r vaping_reducesmoke_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- ## Long-standing conditions/disabilities  {.tabset} -->
+<!-- **Do you have any of the following long-standing conditions/disabilities?** -->
 
-### Graph
+<!-- ``` {r conditions_summary} -->
+<!-- chk_var <- c('condition_physical', 'condition_mental', 'condition_disability', -->
+<!--              'condition_send') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r vaping_reducesmoke_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title <- "Long-standing conditions or disabilities" -->
+<!-- ``` -->
 
-### Table
-```{r vaping_reducesoke_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-# Alcohol Consumption
+<!-- ### Summary -->
 
-This section contains information about the alcohol consumption of students including whether they drink, how often they drink, where they buy alcohol, and whether they are trying to reduce or stop drinking. The drug section contains a question on where respondents would seek help for drug and alcohol issues.
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-## Alcohol {.tabset}
-**"How often have you had a drink containing alcohol in the past three months?"**
+<!-- ### Comparisons -->
 
-``` {r alcohol_ever_summary}
-chk_var <- c('alcohol_ever')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r conditions_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r fig.height=6.5} --> -->
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
 
+<!-- ### Graph -->
+<!-- ```{r, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded) -->
+<!-- ``` -->
 
 
-plot_title = "Alcohol intake"
 
-plot_x <- c(5, 4, 2, 1, 3)
-```
+<!-- ### Table -->
+<!-- ```{r conditions_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ## School support {.tabset} -->
+<!-- **"Do you feel supported by your school and feel they offer you help with any difficulties you have?"** -->
 
-### Summary
+<!-- ``` {r school_supported_summary} -->
+<!-- chk_var <- c('school_supported') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-`r create_sum_sentence_herts()`
 
-### Comparisons
 
-```{r alcohol_ever_bullets}
-create_bullets_herts(chk_diff)$Table
-```
 
-### Graph
+<!-- plot_title = "School support" -->
+<!-- ``` -->
 
-```{r alchol_ever_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r alcohol_ever_table}
-create_tbl(chk_diff)
-```
+<!-- ### Summary -->
 
-## Reducing alcohol consumption {.tabset}
-**"Do you want to reduce or stop your drinking?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)**
+<!-- `r create_sum_sentence_herts()` -->
 
-``` {r alchol_reduce_summary}
-chk_var <- c('alcohol_reduce')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r school_supported_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
 
+<!-- ```{r schoolsupp_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,                     -->
+<!--                   plot_title = plot_title) -->
+<!-- ``` -->
 
-plot_title = "Reducing alcohol consumption"
-```
+<!-- ### Table -->
+<!-- ```{r school_supported_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ## Living situation {.tabset} -->
+<!-- **"Who do you live with?"** -->
 
-### Summary
+<!-- ``` {r living_situation_summary} -->
+<!-- chk_var <- c('living_situation') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-`r create_sum_sentence_herts()`
 
-### Comparisons
 
-```{r alchol_reduce_bullets}
-create_bullets_herts(chk_diff)$Table
-```
 
-### Graph
+<!-- plot_title = "Living situation" -->
+<!-- ``` -->
 
-```{r alchol_reduce_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r alcohol_reduce_table}
-create_tbl(chk_diff)
-```
+<!-- ### Summary -->
 
-## Daily alcohol consumption {.tabset}
-**"How many drinks containing alcohol do you have on a typical day when you are drinking?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)**
+<!-- `r create_sum_sentence_herts()` -->
 
-``` {r alcohol_perday_summary}
-chk_var <- c('alcohol_perday')
-#***
-chk_stats <- filter(stats, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+")))
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+")))
-plot_title = "Daily alcohol consumption"
-```
+<!-- ### Comparisons -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r living_situation_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Graph -->
 
-`r create_sum_sentence_herts()`
+<!-- ```{r livingsit_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,                     -->
+<!--                   plot_title = plot_title) -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ### Table -->
+<!-- ```{r living_situation_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-```{r alcohol_perday_bullets}
- create_bullets_herts(chk_diff)$Table
-```
+<!-- ## Caring responsibilities {.tabset} -->
+<!-- **"Do you help to look after someone in your family who has a serious, mental or physical, illness or disability?"** -->
 
-### Graph
+<!-- ``` {r caring_summary} -->
+<!-- chk_var <- c('caring') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r alchol_perday_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
 
-### Table
-```{r alcohol_perday_table}
-create_tbl(chk_diff)
-```
 
-## Binge drinking {.tabset}
-**"How often do you have six or more drinks on one occasion?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)**
 
-``` {r alcohol_6more_summary}
-chk_var <- c('alcohol_6more')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- plot_title = "Caring responsibilities" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts()` -->
 
-plot_title = "Binge drinking"
-```
+<!-- ### Comparisons -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r caring_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Graph -->
 
-`r create_sum_sentence_herts()`
+<!-- ```{r caring_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ### Table -->
+<!-- ```{r caring_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-```{r alcohol_6more_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- ## Child looked after {.tabset} -->
+<!-- **"Are you currently or have you ever been a child looked after (e.g., lived with foster carers/lived in a care home)?"** -->
 
-### Graph
+<!-- ``` {r cla_summary} -->
+<!-- chk_var <- c('cla') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r alchol_6more_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
 
-### Table
-```{r alc6_table}
-create_tbl(chk_diff)
-```
 
-## Buying alcohol {.tabset}
-**"Where do you typically buy/get alcohol?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)**
 
-``` {r buy_alcohol_summary}
-chk_var <- c('buyalc_pubbar','buyalc_home', 'buyalc_supermarket', 'buyalc_smallshop','buyalc_friend','buyalc_internet')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- plot_title = "Child looked after" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts()` -->
 
-plot_title = "Buying alcohol"
+<!-- ### Comparisons -->
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
-```
+<!-- ```{r cla_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Graph -->
 
-### Summary
+<!-- ```{r cla_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ### Table -->
+<!-- ```{r cla_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ## Adopted {.tabset} -->
+<!-- **"Are you adopted?"** -->
 
-```{r buy_alcohol_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- ``` {r adopted_summary} -->
+<!-- chk_var <- c('adopted') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-<!-- ### Graph: Count -->
-<!-- ```{r buy_alcohol_count, fig.height=6.5} -->
 
+
+
+<!-- plot_title = "Adopted" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r adopted_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r adopted_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r adopted_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- # Diet and Lifestyle -->
+
+<!-- This section contains information about the diet and lifestyle of the students including foods eaten, portions of fruits and vegetables eaten, views on body weight/shape, dental hygiene, and physical activity. -->
+
+<!-- ## Diet {.tabset} -->
+<!-- **How often do you have the following foods/drinks?** -->
+
+<!-- ``` {r diet_summary} -->
+<!-- chk_var <- c('diet_water','diet_fastfood','diet_fizzydrink','diet_energydrink','diet_sweets', 'diet_breakfast') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+<!-- plot_title = "Dietary intake" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = c("On most days"))` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r diet_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+<!-- ```{r diet_graph, fig.height=6.5} -->
+<!-- chk_stats$response <- ordered(chk_stats$response, levels = c("On most days", "2-3 days a week", "Once a week or less", "Rarely or never")) -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
+
+
+
+<!-- ### Table -->
+<!-- ```{r diet_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
+
+<!-- ## Portions of fruits and vegetables{.tabset} -->
+<!-- **"How many portions of fruits or vegetables did you eat yesterday?"** -->
+
+<!-- ``` {r portions_summary} -->
+<!-- chk_var <- c('portions') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Portions of fruit or vegetables" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+
+<!-- ```{r portions_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r portion_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r portions_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Perception of weight {.tabset} -->
+<!-- **"How would you describe your current weight?"** -->
+
+<!-- ``` {r weight_summary} -->
+<!-- chk_var <- c('weight') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Perception of weight" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+
+<!-- ### Comparisons -->
+
+<!-- ```{r weight_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r weight_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r weight_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Brushing teeth {.tabset} -->
+<!-- **"Yesterday, how many times did you brush your teeth?"** -->
+
+<!-- ``` {r brushteeth_summary} -->
+<!-- chk_var <- c('brushteeth') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Brushing teeth" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r brushteeth_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r brushteeth_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r brushteeth_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Dentist check-up {.tabset} -->
+<!-- **"Within the last year have you had a check-up at the dentist?"** -->
+
+<!-- ``` {r dentist_summary} -->
+<!-- chk_var <- c('dentist') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Annual dentist check-up" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r dentist_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r dentist_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r dentist_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Physical activity: 60 minutes or more per day {.tabset} -->
+<!-- **"In the past week, on how many days have you done at least an hour (60 minutes or more) of physical activity, which was enough to raise your breathing rate? This may include sport, exercise, and brisk walking or cycling."** -->
+
+<!-- ``` {r pa_60_summary} -->
+<!-- chk_var <- c('pa_60') -->
+
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+
+<!-- chk_stats$response <- ordered(chk_stats$response, levels = c("none", "1-3", "4-5", "6-7")) -->
+
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))%>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) -->
+<!-- plot_title = "Physical activity for at least 1 hour" -->
+
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r pa_60_bullets} -->
+<!--  create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r pa_60_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r pa60_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Physical activity: 30 to 59 minutes {.tabset} -->
+<!-- **"In the past week, on how many days have you done at least half an hour but less than an hour (30-59 minutes) of physical activity, which was enough to raise your breathing rate? This may include sport, exercise, and brisk walking or cycling." (This question was only asked to those reporting they did fewer than 5 days with 60 minutes of activity each day)** -->
+
+<!-- ``` {r pa_30_summary} -->
+<!-- chk_var <- c('pa_30') #merge the 60 and 30 minute together? -->
+<!-- #*** -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) -->
+<!-- plot_title = "Physical activity for at least 30 minutes" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r pa_30_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r pa30_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r pa30_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- # Smoking and Vaping -->
+
+<!-- This section contains information about the smoking/vaping habits of students including whether they smoke, how often they smoke, where they buy cigarettes, second-hand smoking, and whether they are trying to reduce or stop smoking. -->
+
+<!-- ## Second-hand smoke {.tabset} -->
+<!-- **“Thinking about those around you who may smoke…Do your parents/carers smoke cigarettes around you? / Does anyone at home smoke when you are in the room? / Does anyone smoke in a car when you are in it?”** -->
+
+<!-- ``` {r smoke_parents_summary} -->
+<!-- chk_var <- c('smoke_parents', 'smoke_home', 'smoke_car') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Exposure to second-hand smoke" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r smoke_parents_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
+
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r fig.height=6.5} --> -->
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
+
+<!-- ### Graph -->
+<!-- ```{r fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
+
+
+
+<!-- ### Table -->
+<!-- ```{r smoke_parents_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
+
+<!-- ## Smoking {.tabset} -->
+<!-- **“Thinking about smoking (excluding vaping / e-cigarettes) which of the following best describes you?”** -->
+
+<!-- ``` {r smoke_ever_summary} -->
+<!-- chk_var <- c('smoke_ever') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Smoking" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- <!-- In 2018, 1% of Year 8 boys and 6% of Year 10 boys reported that they smoke regularly or occasionally. In 2020, 0.2% of Year 8 boys and 2% of Year 10 boys reported they smoke regularly or occasionally. --> -->
+
+<!-- <!-- In 2018, 1% of Year 8 girls and 10% of Year 10 girls reported that they smoke regularly or occasionally. In 2020, 0.4% of Year 8 girls and 1% of Year 10 girls reported they smoke regularly or occasionally.* --> -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r smoke_ever_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r smokeever_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r smoke_ever_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Vaping {.tabset} -->
+<!-- **“Thinking about vaping / e-cigarettes only, which of the following best describes you?”** -->
+
+<!-- ``` {r vaping_summary} -->
+<!-- chk_var <- c('vaping') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Vaping" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r vaping_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r vaping_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r vaping_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Reduce smoking {.tabset} -->
+<!-- **"Do you want to reduce or stop smoking?" (This question was only asked to respondents who stated that they had smoked.)** -->
+
+<!-- ``` {r smoke_reduce_summary} -->
+<!-- chk_var <- c('smoke_reduce') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Reduce or stop smoking" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20 | nrow(chk_diff) == 0){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r smoke_reduce_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r smokereduce_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r smoke_reduce_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Buying cigarettes {.tabset} -->
+<!-- **"Where do you usually buy/get cigarettes?" (This question was only asked to respondents who stated that they had smoked.)** -->
+
+<!-- ``` {r buy_cigarettes_summary} -->
+<!-- chk_var <- c('buycig_pubbar', 'buycig_supermarker','buycig_smallshop','buycig_friend','buycig_internet') #**misspelled supermarket -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Buying cigarettes" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r buy_cigarettes_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
+
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r fig.height=6.5} --> -->
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
+
+<!-- ### Graph -->
+<!-- ```{r fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
+
+
+
+<!-- ### Table -->
+<!-- ```{r buy_cig_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
+
+<!-- ## Reducing smoking through vaping {.tabset} -->
+<!-- **"Have you used vaping / e-cigarettes to reduce or quit your smoking?" (This question was only asked to respondents who stated that they had smoked.)** -->
+
+<!-- ``` {r vaping_reducesmoke_summary} -->
+<!-- chk_var <- c('vaping_reducesmoke') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Reducing smoking through vaping" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r vaping_reducesmoke_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r vaping_reducesmoke_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r vaping_reducesoke_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- # Alcohol Consumption -->
+
+<!-- This section contains information about the alcohol consumption of students including whether they drink, how often they drink, where they buy alcohol, and whether they are trying to reduce or stop drinking. The drug section contains a question on where respondents would seek help for drug and alcohol issues. -->
+
+<!-- ## Alcohol {.tabset} -->
+<!-- **"How often have you had a drink containing alcohol in the past three months?"** -->
+
+<!-- ``` {r alcohol_ever_summary} -->
+<!-- chk_var <- c('alcohol_ever') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Alcohol intake" -->
+
+<!-- plot_x <- c(5, 4, 2, 1, 3) -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r alcohol_ever_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r alchol_ever_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r alcohol_ever_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Reducing alcohol consumption {.tabset} -->
+<!-- **"Do you want to reduce or stop your drinking?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)** -->
+
+<!-- ``` {r alchol_reduce_summary} -->
+<!-- chk_var <- c('alcohol_reduce') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Reducing alcohol consumption" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r alchol_reduce_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r alchol_reduce_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r alcohol_reduce_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Daily alcohol consumption {.tabset} -->
+<!-- **"How many drinks containing alcohol do you have on a typical day when you are drinking?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)** -->
+
+<!-- ``` {r alcohol_perday_summary} -->
+<!-- chk_var <- c('alcohol_perday') -->
+<!-- #*** -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>% -->
+<!--   mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) -->
+<!-- plot_title = "Daily alcohol consumption" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r alcohol_perday_bullets} -->
+<!--  create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r alchol_perday_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r alcohol_perday_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Binge drinking {.tabset} -->
+<!-- **"How often do you have six or more drinks on one occasion?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)** -->
+
+<!-- ``` {r alcohol_6more_summary} -->
+<!-- chk_var <- c('alcohol_6more') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Binge drinking" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r alcohol_6more_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r alchol_6more_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r alc6_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Buying alcohol {.tabset} -->
+<!-- **"Where do you typically buy/get alcohol?" (This question was only asked to respondents who stated that they drink alcoholic drinks.)** -->
+
+<!-- ``` {r buy_alcohol_summary} -->
 <!-- chk_var <- c('buyalc_pubbar','buyalc_home', 'buyalc_supermarket', 'buyalc_smallshop','buyalc_friend','buyalc_internet') -->
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Buying alcohol" -->
+
+<!-- top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 <!-- ``` -->
 
-### Graph
-```{r buy_alcohol_prop, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r buy_alcohol_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
+
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r buy_alcohol_count, fig.height=6.5} --> -->
+
+<!-- <!-- chk_var <- c('buyalc_pubbar','buyalc_home', 'buyalc_supermarket', 'buyalc_smallshop','buyalc_friend','buyalc_internet') --> -->
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
+
+<!-- ### Graph -->
+<!-- ```{r buy_alcohol_prop, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
 
-### Table
-```{r buyalc_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Table -->
+<!-- ```{r buyalc_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-# Drug Use
+<!-- # Drug Use -->
 
-This section contains information about the drug use of students including whether they've been offered any drugs, whether they've used any drugs, how often they use drugs, where they get drugs, and whether they are trying to reduce or doing drugs.
+<!-- This section contains information about the drug use of students including whether they've been offered any drugs, whether they've used any drugs, how often they use drugs, where they get drugs, and whether they are trying to reduce or doing drugs. -->
 
-## Drugs {.tabset}
-**“Thinking about recreational drug use, which of the following best describes you?”**
+<!-- ## Drugs {.tabset} -->
+<!-- **“Thinking about recreational drug use, which of the following best describes you?”** -->
 
-``` {r drug_ever_summary}
-chk_var <- c('drug_ever')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
+<!-- ``` {r drug_ever_summary} -->
+<!-- chk_var <- c('drug_ever') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
 
-plot_title = "Drug use"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r drug_ever_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r drug_ever_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r drugever_table}
-create_tbl(chk_diff)
-```
-
-## Drugs offered {.tabset}
-**“In the past three months have you been offered any of the following drugs?”**
-
-``` {r Drugs offered_summary}
-chk_var <- c('amphetamine_offered', 'cannabis_offered','khat_offered', 'ecstasy_offered','cocaine_offered','hallucinogen_offered','heroin_offered','ketamine_offered',
-             'steroids_offered','poppers_offered','solvents_offered','mephedrone_offered',
-             'nps_offered','nitrous_oxide_offered','xanex_offered')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
 
-plot_title = "Drugs offered"
+<!-- plot_title = "Drug use" -->
+<!-- ``` -->
 
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
-                                       chk_stats$breakdown == "All Responses"])
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Summary -->
 
-### Summary
+<!-- `r create_sum_sentence_herts()` -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ### Comparisons -->
 
-### Comparisons
+<!-- ```{r drug_ever_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-```{r drugs_offered_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- ### Graph -->
 
-<!-- ### Graph: Count -->
-<!-- ```{r drugs_offered_graph_count, fig.height=6.5} -->
+<!-- ```{r drug_ever_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r drugever_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Drugs offered {.tabset} -->
+<!-- **“In the past three months have you been offered any of the following drugs?”** -->
+
+<!-- ``` {r Drugs offered_summary} -->
 <!-- chk_var <- c('amphetamine_offered', 'cannabis_offered','khat_offered', 'ecstasy_offered','cocaine_offered','hallucinogen_offered','heroin_offered','ketamine_offered', -->
 <!--              'steroids_offered','poppers_offered','solvents_offered','mephedrone_offered', -->
 <!--              'nps_offered','nitrous_oxide_offered','xanex_offered') -->
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+<!-- plot_title = "Drugs offered" -->
+
+<!-- top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 <!-- ``` -->
 
-### Graph
-```{r drugs_offered_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-<!-- ### Graph: Mean responses -->
+<!-- ### Comparisons -->
 
-<!-- Since respondents were allowed to select more than one response, this graph shows the mean number of responses selected for each breakdown group.  -->
-
-<!-- ```{r } -->
-
-<!-- mean_responses_plot() -->
-
+<!-- ```{r drugs_offered_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
 <!-- ``` -->
 
-### Table
-```{r drugs_offered_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r drugs_offered_graph_count, fig.height=6.5} --> -->
+<!-- <!-- chk_var <- c('amphetamine_offered', 'cannabis_offered','khat_offered', 'ecstasy_offered','cocaine_offered','hallucinogen_offered','heroin_offered','ketamine_offered', --> -->
+<!-- <!--              'steroids_offered','poppers_offered','solvents_offered','mephedrone_offered', --> -->
+<!-- <!--              'nps_offered','nitrous_oxide_offered','xanex_offered') --> -->
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
 
-## Support for alcohol and drug use {.tabset}
-**"If you needed any information or support about drugs and alcohol, where would you go?"**
-
-``` {r Drugs and alcohol support_summary}
-chk_var <- c('drugsupp_family','drugsupp_friends','drugsupp_doctor','drugsupp_teacher','drugsupp_yw',
-             'drugsupp_internet', 'drugsupp_ypservice','drugsupp_other')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
+<!-- ### Graph -->
+<!-- ```{r drugs_offered_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
-plot_title = "Support for alcohol and drug use"
 
-top_5 <- tail(sort(filter(chk_stats,breakdown == "All Responses", response == "Yes")$count), 5)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- <!-- ### Graph: Mean responses --> -->
 
-```
+<!-- <!-- Since respondents were allowed to select more than one response, this graph shows the mean number of responses selected for each breakdown group.  --> -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- <!-- ```{r } --> -->
 
-### Summary
+<!-- <!-- mean_responses_plot() --> -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- <!-- ``` --> -->
 
-### Comparisons
+<!-- ### Table -->
+<!-- ```{r drugs_offered_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-```{r Drugs and alcohol support_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- ## Support for alcohol and drug use {.tabset} -->
+<!-- **"If you needed any information or support about drugs and alcohol, where would you go?"** -->
 
-<!-- ### Graph: Count -->
-<!-- ```{r Drugs and alcohol support_count, fig.height=6.5} -->
-
+<!-- ``` {r Drugs and alcohol support_summary} -->
 <!-- chk_var <- c('drugsupp_family','drugsupp_friends','drugsupp_doctor','drugsupp_teacher','drugsupp_yw', -->
 <!--              'drugsupp_internet', 'drugsupp_ypservice','drugsupp_other') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+
+
+<!-- plot_title = "Support for alcohol and drug use" -->
+
+<!-- top_5 <- tail(sort(filter(chk_stats,breakdown == "All Responses", response == "Yes")$count), 5) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
+
 <!-- ``` -->
 
-### Graph
-```{r Drugs and alcohol support_prop, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r Drugs and alcohol support_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
+
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r Drugs and alcohol support_count, fig.height=6.5} --> -->
+
+<!-- <!-- chk_var <- c('drugsupp_family','drugsupp_friends','drugsupp_doctor','drugsupp_teacher','drugsupp_yw', --> -->
+<!-- <!--              'drugsupp_internet', 'drugsupp_ypservice','drugsupp_other') --> -->
+
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
+
+<!-- ### Graph -->
+<!-- ```{r Drugs and alcohol support_prop, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
 
-### Table
-```{r drugalcsupp_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Table -->
+<!-- ```{r drugalcsupp_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-## Reducing drug use {.tabset}
-**"Do you want to reduce or stop taking drugs?" (This question was only asked to respondents who stated that they had used drugs.)**
+<!-- ## Reducing drug use {.tabset} -->
+<!-- **"Do you want to reduce or stop taking drugs?" (This question was only asked to respondents who stated that they had used drugs.)** -->
 
-``` {r drug_reduce_summary}
-chk_var <- c('drug_reduce')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Reducing drug use"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons
-
-```{r drug_reduce_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r drug_reduce_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r drugreduce_table}
-create_tbl(chk_diff)
-```
-
-## Drugs taken {.tabset}
-**“In the past three months have you taken any of the following drugs?” (This question was only asked to respondents who stated that they had used drugs.)**
-
-``` {r Drugs taken_summary}
-chk_var <- c('amphetamine_exp', 'cannabis_exp','khat_exp', 'ecstasy_exp','cocaine_exp','hallucinogen_natural_exp','heroin_exp','ketamine_exp',
-             'steroids_exp','poppers_exp','solvents_exp','mephedrone_exp',
-             'nps_exp','nitrous_oxide_exp','xanex_exp')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ``` {r drug_reduce_summary} -->
+<!-- chk_var <- c('drug_reduce') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
 
 
 
-plot_title = "Drugs taken"
+<!-- plot_title = "Reducing drug use" -->
+<!-- ``` -->
 
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
-                                       chk_stats$breakdown == "All Responses"])
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Summary -->
 
-### Summary
+<!-- `r create_sum_sentence_herts()` -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ### Comparisons -->
 
-### Comparisons
+<!-- ```{r drug_reduce_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-```{r Drugs taken_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- ### Graph -->
 
-<!-- ### Graph: Count -->
-<!-- ```{r Drugs taken_count,fig.height=6.5} -->
+<!-- ```{r drug_reduce_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
+<!-- ### Table -->
+<!-- ```{r drugreduce_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Drugs taken {.tabset} -->
+<!-- **“In the past three months have you taken any of the following drugs?” (This question was only asked to respondents who stated that they had used drugs.)** -->
+
+<!-- ``` {r Drugs taken_summary} -->
 <!-- chk_var <- c('amphetamine_exp', 'cannabis_exp','khat_exp', 'ecstasy_exp','cocaine_exp','hallucinogen_natural_exp','heroin_exp','ketamine_exp', -->
 <!--              'steroids_exp','poppers_exp','solvents_exp','mephedrone_exp', -->
 <!--              'nps_exp','nitrous_oxide_exp','xanex_exp') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+
+
+
+<!-- plot_title = "Drugs taken" -->
+
+<!-- top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 <!-- ``` -->
 
-### Graph
-```{r Drugs taken_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-<!-- ### Graph: Mean responses -->
+<!-- ### Comparisons -->
 
-<!-- Since respondents were allowed to select more than one response, this graph shows the mean number of responses selected for each breakdown group.  -->
-
-<!-- ```{r } -->
-<!-- chk_var <- c('amphetamines_exp', 'cannabis_exp','khat_exp', 'ecstasy_exp','cocaine_exp','hallucinogen_natural_exp','heroin_exp','ketamine_exp', -->
-<!--              'steroids_exp','poppers_exp','solvents_exp','mephedrone_exp', -->
-<!--              'nps_exp','nitrous_oxide_exp','xanex_exp') -->
-<!-- mean_responses_plot() -->
-
+<!-- ```{r Drugs taken_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
 <!-- ``` -->
 
-### Table
-```{r drugtaken_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r Drugs taken_count,fig.height=6.5} --> -->
 
-## Mixing drugs and alcohol {.tabset}
-**"Have you ever taken drugs and drunk alcohol on the same occasion?" (This question was only asked to respondents who stated that they had used drugs.)**
+<!-- <!-- chk_var <- c('amphetamine_exp', 'cannabis_exp','khat_exp', 'ecstasy_exp','cocaine_exp','hallucinogen_natural_exp','heroin_exp','ketamine_exp', --> -->
+<!-- <!--              'steroids_exp','poppers_exp','solvents_exp','mephedrone_exp', --> -->
+<!-- <!--              'nps_exp','nitrous_oxide_exp','xanex_exp') --> -->
 
-``` {r drugs_alcohol_summary}
-chk_var <- c('drugs_alcohol')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
+
+<!-- ### Graph -->
+<!-- ```{r Drugs taken_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
 
+<!-- <!-- ### Graph: Mean responses --> -->
 
-plot_title = "Mixing drugs and alcohol"
-```
+<!-- <!-- Since respondents were allowed to select more than one response, this graph shows the mean number of responses selected for each breakdown group.  --> -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- <!-- ```{r } --> -->
+<!-- <!-- chk_var <- c('amphetamines_exp', 'cannabis_exp','khat_exp', 'ecstasy_exp','cocaine_exp','hallucinogen_natural_exp','heroin_exp','ketamine_exp', --> -->
+<!-- <!--              'steroids_exp','poppers_exp','solvents_exp','mephedrone_exp', --> -->
+<!-- <!--              'nps_exp','nitrous_oxide_exp','xanex_exp') --> -->
+<!-- <!-- mean_responses_plot() --> -->
 
-### Summary
+<!-- <!-- ``` --> -->
 
-`r create_sum_sentence_herts()`
+<!-- ### Table -->
+<!-- ```{r drugtaken_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ## Mixing drugs and alcohol {.tabset} -->
+<!-- **"Have you ever taken drugs and drunk alcohol on the same occasion?" (This question was only asked to respondents who stated that they had used drugs.)** -->
 
-```{r drugs_alcohol_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r drugs_alcohol_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r drugsalco_table}
-create_tbl(chk_diff)
-```
-
-## Buying drugs {.tabset}
-**“Where do you typically buy/get drugs? You can choose more than one answer.” (This question was only asked to respondents who stated that they had used drugs.)**
-
-``` {r Buying drugs_summary}
-chk_var <- c('buydrug_bar','buydrug_school','buydrug_streets','buydrug_friend','buydrug_internet','buydrug_other')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ``` {r drugs_alcohol_summary} -->
+<!-- chk_var <- c('drugs_alcohol') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
 
 
 
-plot_title = "Buying drugs"
+<!-- plot_title = "Mixing drugs and alcohol" -->
+<!-- ``` -->
 
-top_3 <- tail(sort(filter(chk_stats, 
-                          breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-chk_var <- unique(c(chk_var, "buydrug_school"))
-```
+<!-- ### Summary -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- `r create_sum_sentence_herts()` -->
 
-### Summary
+<!-- ### Comparisons -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ```{r drugs_alcohol_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ### Graph -->
 
+<!-- ```{r drugs_alcohol_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-```{r Buying drugs_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- ### Table -->
+<!-- ```{r drugsalco_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-<!-- ### Graph: Count -->
-<!-- ```{r Buying drugs_count,fig.height=6.5} -->
+<!-- ## Buying drugs {.tabset} -->
+<!-- **“Where do you typically buy/get drugs? You can choose more than one answer.” (This question was only asked to respondents who stated that they had used drugs.)** -->
 
+<!-- ``` {r Buying drugs_summary} -->
 <!-- chk_var <- c('buydrug_bar','buydrug_school','buydrug_streets','buydrug_friend','buydrug_internet','buydrug_other') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+
+
+
+<!-- plot_title = "Buying drugs" -->
+
+<!-- top_3 <- tail(sort(filter(chk_stats,  -->
+<!--                           breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
+
+<!-- chk_var <- unique(c(chk_var, "buydrug_school")) -->
 <!-- ``` -->
 
-### Graph
-```{r Buying drugs_prop, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
+
+<!-- ### Comparisons -->
+
+
+<!-- ```{r Buying drugs_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
+
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r Buying drugs_count,fig.height=6.5} --> -->
+
+<!-- <!-- chk_var <- c('buydrug_bar','buydrug_school','buydrug_streets','buydrug_friend','buydrug_internet','buydrug_other') --> -->
+
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
+
+<!-- ### Graph -->
+<!-- ```{r Buying drugs_prop, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
 
-### Table
-```{r buydrug_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Table -->
+<!-- ```{r buydrug_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-# Sexual Health
+<!-- # Sexual Health -->
 
-This section contains information about the sexual health and knowledge of sexual health of the students. Attitudes towards sex, sexual health behaviours and STDs are asked as well.
+<!-- This section contains information about the sexual health and knowledge of sexual health of the students. Attitudes towards sex, sexual health behaviours and STDs are asked as well. -->
 
-## Information about relationships and sex {.tabset}
-**“Where do you currently get information about relationships and sex?”**
+<!-- ## Information about relationships and sex {.tabset} -->
+<!-- **“Where do you currently get information about relationships and sex?”** -->
 
-``` {r Information about sex_summary}
-chk_var <- c('shinfo_parents','shinfo_school','shinfo_friends','shinfo_relations','shinfo_clinic','shinfo_media','shinfo_poster','shinfo_porn','shinfo_doctor','shinfo_healthsite','shinfo_helpline','shinfo_yw','shinfo_other')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-
-
-plot_title = "Information about relationships and sex"
-
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
-                                       chk_stats$breakdown == "All Responses"])
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
-
-### Comparisons
-
-```{r Information about sex_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
-
-<!-- ### Graph: Count -->
-<!-- ```{r infosex_count, fig.height=6.5} -->
-
+<!-- ``` {r Information about sex_summary} -->
 <!-- chk_var <- c('shinfo_parents','shinfo_school','shinfo_friends','shinfo_relations','shinfo_clinic','shinfo_media','shinfo_poster','shinfo_porn','shinfo_doctor','shinfo_healthsite','shinfo_helpline','shinfo_yw','shinfo_other') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+
+
+
+<!-- plot_title = "Information about relationships and sex" -->
+
+<!-- top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 <!-- ``` -->
 
-### Graph
-```{r infosex_prop, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-### Table
-```{r infosex_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Comparisons -->
 
-## STD knowledge {.tabset}
-**“For each of the sexually transmitted infections listed below, please choose the answer that describes best what you know about them.”**
+<!-- ```{r Information about sex_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-``` {r STD knowledge_summary}
-chk_var <- c("std_hiv", 'std_herpes','std_warts','std_gono','std_chlamydia','std_syphilis')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r infosex_count, fig.height=6.5} --> -->
 
+<!-- <!-- chk_var <- c('shinfo_parents','shinfo_school','shinfo_friends','shinfo_relations','shinfo_clinic','shinfo_media','shinfo_poster','shinfo_porn','shinfo_doctor','shinfo_healthsite','shinfo_helpline','shinfo_yw','shinfo_other') --> -->
 
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
 
+<!-- ### Graph -->
+<!-- ```{r infosex_prop, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Knowledge about STIs"
 
-chk_var <- unique(chk_stats$question[chk_stats$count > 0 &
-                                       chk_stats$response == "I have never heard of it" &
-                                       chk_stats$breakdown == "All Responses"])
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Table -->
+<!-- ```{r infosex_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-### Summary
+<!-- ## STD knowledge {.tabset} -->
+<!-- **“For each of the sexually transmitted infections listed below, please choose the answer that describes best what you know about them.”** -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "I have never heard of it")`
+<!-- ``` {r STD knowledge_summary} -->
+<!-- chk_var <- c("std_hiv", 'std_herpes','std_warts','std_gono','std_chlamydia','std_syphilis') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r STD knowledge_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
 
-### Graph
-```{r STD knowledge_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
 
+<!-- plot_title = "Knowledge about STIs" -->
 
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count > 0 & -->
+<!--                                        chk_stats$response == "I have never heard of it" & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
+<!-- ``` -->
 
-### Table
-```{r stdinfo_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Sexual health support {.tabset}
-**“If you needed support to get contraception or a test for a Sexually Transmitted Infection (STI), which one of these would you prefer to access?”**
+<!-- ### Summary -->
 
-``` {r sh_support_summary}
-chk_var <- c('sh_support')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "I have never heard of it")` -->
 
+<!-- ### Comparisons -->
 
+<!-- ```{r STD knowledge_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
+<!-- ```{r STD knowledge_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Sexual health support"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r stdinfo_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Sexual health support {.tabset} -->
+<!-- **“If you needed support to get contraception or a test for a Sexually Transmitted Infection (STI), which one of these would you prefer to access?”** -->
 
-### Comparisons
+<!-- ``` {r sh_support_summary} -->
+<!-- chk_var <- c('sh_support') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r sh_support_bullets}
-create_bullets_herts(chk_diff)$Table
-```
 
-### Graph
 
-```{r shsupp_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title, rotate = 40)
-```
 
+<!-- plot_title = "Sexual health support" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r shsupp_table}
-create_tbl(chk_diff)
-```
+<!-- ### Summary -->
 
-## Access to sexual health services {.tabset}
-**"Do you know how to access sexual health services? This includes seeking information about healthy relationships and contraception (e.g., free condoms and the pill, coil or implant)."**
+<!-- `r create_sum_sentence_herts()` -->
 
-``` {r sh_access_summary}
-chk_var <- c('sh_access')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r sh_support_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
 
+<!-- ```{r shsupp_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title, rotate = 40) -->
+<!-- ``` -->
 
-plot_title = "Access to sexual health services"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r shsupp_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Access to sexual health services {.tabset} -->
+<!-- **"Do you know how to access sexual health services? This includes seeking information about healthy relationships and contraception (e.g., free condoms and the pill, coil or implant)."** -->
 
-### Comparisons
+<!-- ``` {r sh_access_summary} -->
+<!-- chk_var <- c('sh_access') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r sh_access_bullets}
-create_bullets_herts(chk_diff)$Table
-```
 
-### Graph
 
-```{r sh_access_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
 
-### Table
-```{r shaccess_table}
-create_tbl(chk_diff)
-```
+<!-- plot_title = "Access to sexual health services" -->
+<!-- ``` -->
 
-## Sexual health beliefs {.tabset}
-**Please answer the following statements and say whether you disagree, are not sure or agree:** 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-"Most 16-year-olds have not had sex"; 
+<!-- ### Summary -->
 
-"Using condoms is necessary to prevent sexually transmitted infections and unplanned pregnancies"; 
+<!-- `r create_sum_sentence_herts()` -->
 
-"Getting pregnant or getting someone else pregnant now would negatively affect my future plans"; 
+<!-- ### Comparisons -->
 
-"There is pressure on young people to have sex"; 
+<!-- ```{r sh_access_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-"Being in a serious/long-term relationship before having sex is important"; 
+<!-- ### Graph -->
 
-"It is fine to wait to have sex". 
+<!-- ```{r sh_access_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-**(This question was only asked to respondents who stated they were Year 10+)**
+<!-- ### Table -->
+<!-- ```{r shaccess_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-``` {r Sexual health beliefs_summary}
-chk_var <- c('sh_pressure','sh_wait','sh_serious','sh_condoms','sh_pregnancy','sh_16')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ## Sexual health beliefs {.tabset} -->
+<!-- **Please answer the following statements and say whether you disagree, are not sure or agree:**  -->
 
+<!-- "Most 16-year-olds have not had sex";  -->
 
+<!-- "Using condoms is necessary to prevent sexually transmitted infections and unplanned pregnancies";  -->
 
+<!-- "Getting pregnant or getting someone else pregnant now would negatively affect my future plans";  -->
 
-plot_title = "Sexual health beliefs"
-```
+<!-- "There is pressure on young people to have sex";  -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- "Being in a serious/long-term relationship before having sex is important";  -->
 
-### Summary
+<!-- "It is fine to wait to have sex".  -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Agree")`
+<!-- **(This question was only asked to respondents who stated they were Year 10+)** -->
 
-### Comparisons
+<!-- ``` {r Sexual health beliefs_summary} -->
+<!-- chk_var <- c('sh_pressure','sh_wait','sh_serious','sh_condoms','sh_pregnancy','sh_16') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r Sexual health beliefs_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
 
-### Graph
-```{r Sexual health beliefs_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
 
-### Table
-```{r shbelief_table}
-create_tbl(chk_diff, multi = T)
-```
 
-## Getting free contraception (condoms) {.tabset}
-**“Do you know where you can get condoms for free?" (This question was only asked to respondents who stated they were Year 10+)**
+<!-- plot_title = "Sexual health beliefs" -->
+<!-- ``` -->
 
-``` {r condoms_free_summary}
-chk_var <- c('condoms_free')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Agree")` -->
 
+<!-- ### Comparisons -->
 
-plot_title = "Getting free contraception (condoms)"
-```
+<!-- ```{r Sexual health beliefs_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Graph -->
+<!-- ```{r Sexual health beliefs_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r shbelief_table} -->
+<!-- create_tbl(chk_diff, multi = T) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Getting free contraception (condoms) {.tabset} -->
+<!-- **“Do you know where you can get condoms for free?" (This question was only asked to respondents who stated they were Year 10+)** -->
 
-### Comparisons
+<!-- ``` {r condoms_free_summary} -->
+<!-- chk_var <- c('condoms_free') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r condoms_free_bullets}
-create_bullets_herts(chk_diff)$Table
-```
 
-### Graph
 
-```{r condoms_free_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
 
-### Table
-```{r condoms_table}
-create_tbl(chk_diff)
-```
+<!-- plot_title = "Getting free contraception (condoms)" -->
+<!-- ``` -->
 
-# Mental Health and Wellbeing
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-This section contains information about general and mental wellbeing of the students including questions on life satisfaction, self-worth, happiness, their worries, their attitudes and use of mental health services, their coping strategies, and online safety.
+<!-- ### Summary -->
 
-## Wellbeing {.tabset}
-**“We would like to ask you four questions about your feelings on aspects of your life. There are no right or wrong answers. For each of these questions please give an answer on a scale of 0 to 10, where 0 is “not at all” and 10 is “completely”."**
+<!-- `r create_sum_sentence_herts()` -->
 
-``` {r wellbeing_summary}
-chk_var <- c('life_satisfied', 'life_worthwhile', 'life_happyyesterday', 'life_satisfied_before_covid')
-#***
-chk_stats <- filter(stats, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high")))
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high")))
-plot_title = "Wellbeing and life satisfaction"
-```
+<!-- ### Comparisons -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r condoms_free_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Graph -->
 
-* Note that for visualisation and analysis purposes, we have grouped the scalar responses to categorical : low (0 - 4), medium (5 - 6), high (7 - 8), very high (9 - 10). 
+<!-- ```{r condoms_free_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
+<!-- ### Table -->
+<!-- ```{r condoms_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "low")`
+<!-- # Mental Health and Wellbeing -->
 
-### Comparisons
+<!-- This section contains information about general and mental wellbeing of the students including questions on life satisfaction, self-worth, happiness, their worries, their attitudes and use of mental health services, their coping strategies, and online safety. -->
 
+<!-- ## Wellbeing {.tabset} -->
+<!-- **“We would like to ask you four questions about your feelings on aspects of your life. There are no right or wrong answers. For each of these questions please give an answer on a scale of 0 to 10, where 0 is “not at all” and 10 is “completely”."** -->
 
-```{r wellbeing_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- ``` {r wellbeing_summary} -->
+<!-- chk_var <- c('life_satisfied', 'life_worthwhile', 'life_happyyesterday', 'life_satisfied_before_covid') -->
+<!-- #*** -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) %>% -->
+<!--   mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) %>% -->
+<!--   mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>% -->
+<!--   mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>% -->
+<!--   mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) -->
+<!-- plot_title = "Wellbeing and life satisfaction" -->
+<!-- ``` -->
 
-### Graph
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-```{r wellbeing_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- ### Summary -->
 
+<!-- * Note that for visualisation and analysis purposes, we have grouped the scalar responses to categorical : low (0 - 4), medium (5 - 6), high (7 - 8), very high (9 - 10).  -->
 
-### Table
-```{r wellbeing_table,fig.height=6.5}
-create_tbl(chk_diff, multi_response = T)
-```
 
-## Worries {.tabset}
-**“Which of the following issues do you worry about? You can choose more than one answer.” **
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "low")` -->
 
-``` {r Worries_summary}
-chk_var <- c('worry_school','worry_bully','worry_phys','worry_mental','worry_family','worry_money','worry_look','worry_socialmedia','worry_relationships','worry_drugsalcohol','worry_environment','worry_crime','worry_gambling','worry_friends','worry_safety','worry_lonely', 'worry_covid19')
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
+<!-- ```{r wellbeing_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-plot_title = "Worries"
+<!-- ### Graph -->
 
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- ```{r wellbeing_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Table -->
+<!-- ```{r wellbeing_table,fig.height=6.5} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-### Summary
+<!-- ## Worries {.tabset} -->
+<!-- **“Which of the following issues do you worry about? You can choose more than one answer.” ** -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
-
-### Comparisons
-
-```{r Worries_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
-
-<!-- ### Graph: Count -->
-<!-- ```{r Worries_count, fig.height=6.5} -->
+<!-- ``` {r Worries_summary} -->
 <!-- chk_var <- c('worry_school','worry_bully','worry_phys','worry_mental','worry_family','worry_money','worry_look','worry_socialmedia','worry_relationships','worry_drugsalcohol','worry_environment','worry_crime','worry_gambling','worry_friends','worry_safety','worry_lonely', 'worry_covid19') -->
 
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+<!-- plot_title = "Worries" -->
+
+<!-- top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
+
 <!-- ``` -->
 
-### Graph
-```{r Worries_prop, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-<!-- ### Graph: Mean responses -->
+<!-- ### Comparisons -->
 
-<!-- Since respondents were allowed to select more than one response, this graph shows the mean number of responses selected for each breakdown group.  -->
-
-<!-- ```{r} -->
-<!-- mean_responses_plot(vars = chk_var) -->
+<!-- ```{r Worries_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
 <!-- ``` -->
 
-### Table
-```{r worries_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r Worries_count, fig.height=6.5} --> -->
+<!-- <!-- chk_var <- c('worry_school','worry_bully','worry_phys','worry_mental','worry_family','worry_money','worry_look','worry_socialmedia','worry_relationships','worry_drugsalcohol','worry_environment','worry_crime','worry_gambling','worry_friends','worry_safety','worry_lonely', 'worry_covid19') --> -->
 
-## Talking about mental health {.tabset}
-**“Do you agree with this statement? ‘It’s okay for me to talk about my mental health’.” **
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
 
-``` {r mental_talk_summary}
-chk_var <- c('mental_talk')
-
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Graph -->
+<!-- ```{r Worries_prop, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
 
-plot_title = "'It's okay for me to talk about my mental health'"
-```
+<!-- <!-- ### Graph: Mean responses --> -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- <!-- Since respondents were allowed to select more than one response, this graph shows the mean number of responses selected for each breakdown group.  --> -->
 
-### Summary
+<!-- <!-- ```{r} --> -->
+<!-- <!-- mean_responses_plot(vars = chk_var) --> -->
+<!-- <!-- ``` --> -->
 
-`r create_sum_sentence_herts()`
+<!-- ### Table -->
+<!-- ```{r worries_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ## Talking about mental health {.tabset} -->
+<!-- **“Do you agree with this statement? ‘It’s okay for me to talk about my mental health’.” ** -->
 
-```{r mental_talk_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- ``` {r mental_talk_summary} -->
+<!-- chk_var <- c('mental_talk') -->
 
-### Graph
-
-```{r mentaltalk_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
-
-### Table
-```{r menttalk_table}
-create_tbl(chk_diff)
-```
-
-## Coping {.tabset}
-**“If you have a problem that worries you how do you cope? Select up to 5 options” **
-
-``` {r Coping_summary}
-chk_var <- c('cope_nothing','cope_think','cope_internet','cope_talkadult','cope_talkfriend','cope_counselling','cope_exercise','cope_creative','cope_music','cope_games','cope_smoke','cope_alcohol','cope_selfharm','cope_drugs','cope_eat','cope_talkfamily','cope_other')
-
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
 
-plot_title = "How they cope"
 
+<!-- plot_title = "'It's okay for me to talk about my mental health'" -->
+<!-- ``` -->
 
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
-```
+<!-- `r create_sum_sentence_herts()` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Comparisons -->
 
-### Summary
+<!-- ```{r mental_talk_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ### Graph -->
 
-### Comparisons
+<!-- ```{r mentaltalk_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-```{r Coping_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- ### Table -->
+<!-- ```{r menttalk_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-<!-- ### Graph: Count -->
-<!-- ```{r Coping_graph, fig.height=6.5} -->
+<!-- ## Coping {.tabset} -->
+<!-- **“If you have a problem that worries you how do you cope? Select up to 5 options” ** -->
+
+<!-- ``` {r Coping_summary} -->
 <!-- chk_var <- c('cope_nothing','cope_think','cope_internet','cope_talkadult','cope_talkfriend','cope_counselling','cope_exercise','cope_creative','cope_music','cope_games','cope_smoke','cope_alcohol','cope_selfharm','cope_drugs','cope_eat','cope_talkfamily','cope_other') -->
 
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+<!-- plot_title = "How they cope" -->
+
+
+<!-- top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
+
+
 <!-- ``` -->
 
-### Graph
-```{r coping_prop, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-### Table
-```{r cope_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Comparisons -->
 
-## Online safety {.tabset}
-**“When using the Internet/messaging apps have you…”**
+<!-- ```{r Coping_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-``` {r Internet safety_summary}
-chk_var <- c('internet_message','internet_personalinfo','internet_pictures_pressure','internet_met','internet_pictures_upset','info_internet_safety')
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r Coping_graph, fig.height=6.5} --> -->
+<!-- <!-- chk_var <- c('cope_nothing','cope_think','cope_internet','cope_talkadult','cope_talkfriend','cope_counselling','cope_exercise','cope_creative','cope_music','cope_games','cope_smoke','cope_alcohol','cope_selfharm','cope_drugs','cope_eat','cope_talkfamily','cope_other') --> -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
 
+<!-- ### Graph -->
+<!-- ```{r coping_prop, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Online experiences"
 
-top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Table -->
+<!-- ```{r cope_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-### Summary
+<!-- ## Online safety {.tabset} -->
+<!-- **“When using the Internet/messaging apps have you…”** -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ``` {r Internet safety_summary} -->
+<!-- chk_var <- c('internet_message','internet_personalinfo','internet_pictures_pressure','internet_met','internet_pictures_upset','info_internet_safety') -->
 
-### Comparisons
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r Internet safety_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
 
-### Graph
-```{r Internet safety_graph, fig.height=6.5}
+<!-- plot_title = "Online experiences" -->
 
-chk_var <- c('internet_message','internet_personalinfo','internet_pictures_pressure','internet_met','internet_pictures_upset','info_internet_safety')
+<!-- top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
+<!-- ``` -->
 
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-### Table
-```{r internetsafe_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Comparisons -->
 
-## Self-harm {.tabset}
-**"Have you ever self-harmed?"**
+<!-- ```{r Internet safety_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-``` {r selfharm_ever_summary}
-chk_var <- c('selfharm_ever')
+<!-- ### Graph -->
+<!-- ```{r Internet safety_graph, fig.height=6.5} -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- chk_var <- c('internet_message','internet_personalinfo','internet_pictures_pressure','internet_met','internet_pictures_upset','info_internet_safety') -->
 
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Self-harm"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r internetsafe_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Self-harm {.tabset} -->
+<!-- **"Have you ever self-harmed?"** -->
 
-### Comparisons
+<!-- ``` {r selfharm_ever_summary} -->
+<!-- chk_var <- c('selfharm_ever') -->
 
-```{r selfharm_ever_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r selfharmever_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Self-harm" -->
+<!-- ``` -->
 
-### Table
-```{r selfharm_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Mental health services {.tabset}
-**"Do you know how to access services if you are worried about, or are looking for more information about your mental health?"**
+<!-- ### Summary -->
 
-``` {r mental_howaccess_summary}
-chk_var <- c('mental_howaccess')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r selfharm_ever_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Mental health services"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r selfharmever_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r selfharm_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Mental health services {.tabset} -->
+<!-- **"Do you know how to access services if you are worried about, or are looking for more information about your mental health?"** -->
 
-### Comparisons
+<!-- ``` {r mental_howaccess_summary} -->
+<!-- chk_var <- c('mental_howaccess') -->
 
-```{r mental_howaccess_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r mental_howaccess_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Mental health services" -->
+<!-- ``` -->
 
-### Table
-```{r mentalhow_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Herts Just Talk {.tabset}
-**"Are you aware of Hertfordshire's Just Talk (www.justtalkherts.org) campaign to support young people's mental health and wellbeing?"**
+<!-- ### Summary -->
 
-``` {r herts_talk_summary}
-chk_var <- c('herts_just_talk')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r mental_howaccess_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Awareness of Herts Just Talk"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r mental_howaccess_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r mentalhow_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Herts Just Talk {.tabset} -->
+<!-- **"Are you aware of Hertfordshire's Just Talk (www.justtalkherts.org) campaign to support young people's mental health and wellbeing?"** -->
 
-### Comparisons
+<!-- ``` {r herts_talk_summary} -->
+<!-- chk_var <- c('herts_just_talk') -->
 
-```{r herts_talk_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r herts_talk_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Awareness of Herts Just Talk" -->
+<!-- ``` -->
 
-### Table
-```{r herts_talk_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
-## Finding support for mental health {.tabset}
-**“If you were struggling with your mental health, where would you want support from? Select up to three.”**
+<!-- `r create_sum_sentence_herts()` -->
 
-``` {r Mental health support_summary}
-chk_var <- c('mental_doctor','mental_school','mental_clinic','mental_youthservice','mental_internet','mental_activesupport','mental_121','mental_groupwork','mental_none','mental_parents','mental_nurse')
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r herts_talk_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
 
-plot_title = "Finding support for mental health"
+<!-- ```{r herts_talk_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- ### Table -->
+<!-- ```{r herts_talk_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ## Finding support for mental health {.tabset} -->
+<!-- **“If you were struggling with your mental health, where would you want support from? Select up to three.”** -->
 
-### Summary
+<!-- ``` {r Mental health support_summary} -->
+<!-- chk_var <- c('mental_doctor','mental_school','mental_clinic','mental_youthservice','mental_internet','mental_activesupport','mental_121','mental_groupwork','mental_none','mental_parents','mental_nurse') -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r Mental health support_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Finding support for mental health" -->
 
-### Graph
-```{r Mental health support_graph, fig.height=6.5}
-chk_var <- c('mental_doctor','mental_school','mental_clinic','mental_youthservice','mental_internet','mental_activesupport','mental_121','mental_groupwork','mental_none','mental_parents','mental_nurse')
+<!-- top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
-### Table
-```{r mentalsupp_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-## Experience with mental health services {.tabset}
-**"Have you accessed mental health services before?" **
+<!-- ### Comparisons -->
 
-``` {r mental_accessed_summary}
-chk_var <- c('mental_accessed') #**rephrase title or merge
+<!-- ```{r Mental health support_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Graph -->
+<!-- ```{r Mental health support_graph, fig.height=6.5} -->
+<!-- chk_var <- c('mental_doctor','mental_school','mental_clinic','mental_youthservice','mental_internet','mental_activesupport','mental_121','mental_groupwork','mental_none','mental_parents','mental_nurse') -->
 
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Experience with mental health services"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r mentalsupp_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Experience with mental health services {.tabset} -->
+<!-- **"Have you accessed mental health services before?" ** -->
 
-### Comparisons
+<!-- ``` {r mental_accessed_summary} -->
+<!-- chk_var <- c('mental_accessed') #**rephrase title or merge -->
 
-```{r mental_accessed_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r mental_accessed_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Experience with mental health services" -->
+<!-- ``` -->
 
-### Table
-```{r mentalaccess_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Helpfulness of Mental health support {.tabset}
-**"How helpful did you find the support?" **
+<!-- ### Summary -->
 
-``` {r mental_accessed_helpful_summary}
-chk_var <- c('mental_accessed_helpful') #**rephrase title or merge
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r mental_accessed_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Helpfulness of Mental help support"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r mental_accessed_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r mentalaccess_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Helpfulness of Mental health support {.tabset} -->
+<!-- **"How helpful did you find the support?" ** -->
 
-### Comparisons
+<!-- ``` {r mental_accessed_helpful_summary} -->
+<!-- chk_var <- c('mental_accessed_helpful') #**rephrase title or merge -->
 
-```{r mental_accessed_helpful_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r mental_accessed_helpful_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Helpfulness of Mental help support" -->
+<!-- ``` -->
 
-### Table
-```{r mentalaccess_helpful_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
-# Bullying
+<!-- `r create_sum_sentence_herts()` -->
 
-This section contains information about any experiences with bullying by the students.
+<!-- ### Comparisons -->
 
-## Experiences with bullying {.tabset}
-**“Please describe your experiences with bullying. You can select multiple choices.” **
+<!-- ```{r mental_accessed_helpful_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-``` {r Bullyothers_summary}
-chk_var <- c("bully_others", "bullied", "bullied_none", "bullied_prefer_not_say")
+<!-- ### Graph -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r mental_accessed_helpful_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
+<!-- ### Table -->
+<!-- ```{r mentalaccess_helpful_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
 
-plot_title = "Experiences with bullying"
-```
+<!-- # Bullying -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- This section contains information about any experiences with bullying by the students. -->
 
-### Summary
+<!-- ## Experiences with bullying {.tabset} -->
+<!-- **“Please describe your experiences with bullying. You can select multiple choices.” ** -->
 
-`r create_sum_sentence_herts(multi = T,value_of_interest = "Yes")[1]`
+<!-- ``` {r Bullyothers_summary} -->
+<!-- chk_var <- c("bully_others", "bullied", "bullied_none", "bullied_prefer_not_say") -->
 
-### Comparisons
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r Bullyothers_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
 
-### Graph
-```{r Bullyothers_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
 
+<!-- plot_title = "Experiences with bullying" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r Bullyothers_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-## Being bullied currently {.tabset}
-**“Are you currently being bullied or picked on?” **
+<!-- `r create_sum_sentence_herts(multi = T,value_of_interest = "Yes")[1]` -->
 
-``` {r bullied_currently_summary}
-chk_var <- "bullied_currently"
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r Bullyothers_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
+<!-- ```{r Bullyothers_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
-plot_title = "Currently being bullied/picked on"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Table -->
+<!-- ```{r Bullyothers_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-### Summary
+<!-- ## Being bullied currently {.tabset} -->
+<!-- **“Are you currently being bullied or picked on?” ** -->
 
-`r create_sum_sentence_herts()`
+<!-- ``` {r bullied_currently_summary} -->
+<!-- chk_var <- "bullied_currently" -->
 
-### Comparisons
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r bullied_currently_bullets}
-create_bullets_herts(chk_diff)$Table
-```
 
-### Graph
-```{r bullied_currently_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
 
-### Table
-```{r bullied_currently_table}
-create_tbl(chk_diff)
-```
+<!-- plot_title = "Currently being bullied/picked on" -->
+<!-- ``` -->
 
-## Where they were bullied {.tabset}
-**“Where have you been bullied or picked on? You can choose more than one answer.”**
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-``` {r Bullying_summary}
-chk_var <- c('bullied_school','bullied_outschool','bullied_internet')
+<!-- ### Summary -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- `r create_sum_sentence_herts()` -->
 
+<!-- ### Comparisons -->
 
+<!-- ```{r bullied_currently_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Where they were bullied"
-```
+<!-- ### Graph -->
+<!-- ```{r bullied_currently_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Table -->
+<!-- ```{r bullied_currently_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-### Summary
+<!-- ## Where they were bullied {.tabset} -->
+<!-- **“Where have you been bullied or picked on? You can choose more than one answer.”** -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ``` {r Bullying_summary} -->
+<!-- chk_var <- c('bullied_school','bullied_outschool','bullied_internet') -->
 
-### Comparisons
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r Bullying_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
 
-### Graph
-```{r Bullying_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
 
-### Table
-```{r bully_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- plot_title = "Where they were bullied" -->
+<!-- ``` -->
 
-# Safety
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-This section contains information about safety, online safety, and any experiences of violence by the students.
+<!-- ### Summary -->
 
-## Safety {.tabset}
-**“Please rate how safe you feel when you are at school / going to and from school / going out during the day / going out after dark.” **
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-``` {r Safety_summary}
-chk_var <- c('safety_dark','safety_day','safety_school','safety_journey')
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r Bullying_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
+<!-- ```{r Bullying_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Feeling safe/unsafe"
-```
+<!-- ### Table -->
+<!-- ```{r bully_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- # Safety -->
 
-### Summary
+<!-- This section contains information about safety, online safety, and any experiences of violence by the students. -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Unsafe")`
+<!-- ## Safety {.tabset} -->
+<!-- **“Please rate how safe you feel when you are at school / going to and from school / going out during the day / going out after dark.” ** -->
 
-### Comparisons
+<!-- ``` {r Safety_summary} -->
+<!-- chk_var <- c('safety_dark','safety_day','safety_school','safety_journey') -->
 
-```{r Safety_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
-```{r Safety_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
 
+<!-- plot_title = "Feeling safe/unsafe" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r safety_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-## Violent incidents {.tabset}
-**"In the past year have you been involved in a violent incident?"**
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Unsafe")` -->
 
-``` {r violence_involved_summary}
-chk_var <- c('violence_involved')
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r Safety_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
+<!-- ```{r Safety_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Violent incidents"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r safety_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Violent incidents {.tabset} -->
+<!-- **"In the past year have you been involved in a violent incident?"** -->
 
-### Comparisons
+<!-- ``` {r violence_involved_summary} -->
+<!-- chk_var <- c('violence_involved') -->
 
-```{r violence_involved_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r violence_involved_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Violent incidents" -->
+<!-- ``` -->
 
-### Table
-```{r violencein_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Violence with a weapon {.tabset}
-**"In the past year have you been involved in a violent incident where a weapon was used or threatened to be used?"**
+<!-- ### Summary -->
 
-``` {r violence_weapon_involved_summary}
-chk_var <- c('violence_weapon_involved')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r violence_involved_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Violent incidents with weapons"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r violence_involved_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r violencein_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Violence with a weapon {.tabset} -->
+<!-- **"In the past year have you been involved in a violent incident where a weapon was used or threatened to be used?"** -->
 
-### Comparisons
+<!-- ``` {r violence_weapon_involved_summary} -->
+<!-- chk_var <- c('violence_weapon_involved') -->
 
-```{r violence_weapon_involved_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r violence_weapon_involved_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Violent incidents with weapons" -->
+<!-- ``` -->
 
-### Table
-```{r violenceweapon_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Carrying weapons {.tabset}
-**"Do you carry weapons for protection when going out?"**
+<!-- ### Summary -->
 
-``` {r carry_protection_summary}
-chk_var <- c('carry_protection')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r violence_weapon_involved_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Carrying weapons for protection"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r violence_weapon_involved_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r violenceweapon_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Carrying weapons {.tabset} -->
+<!-- **"Do you carry weapons for protection when going out?"** -->
 
-### Comparisons
+<!-- ``` {r carry_protection_summary} -->
+<!-- chk_var <- c('carry_protection') -->
 
-```{r carry_protection_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r carry_protection_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Carrying weapons for protection" -->
+<!-- ``` -->
 
-### Table
-```{r carryprotection_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Knowing someone who carries a weapon for protection {.tabset}
-**"Does anyone you know carry weapons for protection when going out?"**
+<!-- ### Summary -->
 
-``` {r carry_protection_other_summary}
-chk_var <- c('carry_protection_other')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r carry_protection_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Carrying weapons for protection"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r carry_protection_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r carryprotection_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Knowing someone who carries a weapon for protection {.tabset} -->
+<!-- **"Does anyone you know carry weapons for protection when going out?"** -->
 
-### Comparisons
+<!-- ``` {r carry_protection_other_summary} -->
+<!-- chk_var <- c('carry_protection_other') -->
 
-```{r carry_protection_other_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r carry_protection_other_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Carrying weapons for protection" -->
+<!-- ``` -->
 
-### Table
-```{r othercarry_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Shouting at home {.tabset}
-**"Have you ever been frightened by any shouting and arguing between adults or older siblings at home in the last month?"**
+<!-- ### Summary -->
 
-``` {r home_shouting_summary}
-chk_var <- c('home_shouting')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r carry_protection_other_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Shouting at home"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r carry_protection_other_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r othercarry_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Shouting at home {.tabset} -->
+<!-- **"Have you ever been frightened by any shouting and arguing between adults or older siblings at home in the last month?"** -->
 
-### Comparisons
+<!-- ``` {r home_shouting_summary} -->
+<!-- chk_var <- c('home_shouting') -->
 
-```{r home_shouting_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r home_shouting_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Shouting at home" -->
+<!-- ``` -->
 
-### Table
-```{r homeshout_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Domestic violence {.tabset}
-**"Has there been any violence (e.g., hitting, punching, slapping) between adults or older siblings at home in the last month?"**
+<!-- ### Summary -->
 
-``` {r home_violence_summary}
-chk_var <- c('home_violence')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r home_shouting_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Domestic violence"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r home_shouting_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r homeshout_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## Domestic violence {.tabset} -->
+<!-- **"Has there been any violence (e.g., hitting, punching, slapping) between adults or older siblings at home in the last month?"** -->
 
-### Comparisons
+<!-- ``` {r home_violence_summary} -->
+<!-- chk_var <- c('home_violence') -->
 
-```{r home_violence_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r home_violence_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Domestic violence" -->
+<!-- ``` -->
 
-### Table
-```{r homeviolenc_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
-## Reaction to being approached {.tabset}
-**“If you were approached by an adult who scared, worried, or upset you, what would you do? You can choose more than one answer.”**
+<!-- `r create_sum_sentence_herts()` -->
 
-``` {r Reaction to scary adult_summary}
-chk_var <- c('appoached_walkaway','approached_argue','approached_toldadult','approached_toldfriend','approached_toldpolice','approached_toldself','approached_other') #TODO misspelled approached first var
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r home_violence_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
 
-plot_title = "Reaction to being approached"
+<!-- ```{r home_violence_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- ### Table -->
+<!-- ```{r homeviolenc_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ## Reaction to being approached {.tabset} -->
+<!-- **“If you were approached by an adult who scared, worried, or upset you, what would you do? You can choose more than one answer.”** -->
 
-### Summary
+<!-- ``` {r Reaction to scary adult_summary} -->
+<!-- chk_var <- c('appoached_walkaway','approached_argue','approached_toldadult','approached_toldfriend','approached_toldpolice','approached_toldself','approached_other') #TODO misspelled approached first var -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r Reaction to scary adult_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Reaction to being approached" -->
 
-### Graph
-```{r Reaction to scary adult_graph, fig.height=6.5}
-chk_var <- c('appoached_walkaway','approached_argue','approached_toldadult','approached_toldfriend','approached_toldpolice','approached_toldself','approached_other')
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r react_table}
-create_tbl(chk_diff, multi = T)
-```
+<!-- ### Summary -->
 
-# Education
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-## Skipping school {.tabset}
-**“In the last year have you taken any time off from school for any of the reasons below?” **
+<!-- ### Comparisons -->
 
-``` {r Missing school_summary}
-chk_var <- c('skipschool_illness','skipschool_care','skipschool_appointments','skipschool_trips','skipschool_worriesschool','skipschool_worriesbully', 'skipschool_COVID-19', 'skipschool_mentalhealth')
+<!-- ```{r Reaction to scary adult_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Graph -->
+<!-- ```{r Reaction to scary adult_graph, fig.height=6.5} -->
+<!-- chk_var <- c('appoached_walkaway','approached_argue','approached_toldadult','approached_toldfriend','approached_toldpolice','approached_toldself','approached_other') -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
 
-plot_title = "Have you taken time off from school for any of these reasons?"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- ### Table -->
+<!-- ```{r react_table} -->
+<!-- create_tbl(chk_diff, multi = T) -->
+<!-- ``` -->
 
-```
+<!-- # Education -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ## Skipping school {.tabset} -->
+<!-- **“In the last year have you taken any time off from school for any of the reasons below?” ** -->
 
-### Summary
+<!-- ``` {r Missing school_summary} -->
+<!-- chk_var <- c('skipschool_illness','skipschool_care','skipschool_appointments','skipschool_trips','skipschool_worriesschool','skipschool_worriesbully', 'skipschool_COVID-19', 'skipschool_mentalhealth') -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r Skipping school_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Have you taken time off from school for any of these reasons?" -->
 
-### Graph
-```{r Skipping school_graph, fig.height=6.5}
-chk_var <- c('skipschool_illness','skipschool_care','skipschool_appointments','skipschool_trips','skipschool_worriesschool','skipschool_worriesbully', 'skipschool_COVID-19', 'skipschool_mentalhealth')
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r worriesk_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-## Feeling listened to {.tabset}
-**“Do you feel that your views and opinions are listened to at home / at school / by your friends?” **
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-``` {r Opinions and views_summary}
-chk_var <- c('listened_home','listened_school','listened_friends')
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r Skipping school_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
+<!-- ```{r Skipping school_graph, fig.height=6.5} -->
+<!-- chk_var <- c('skipschool_illness','skipschool_care','skipschool_appointments','skipschool_trips','skipschool_worriesschool','skipschool_worriesbully', 'skipschool_COVID-19', 'skipschool_mentalhealth') -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Feeling listened to"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r worriesk_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")`
+<!-- ## Feeling listened to {.tabset} -->
+<!-- **“Do you feel that your views and opinions are listened to at home / at school / by your friends?” ** -->
 
-### Comparisons
+<!-- ``` {r Opinions and views_summary} -->
+<!-- chk_var <- c('listened_home','listened_school','listened_friends') -->
 
-```{r Opinions and views_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
-```{r Opinions and views_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
 
+<!-- plot_title = "Feeling listened to" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r opinions_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-## School academic development {.tabset}
-**"Do you find your school is supportive of your learning and education?"**
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")` -->
 
-``` {r schoolsupp_academic_summary}
-chk_var <- c('schoolsupp_academic')
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r Opinions and views_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
+<!-- ```{r Opinions and views_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Academic development"
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r opinions_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## School academic development {.tabset} -->
+<!-- **"Do you find your school is supportive of your learning and education?"** -->
 
-### Comparisons
+<!-- ``` {r schoolsupp_academic_summary} -->
+<!-- chk_var <- c('schoolsupp_academic') -->
 
-```{r schoolsupp_academic_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r school_suppacademic_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Academic development" -->
+<!-- ``` -->
 
-### Table
-```{r academ_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## School emotional development {.tabset}
-**"Do you find your school is supportive of your emotional health and wellbeing?"**
+<!-- ### Summary -->
 
-``` {r schoolsupp_wellbeing_summary}
-chk_var <- c('schoolsupp_wellbeing')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r schoolsupp_academic_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Emotional development"
-```
+<!-- ### Graph -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r school_suppacademic_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Summary
+<!-- ### Table -->
+<!-- ```{r academ_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ## School emotional development {.tabset} -->
+<!-- **"Do you find your school is supportive of your emotional health and wellbeing?"** -->
 
-### Comparisons
+<!-- ``` {r schoolsupp_wellbeing_summary} -->
+<!-- chk_var <- c('schoolsupp_wellbeing') -->
 
-```{r schoolsupp_wellbeing_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r schoolsuppwellbeing_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Emotional development" -->
+<!-- ``` -->
 
-### Table
-```{r schoolwell_table}
-create_tbl(chk_diff)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-## Clubs and extracurriculars {.tabset}
-**“Are you a part of or attending any projects, groups, or clubs in your local area? If so, please select from the list below.” **
+<!-- ### Summary -->
 
-``` {r Clubs and extracurriculars_summary}
-chk_var <- c('clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteer','clubs_ycherts','clubs_other')
+<!-- `r create_sum_sentence_herts()` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ### Comparisons -->
 
+<!-- ```{r schoolsupp_wellbeing_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-plot_title = "Clubs and extracurriculars"
+<!-- ### Graph -->
 
-top_3 <- tail(sort(filter(chk_stats,breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- ```{r schoolsuppwellbeing_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-```
+<!-- ### Table -->
+<!-- ```{r schoolwell_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ## Clubs and extracurriculars {.tabset} -->
+<!-- **“Are you a part of or attending any projects, groups, or clubs in your local area? If so, please select from the list below.” ** -->
 
-### Summary
+<!-- ``` {r Clubs and extracurriculars_summary} -->
+<!-- chk_var <- c('clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteer','clubs_ycherts','clubs_other') -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r Clubs and extracurriculars_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Clubs and extracurriculars" -->
 
-### Graph
-```{r Clubs and extracurriculars_graph, fig.height=6.5}
-chk_var <- c('clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteer','clubs_ycherts','clubs_other')
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- top_3 <- tail(sort(filter(chk_stats,breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r clubs_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-## Prospects {.tabset}
-**"What do you plan to do as a next step after leaving school?"**
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-``` {r Prospects_summary}
-chk_var <- c('prospects_education','prospects_job','prospects_training', 'prospects_family','prospects_notsure','prospects_other')
+<!-- ### Comparisons -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- ```{r Clubs and extracurriculars_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
+<!-- ### Graph -->
+<!-- ```{r Clubs and extracurriculars_graph, fig.height=6.5} -->
+<!-- chk_var <- c('clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteer','clubs_ycherts','clubs_other') -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-plot_title = "Prospects"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
-```
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Table -->
+<!-- ```{r clubs_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-### Summary
+<!-- ## Prospects {.tabset} -->
+<!-- **"What do you plan to do as a next step after leaving school?"** -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- ``` {r Prospects_summary} -->
+<!-- chk_var <- c('prospects_education','prospects_job','prospects_training', 'prospects_family','prospects_notsure','prospects_other') -->
 
-### Comparisons
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-```{r Prospects_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
 
-### Graph
-```{r Prospects_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- plot_title = "Prospects" -->
 
+<!-- top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r prospects_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-# Sustainability
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-## Sustainability methods {.tabset}
-**"Do you or your household take steps to be more sustainable? Tick all that apply."**
+<!-- ### Comparisons -->
 
-``` {r sus_methods_summary}
+<!-- ```{r Prospects_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-chk_var <- c('sustain_recycle', 'sustain_single_plastic', 'sustain_sus_products', 'sustain_leftoverfood', 'sustain_localfood', 'sustain_transport', 'sustain_electric_car', 'sustain_save_energy', 'sustain_save_water', 'sustain_solar', 'sustain_other', 'sustain_nthg')
+<!-- ### Graph -->
+<!-- ```{r Prospects_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
 
-plot_title = "Sustainability methods"
+<!-- ### Table -->
+<!-- ```{r prospects_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- # Sustainability -->
 
-```
+<!-- ## Sustainability methods {.tabset} -->
+<!-- **"Do you or your household take steps to be more sustainable? Tick all that apply."** -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ``` {r sus_methods_summary} -->
 
-### Summary
+<!-- chk_var <- c('sustain_recycle', 'sustain_single_plastic', 'sustain_sus_products', 'sustain_leftoverfood', 'sustain_localfood', 'sustain_transport', 'sustain_electric_car', 'sustain_save_energy', 'sustain_save_water', 'sustain_solar', 'sustain_other', 'sustain_nthg') -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r sus_methods_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Sustainability methods" -->
 
-### Graph
-```{r sus_methods_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r sus_methods_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-## Sustainability barriers {.tabset}
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-**"What do you think are your household’s barriers to living more sustainably? "**
+<!-- ### Comparisons -->
 
-``` {r sus_barriers_summary}
+<!-- ```{r sus_methods_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-chk_var <- c('sus_barriers_finance',  'sus_barriers_time', 'sus_barriers_unsure', 'sus_barriers_no_consider',
-             'sus_barriers_other')
+<!-- ### Graph -->
+<!-- ```{r sus_methods_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
 
-plot_title = "Sustainability methods"
+<!-- ### Table -->
+<!-- ```{r sus_methods_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- ## Sustainability barriers {.tabset} -->
 
-```
+<!-- **"What do you think are your household’s barriers to living more sustainably? "** -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ``` {r sus_barriers_summary} -->
 
-### Summary
+<!-- chk_var <- c('sus_barriers_finance',  'sus_barriers_time', 'sus_barriers_unsure', 'sus_barriers_no_consider', -->
+<!--              'sus_barriers_other') -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r sus_barriers_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Sustainability methods" -->
 
-### Graph
-```{r sus_barriers_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r sus_barriers_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-# Covid-19 Vaccine 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-## Covid-19 vaccine uptake {.tabset}
+<!-- ### Comparisons -->
 
-**"Have you had any doses of the COVID-19 vaccine?"**
+<!-- ```{r sus_barriers_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-``` {r vacc_uptake_summary}
-chk_var <- c('any_vacc_taken')
+<!-- ### Graph -->
+<!-- ```{r sus_barriers_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
 
-plot_title = "Vaccine uptake"
-```
+<!-- ### Table -->
+<!-- ```{r sus_barriers_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- # Covid-19 Vaccine  -->
 
-### Summary
+<!-- ## Covid-19 vaccine uptake {.tabset} -->
 
-`r create_sum_sentence_herts()`
+<!-- **"Have you had any doses of the COVID-19 vaccine?"** -->
 
-### Comparisons
+<!-- ``` {r vacc_uptake_summary} -->
+<!-- chk_var <- c('any_vacc_taken') -->
 
-```{r vacc_uptake_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Graph
 
-```{r vacc_uptake_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- plot_title = "Vaccine uptake" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
-### Table
-```{r vacc_uptake_table}
-create_tbl(chk_diff)
-```
+<!-- `r create_sum_sentence_herts()` -->
 
-## Reason for Covid-19 vaccine {.tabset}
+<!-- ### Comparisons -->
 
-**"If you have had the COVID-19 vaccine, what were your main reasons for having it? Please select your tap 3 reasons? "**
+<!-- ```{r vacc_uptake_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-``` {r vacc_reason_summary}
+<!-- ### Graph -->
 
-chk_var <- c('vacc_protect_self', 'vacc_protect_frdsfam',
+<!-- ```{r vacc_uptake_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-             'vacc_miss_school', 'vacc_meet_frdsfam', 'vacc_other')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
+<!-- ### Table -->
+<!-- ```{r vacc_uptake_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-plot_title = "Reason for vaccine uptake"
+<!-- ## Reason for Covid-19 vaccine {.tabset} -->
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- **"If you have had the COVID-19 vaccine, what were your main reasons for having it? Please select your tap 3 reasons? "** -->
 
-```
+<!-- ``` {r vacc_reason_summary} -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- chk_var <- c('vacc_protect_self', 'vacc_protect_frdsfam', -->
 
-### Summary
+<!--              'vacc_miss_school', 'vacc_meet_frdsfam', 'vacc_other') -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r vacc_reason_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Reason for vaccine uptake" -->
 
-### Graph
-```{r vacc_reason_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-### Table
-```{r vacc_reason_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ### Summary -->
 
-## Reason for not having Covid-19 vaccine {.tabset}
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-**"If you have not had the vaccine, why is that? You can select multiple options."**
+<!-- ### Comparisons -->
 
-``` {r no_vacc_reason_summary}
+<!-- ```{r vacc_reason_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-chk_var <- c('no_vacc_no_need', 'no_vacc_needles', 'no_vacc_side_effects',
+<!-- ### Graph -->
+<!-- ```{r vacc_reason_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
 
-             'no_vacc_safety', 'no_vacc_other', 'no_vacc_no_info', 'no_vacc_not_offered')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
+<!-- ### Table -->
+<!-- ```{r vacc_reason_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-plot_title = "Reason for vaccine uptake"
+<!-- ## Reason for not having Covid-19 vaccine {.tabset} -->
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
-                                       chk_stats$breakdown == "All Responses"])
+<!-- **"If you have not had the vaccine, why is that? You can select multiple options."** -->
 
-```
+<!-- ``` {r no_vacc_reason_summary} -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- chk_var <- c('no_vacc_no_need', 'no_vacc_needles', 'no_vacc_side_effects', -->
 
-### Summary
+<!--              'no_vacc_safety', 'no_vacc_other', 'no_vacc_no_info', 'no_vacc_not_offered') -->
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-### Comparisons
 
-```{r no_vacc_reason_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
+<!-- plot_title = "Reason for vaccine uptake" -->
 
-### Graph
-```{r no_vacc_reason_graph, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
-```
+<!-- top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3) -->
+<!-- chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 & -->
+<!--                                        chk_stats$breakdown == "All Responses"]) -->
 
+<!-- ``` -->
 
-### Table
-```{r no_vacc_reason_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r no_vacc_reason_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+<!-- ```{r no_vacc_reason_graph, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result -->
+<!-- ``` -->
+
+
+<!-- ### Table -->
+<!-- ```{r no_vacc_reason_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
