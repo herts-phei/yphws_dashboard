@@ -70,16 +70,14 @@ create_sum_sentence <- function(dataset,
         most_common <- df1 %>%
           group_by(breakdown) %>% 
           filter(count == max(count), !is.na(question_text)) %>% 
-          summarise(most_common = paste(response, collapse = "' or '"),
-                    most_v = value) %>% 
+          summarise(most_common = paste(response, collapse = "' or '"), most_v = min(value)) %>% 
           ungroup() %>% 
           distinct() 
         
         least_common <- df1 %>% 
           group_by(breakdown) %>% 
-          filter(count == min(count), !is.na(question_text), ) %>% 
-          summarise(least_common = paste(response, collapse = "' or '"),
-                    least_v = value) %>% 
+          filter(count == min(count), !is.na(question_text)) %>% 
+          summarise(least_common = paste(response, collapse = "' or '"), least_v = min(value)) %>%
           ungroup() %>% 
           distinct() 
         
@@ -460,8 +458,10 @@ create_trend_table <- function(stats,
     left_join(stats_old, by = c("breakdown" = "prev_breakdown",
                                 "question" = "prev_question",
                                 "response" = "prev_response")) %>%
-    mutate(`2020` = round(as.numeric(prev_value), 4) * 100,
-           `2021` = round(as.numeric(`2021`), 4) * 100,
+    mutate(`2020` = case_when(!is.na(prev_value) ~ round(as.numeric(prev_value), 4) * 100,
+                              TRUE ~ 0),
+           `2021` = case_when(!is.na(`2021`) ~ round(as.numeric(`2021`), 4) * 100,
+                              TRUE ~ 0),
            `2020` = case_when(is.na(`2020`) ~ 0, TRUE ~ `2020`),
            `2020` = case_when(is.na(`2020`) ~ 0, TRUE ~ `2020`),
            Trend = map2(`2020`, `2021`, c), 

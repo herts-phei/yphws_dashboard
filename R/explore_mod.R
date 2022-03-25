@@ -75,9 +75,9 @@ explore_mod_server <- function(id,
       #               options = list(`live-search` = TRUE))
       # })
       
-      observe({
-        if ("Safety" %in% input$domains ) {browser()}
-      })
+      # observe({
+      #   if ("Living Conditions" %in% input$domains ) {browser()}
+      # })
       
       # Data --------------------------------------------------------------------
       
@@ -198,7 +198,7 @@ explore_mod_server <- function(id,
               
             } else {
               
-              if (grepl("internet_", current$question)) { top <- NA } else { top <- 5 }
+              if (any(grepl("internet_", current$question))) { top <- NA } else { top <- 5 }
               text <- create_sum_sentence(dataset = current,
                                           multi = multi,
                                           value_of_interest = "Yes",
