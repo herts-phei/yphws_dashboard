@@ -266,12 +266,38 @@ server <- function(input, output) {
   output$export <- renderReactable({
     
     rv$stats %>% 
-      select(breakdown, question, question_text, response, count, denominator, value, lowercl, uppercl) %>% 
       mutate(value = round(value, 2), 
              lowercl = round(lowercl, 2), 
-             uppercl = round(uppercl, 2)) %>% 
-    reactable(filterable = TRUE)
-    
+             uppercl = round(uppercl, 2),
+             response = as.character(response)) %>%
+      rename_with(str_to_title)  %>%
+      mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
+             Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
+                                       TRUE ~ Question_text)) %>%
+      left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
+                by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
+      mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
+                                         Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
+                                         Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
+                                         Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
+                                         Question == "survey_year" ~ "What year was the survey conducted?",
+                                         survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+                                           "In the past three months have you taken any of the following drugs?",
+                                         TRUE ~ survey_text_gen),
+             Question_text = str_to_sentence(Question_text)) %>%
+      mutate(Question_text = case_when(Question == "District" ~ "District",
+                                       Question == "khat_exp" ~ "Khat",
+                                       Question == "khat_offered" ~ "Khat",
+                                       Question == "mephedrone_exp" ~ "Mephedrone",
+                                       Question == "survey_year" ~ "Year",
+                                       survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+                                         "In the past three months have you taken any of the following drugs?",
+                                       TRUE ~ Question_text),
+             Response = str_replace_all(Response, "-", "--")) %>%
+      select(Breakdown, Category = Question_text, Response, Count, Denominator, Value) %>% 
+      # select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl) %>%
+      # having this many cols causes issues when the app is ran
+      reactable(filterable = TRUE)
   })
   
   output$exp_table <- downloadHandler(
@@ -279,14 +305,39 @@ server <- function(input, output) {
     filename = "data_table.csv",
     content = function(con) { 
       
-      data <- rv$stats %>% 
-        select(breakdown, question, question_text, response, count, denominator, value, lowercl, uppercl) %>% 
+
+      data <- isolate(rv$stats) %>% 
         mutate(value = round(value, 2), 
                lowercl = round(lowercl, 2), 
-               uppercl = round(uppercl, 2)) 
-      
+               uppercl = round(uppercl, 2),
+               response = as.character(response)) %>%
+        rename_with(str_to_title)  %>%
+        mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
+               Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
+                                         TRUE ~ Question_text)) %>%
+        left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
+                  by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
+        mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
+                                           Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
+                                           Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
+                                           Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
+                                           Question == "survey_year" ~ "What year was the survey conducted?",
+                                           survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+                                             "In the past three months have you taken any of the following drugs?",
+                                           TRUE ~ survey_text_gen),
+               Question_text = str_to_sentence(Question_text)) %>%
+        mutate(Question_text = case_when(Question == "District" ~ "District",
+                                         Question == "khat_exp" ~ "Khat",
+                                         Question == "khat_offered" ~ "Khat",
+                                         Question == "mephedrone_exp" ~ "Mephedrone",
+                                         Question == "survey_year" ~ "Year",
+                                         survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+                                           "In the past three months have you taken any of the following drugs?",
+                                         TRUE ~ Question_text),
+               Response = str_replace_all(Response, "-", "--")) %>% 
+        select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl)
+
       write.csv(data, con)
-      
       }
     
   )
@@ -295,3 +346,6 @@ server <- function(input, output) {
 }
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+
+  
