@@ -75,9 +75,9 @@ explore_mod_server <- function(id,
       #               options = list(`live-search` = TRUE))
       # })
       
-      # observe({
-      #   if ("Safety" %in% input$domains ) {browser()}
-      # })
+      observe({
+        if ("Safety" %in% input$domains ) {browser()}
+      })
       
       # Data --------------------------------------------------------------------
       
@@ -276,6 +276,7 @@ explore_mod_server <- function(id,
                                                   lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
                                                   uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
                                            ) %>% 
+                                           filter(question_coded_gen %in% chk_var()[i]) %>% 
                                            select(breakdown, question = question_text, response, value, count, denominator,
                                                   lowercl, uppercl) %>% 
                                            reactable(groupBy = c("breakdown", "question"),
