@@ -22,20 +22,47 @@ key_mod <- function(id,
         tablerCard(width = 4, 
                    htmlOutput(ns("key_themes"))),
         tablerCard(width = 4, 
-                   echarts4rOutput(ns("smoke_donut"))),
+                   echarts4rOutput(ns("ethn_donut"))),
         tablerCard(width = 4, 
-                   echarts4rOutput(ns("drugs_donut"))), 
+                   echarts4rOutput(ns("imd_donut"))), 
 
       ),
       fluidRow(
-        tablerCard(title = "Trend Summary", width = 6, 
-                   closable = FALSE,
-                   reactableOutput(ns("mhw_summary"))),
-        tablerCard(width = 6, 
-                   echarts4rOutput(ns("worries_graph")),
-                   echarts4rOutput(ns("coping_graph")))
-        # tablerCard(title = "Lifestyle Summary", width = 6, 
-        #            reactableOutput(ns("lifestyle_summary")))
+        tabItem("name", 
+                bs4TabCard(width = 12, side = "right", status = "success",
+                           collapsible = FALSE, 
+                           title = "",
+                           tabPanel("Mental Health", 
+                                    fluidRow(
+                                      column(6, echarts4rOutput(ns("life_sat")),
+                                             echarts4rOutput(ns("life_worth"))),
+                                      column(6, echarts4rOutput(ns("self_harm")),
+                                             echarts4rOutput(ns("mh_services")))
+                                    ),
+                                    fluidRow(
+                                      column(12, 
+                                             uiOutput(ns("mh_year")),
+                                             uiOutput(ns("mh_breakdown")))
+                                    ),
+                                    fluidRow(
+                                      column(6, 
+                                             echarts4rOutput(ns("worries_graph"))),
+                                      column(6, 
+                                             echarts4rOutput(ns("coping_graph")))
+                                    )     
+                           ),
+                           tabPanel(
+                             "Lifestyle"
+                           ),
+                           tabPanel(
+                             "Safety"
+                           ),
+                           tabPanel(
+                             "Sexual Health"
+                           ),
+                           tabPanel(
+                             "Other"
+                           )) )
       )
     )
     
@@ -47,6 +74,7 @@ key_mod <- function(id,
 # Server ------------------------------------------------------------------
 
 key_mod_server <- function(id,
+                           params,
                            data,
                            data_old,
                            stats, 
@@ -56,6 +84,20 @@ key_mod_server <- function(id,
   moduleServer(
     id, 
     function(input, output, session) {
+      
+      ns <- NS(id)
+      
+      # for certain plots we want to visualise both years worth of data
+      stats_combined <- reactive({
+        
+        stats_old <- mutate(stats_old(), year = as.character(as.numeric(params()$year) - 1)) 
+        
+        stats() %>% 
+          mutate(year = as.character(as.numeric(params()$year))) %>% 
+          bind_rows(stats_old)
+        
+      })
+      
       
       # Info boxes --------------------------------------------------------------
       
@@ -159,100 +201,176 @@ key_mod_server <- function(id,
 
       })
       
-      # Summary tables ------------------------------------------------------------------
 
-      output$mhw_summary <- renderReactable({
-
+      # Group summary -----------------------------------------------------------
+      output$ethn_donut <- renderEcharts4r({
+        
         stats <- stats()
+        
+        stats %>% 
+          filter(breakdown == "All Responses",
+                 question == "ethnicity") %>% 
+          mutate(value = round(as.numeric(value), 4) * 100) %>% 
+          e_charts(response) %>% 
+          e_pie(value, radius = c("50%", "70%")) %>% 
+          e_labels(formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`);}")) %>% 
+          e_tooltip("item") %>% 
+          e_legend(bottom = 0) %>% 
+          e_title("Ethnicity breakdown in %") %>% 
+          e_theme_custom("phei.json")
+        
+      })
+      
+      output$imd_donut <- renderEcharts4r({
+        
+        stats <- stats()
+        
+        stats %>% 
+          filter(breakdown == "All Responses",
+                 question == "imd_quintile") %>% 
+          mutate(value = round(as.numeric(value), 4) * 100) %>% 
+          e_charts(response) %>% 
+          e_pie(value, radius = c("50%", "70%")) %>% 
+          e_labels(formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`);}")) %>% 
+          e_tooltip("item") %>% 
+          e_legend(bottom = 0) %>% 
+          e_title("IMD breakdown in %") %>% 
+          e_theme_custom("phei.json")
+        
+      })
 
-        stats_old <- stats_old() %>% 
-          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
-                                                              "response" = "response")) %>%
-          filter(response_of_interest == "TRUE") %>% 
-          mutate(`2020` = value)
+      
+      # MH & Wellbeing Graphs -------------------------------------------------------------------
+
+      output$life_sat <- renderEcharts4r({
         
-        names(stats_old) <- paste0("prev_", names(stats_old))
+        stats_combined() %>% 
+          filter(question == "life_satisfied",
+                 response == "low",
+                 breakdown != "All Responses") %>% 
+          mutate(value = as.numeric(value)) %>% 
+          group_by(year) %>% 
+          e_charts(breakdown) %>% 
+          e_bar(value) %>%
+          e_tooltip(trigger = "axis") %>% 
+          e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+          e_x_axis(axisLabel = list(interval = 0)) %>% 
+          e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+          e_grid(bottom = 100) %>% 
+          e_title("Low life satisfaction",
+                  "Proportion from each group that responded with a rating of 4 or less out of 10.") %>% 
+          e_theme_custom("phei.json") %>% 
+          e_group("mh")
         
-        stats_ <- stats %>% 
-          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
-                                                              "response" = "response")) %>% 
-          filter(response_of_interest == "TRUE", 
-                 (question == "life_satisfied" & response == "low") |
-                 (question == "life_satisfied_before_covid" & response == "low") |
-                 (question == "weight" & response %in% c("Overweight", "Underweight")) |
-                 (question == "mental_howaccess" & response == "No"))
+      })
+      
+      output$life_worth <- renderEcharts4r({
+         
+         stats_combined() %>% 
+           filter(question == "bullied",
+                  response == "Yes",
+                  breakdown != "All Responses") %>% 
+           mutate(value = as.numeric(value)) %>% 
+           group_by(year) %>% 
+           e_charts(breakdown) %>% 
+           e_bar(value) %>%
+           e_tooltip(trigger = "axis") %>% 
+           e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+           e_x_axis(axisLabel = list(interval = 0)) %>% 
+           e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+           e_grid(bottom = 100) %>% 
+           e_title("Bullying",
+                   "Proportion from each group that stated that they have been bullied before.") %>% 
+           e_theme_custom("phei.json") %>% 
+           e_group("mh")
+         
+         })
         
-        create_trend_table(stats = stats_,
-                           colors = c("#d9f3ff", "#006cdf"),
-                           stats_old = stats_old)
+      output$self_harm <- renderEcharts4r({
+          
+          stats_combined() %>% 
+            filter(question == "selfharm_ever",
+                   response == "Yes",
+                   breakdown != "All Responses") %>% 
+            mutate(value = as.numeric(value)) %>% 
+            group_by(year) %>% 
+            e_charts(breakdown) %>% 
+            e_bar(value) %>%
+            e_tooltip(trigger = "axis") %>% 
+            e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+            e_x_axis(axisLabel = list(interval = 0)) %>% 
+            e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+            e_legend(show = F) %>% 
+            e_grid(bottom = 100) %>% 
+            e_title("Self-harm",
+                    "Proportion from each group that stated that they had self-harmed before.") %>% 
+            e_theme_custom("phei.json") %>% 
+            e_group("mh")
+          
+          })
+        
+      output$mh_services <- renderEcharts4r({
+          
+          stats_combined() %>% 
+            filter(question == "mental_howaccess",
+                   response == "Yes",
+                   breakdown != "All Responses") %>% 
+            mutate(value = as.numeric(value)) %>% 
+            group_by(year) %>% 
+            e_charts(breakdown) %>% 
+            e_bar(value) %>%
+            e_tooltip(trigger = "axis") %>% 
+            e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+            e_x_axis(axisLabel = list(interval = 0)) %>% 
+            e_legend(show = F) %>% 
+            e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+            e_grid(bottom = 100) %>% 
+            e_title("Accessing mental health services",
+                    "Proportion from each group stating that they knew how to access mental health services.") %>% 
+            e_theme_custom("phei.json") %>% 
+            e_group("mh") %>% 
+            e_connect_group("mh")
+          
+          })
+
+      output$mh_breakdown <- renderUI({
+          
+          shinyWidgets::prettyRadioButtons(
+            inputId = ns("mh_breakdown"),
+            label = "", 
+            choices = unique(stats()$breakdown),
+            inline = TRUE, 
+            status = "info",
+            fill = TRUE
+          )
+          
         })
       
-      # output$lifestyle_summary <- renderReactable({
-      # 
-      #   stats <- stats()
-      # 
-      #   stats_old <- mutate(stats_old(), `2020` = value)
-      #   names(stats_old) <- paste0("prev_", names(stats_old))
-      # 
-      #   stats <- stats %>%
-      #     filter((question == "pa_60" & response == "6-7") |
-      #              (question == "smoke_ever" & response == "I smoke regularly (once a week or more)") |
-      #              (question == "alcohol" & response == "4 or more times a week") |
-      #              (question == "drug_ever" & response == "I take drugs regularly (once a week or more)"))
-      # 
-      #   create_trend_table(stats = stats,
-      #                      stats_old = stats_old)
-      # 
-      # })
-
-      # Graphs -------------------------------------------------------------------
-
-      output$smoke_donut <- renderEcharts4r({
+      output$mh_year <- renderUI({
         
-        stats <- stats()
-        
-        stats %>% 
-          filter(question == "smoke_ever",
-                 response == "I smoke regularly (once a week or more)",
-                 breakdown != "All Responses") %>% 
-          e_charts(breakdown) %>% 
-          e_pie(count, radius = c("50%", "70%")) %>% 
-          e_labels(formatter = htmlwidgets::JS("function(params){
-           return(`${params.value}`);}")) %>% 
-          e_tooltip("item") %>% 
-          e_legend(bottom = 0) %>% 
-          e_title("Regular smokers") %>% 
-          e_theme("westeros")
+        shinyWidgets::prettyRadioButtons(
+          inputId = ns("mh_year"),
+          label = "", 
+          choices = unique(stats_combined()$year),
+          inline = TRUE, 
+          status = "info",
+          fill = TRUE
+        )
         
       })
-      
-      output$drugs_donut <- renderEcharts4r({
         
-        stats <- stats()
-        
-        stats %>% 
-          filter(question == "drug_ever",
-                 response == "I take drugs regularly (once a week or more)",
-                 breakdown != "All Responses") %>% 
-          e_charts(breakdown) %>% 
-          e_pie(count, radius = c("50%", "70%")) %>% 
-          e_labels(formatter = htmlwidgets::JS("function(params){
-           return(`${params.value}`);}")) %>% 
-          e_tooltip("item") %>% 
-          e_legend(bottom = 0) %>% 
-          e_title("Regular drug use") %>% 
-          e_theme("westeros")
-        
-      })
-      
       output$worries_graph <- renderEcharts4r({
         
-        stats <- stats()
+        stats <- stats_combined()
         
         stats %>% 
           filter(grepl("worry_", question),
-                 breakdown == "All Responses",
+                 breakdown == input$mh_breakdown,
+                 year == input$mh_year,
                  response == "Yes") %>% 
+          group_by(breakdown) %>% 
           arrange(count) %>% 
           slice(tail(row_number(), 5)) %>% 
           e_charts(question_text) %>% 
@@ -261,34 +379,41 @@ key_mod_server <- function(id,
           e_flip_coords() %>% 
           e_tooltip("item") %>% 
           e_grid(left = "20%") %>% 
-          e_title("Top 5 worries") %>% 
-          e_theme("westeros")
+          e_title("Top 5 worries",
+                  paste("For", input$mh_breakdown, "in", input$mh_year)) %>% 
+          e_theme("blue")
         
       })
       
       output$coping_graph <- renderEcharts4r({
         
-        stats <- stats()
+        stats <- stats_combined()
         
         stats %>% 
           filter(grepl("cope_", question),
-                 breakdown == "All Responses",
+                 breakdown == input$mh_breakdown,
+                 year == input$mh_year,
                  response == "Yes") %>% 
+          group_by(breakdown) %>% 
           arrange(count) %>% 
           slice(tail(row_number(), 5)) %>% 
           e_charts(question_text) %>% 
           e_bar(count) %>% 
           e_legend(show = FALSE) %>% 
           e_flip_coords() %>% 
-          e_grid(left = "20%") %>% 
           e_tooltip("item") %>% 
-          e_title("Top 5 ways to cope") %>% 
-          e_theme("westeros")
+          e_grid(left = "20%") %>% 
+          e_title("Top 5 ways to cope",
+                  paste("For", input$mh_breakdown, "in", input$mh_year)) %>% 
+          e_theme("blue")
         
       })
       
+      
+
     }
   )
 }
+
 
 

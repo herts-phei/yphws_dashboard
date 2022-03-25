@@ -115,11 +115,11 @@ ui <- tablerDashPage(
 server <- function(input, output) {
   
   # Uncomment for testing
-  # observe({
-  # 
-  #   if ("District" %in% input$comp) { browser() }
-  # 
-  # })
+  observe({
+
+    if ("ethnicity" %in% input$comp) { browser() }
+
+  })
   
   # --Load all data-----
   rv <- reactiveValues()
@@ -179,6 +179,7 @@ server <- function(input, output) {
   # Key Points --------------------------------------------------------------
   
   key_mod_server("key",
+                 params = reactive(rv$params),
                  data = reactive(rv$data$data),
                  stats = reactive(rv$stats),
                  stats_old = reactive(rv$stats_old),
