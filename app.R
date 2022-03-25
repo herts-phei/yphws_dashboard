@@ -87,8 +87,8 @@ ui <- tablerDashPage(
                        width = 12, 
                        closable = FALSE,
                        uiOutput("exp_report_comp"),
-                       uiOutput("exp_report_cat")
-                       #downloadButton("exp_report", "Export report")
+                       uiOutput("exp_report_cat"),
+                       downloadButton("exp_report", "Export report")
                        )
           )
         ),
@@ -239,28 +239,28 @@ server <- function(input, output) {
     
   })
   
-  # output$exp_report <- downloadHandler(
-  #   filename = "report.html",
-  #   content = function(file) {
-  #     tempReport <- file.path(tempdir(), "test.Rmd")
-  #     file.copy("test.Rmd", tempReport, overwrite = TRUE)
-  #     
-  #     # Set up parameters to pass to Rmd document
-  #     params <- list(var = input$comp,
-  #                    cat = input$exp_report_cat)
-  #     
-  #     # Knit the document, passing in the `params` list, and eval it in a
-  #     # child of the global environment (this isolates the code in the document
-  #     # from the code in this app).
-  #     show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
-  #     rmarkdown::render(tempReport, output_file = file,
-  #                       params = params,
-  #                       envir = new.env(parent = globalenv())
-  #     )
-  #     remove_modal_spinner() # remove it when done
-  #     
-  #   }
-  # )
+  output$exp_report <- downloadHandler(
+    filename = "report.html",
+    content = function(file) {
+      tempReport <- file.path(tempdir(), "test2.Rmd")
+      file.copy("test2.Rmd", tempReport, overwrite = TRUE)
+
+      # Set up parameters to pass to Rmd document
+      params <- list(var = input$comp,
+                     cat = input$exp_report_cat)
+
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+      remove_modal_spinner() # remove it when done
+
+    }
+  )
   
   output$export <- renderReactable({
     
