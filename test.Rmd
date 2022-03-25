@@ -23,7 +23,6 @@ library(prettydoc)
 library(pacman)
 library(devtools)
 library(knitr)
-library(dplyr)
 
 knitr::opts_chunk$set(results = 'asis', comment = NA, prompt = F, cache = F, echo = F,
                out.extra = 'class="plot"', warning = F, message = F)
@@ -72,7 +71,7 @@ data <- pin_get(data_pin, board = "rsconnect") %>%
 # get list of schools with more than 50 responses
 school_vec <- data %>%
   group_by(school) %>%
-  summarise(count = n()) %>%
+  dplyr::summarise(count = n()) %>%
   arrange(desc(count)) %>%
   filter(count >= 60) %>%
   pull(school)
@@ -82,9 +81,9 @@ responses_per_district <- data %>%
   select(school, District) %>%
   filter(school %in% school_vec) %>%
   group_by(District) %>%
-  mutate(school_count = n()) %>%
+  dplyr::mutate(school_count = n()) %>%
   distinct() %>%
-  summarise(District, school_count, schools_per_district = n()) %>%
+  dplyr::summarise(District, school_count, schools_per_district = n()) %>%
   distinct() %>%
   mutate(comparison = case_when(
     school_count >= 250 & schools_per_district > 1 ~ TRUE,
@@ -825,7 +824,7 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
     
     prevent_dupes <- df %>%
       group_by(question, response) %>%
-      summarise(count = n()) %>%
+      dplyr::summarise(count = n()) %>%
       filter(response %in% c("Yes", "No")) %>%
       arrange(question)
     
@@ -1195,296 +1194,296 @@ plot_title = "Religion"
 
 `r create_sum_sentence_herts()`
 
-### Comparisons
+<!-- ### Comparisons -->
 
-```{r religion_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r religion_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp, 
-                  rotate = 60,
-                  plot_title = plot_title)
-```
-
-### Table
-```{r, echo = FALSE, eval = TRUE}
-create_tbl(chk_diff)
-```
-
-## Ethnicity  {.tabset}
-**"What is your ethnic group?"**
-
-``` {r ethnicity_summary}
-chk_var <- c('ethnicity')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-
-plot_title <- "Ethnicity"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts()`
-
-### Comparisons     
-
-```{r ethnicity_bullets}
-create_bullets_herts(chk_diff)$Table
-```
-
-### Graph
-
-```{r ethnicity_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp,                    
-                  plot_title = plot_title)
-```
-
-### Table
-```{r ethnicity_table}
-create_tbl(chk_diff)
-```
-
-# Living Conditions
-
-This section contains information about the living conditions of the students who responded including physical or mental long-standing conditions, their home living situations, their caring responsibilities, and their views on whether they feel their additional needs are supported by the school.
-
-## Long-standing conditions/disabilities  {.tabset}
-**Do you have any of the following long-standing conditions/disabilities?**
-
-``` {r conditions_summary}
-chk_var <- c('condition_physical', 'condition_mental', 'condition_disability',
-             'condition_send')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
-
-plot_title <- "Long-standing conditions or disabilities"
-```
-
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
-
-### Summary
-
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
-
-### Comparisons
-
-```{r conditions_bullets}
-create_bullets_herts(chk_diff, grouped_by_question = T)$Table
-```
-
-<!-- ### Graph: Count -->
-<!-- ```{r fig.height=6.5} -->
-<!-- create_multicat_plot_herts(chk_stats, by = "count")$result -->
+<!-- ```{r religion_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
 <!-- ``` -->
 
-### Graph
-```{r, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)
-```
+<!-- ### Graph -->
 
+<!-- ```{r religion_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,  -->
+<!--                   rotate = 60, -->
+<!--                   plot_title = plot_title) -->
+<!-- ``` -->
 
+<!-- ### Table -->
+<!-- ```{r, echo = FALSE, eval = TRUE} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-### Table
-```{r conditions_table}
-create_tbl(chk_diff, multi_response = T)
-```
+<!-- ## Ethnicity  {.tabset} -->
+<!-- **"What is your ethnic group?"** -->
 
-## School support {.tabset}
-**"Do you feel supported by your school and feel they offer you help with any difficulties you have?"**
+<!-- ``` {r ethnicity_summary} -->
+<!-- chk_var <- c('ethnicity') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-``` {r school_supported_summary}
-chk_var <- c('school_supported')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
+<!-- plot_title <- "Ethnicity" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
-plot_title = "School support"
-```
+<!-- `r create_sum_sentence_herts()` -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ### Comparisons      -->
 
-### Summary
+<!-- ```{r ethnicity_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-`r create_sum_sentence_herts()`
+<!-- ### Graph -->
 
-### Comparisons
+<!-- ```{r ethnicity_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,                     -->
+<!--                   plot_title = plot_title) -->
+<!-- ``` -->
 
-```{r school_supported_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- ### Table -->
+<!-- ```{r ethnicity_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-### Graph
+<!-- # Living Conditions -->
 
-```{r schoolsupp_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp,                    
-                  plot_title = plot_title)
-```
+<!-- This section contains information about the living conditions of the students who responded including physical or mental long-standing conditions, their home living situations, their caring responsibilities, and their views on whether they feel their additional needs are supported by the school. -->
 
-### Table
-```{r school_supported_table}
-create_tbl(chk_diff)
-```
+<!-- ## Long-standing conditions/disabilities  {.tabset} -->
+<!-- **Do you have any of the following long-standing conditions/disabilities?** -->
 
-## Living situation {.tabset}
-**"Who do you live with?"**
+<!-- ``` {r conditions_summary} -->
+<!-- chk_var <- c('condition_physical', 'condition_mental', 'condition_disability', -->
+<!--              'condition_send') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-``` {r living_situation_summary}
-chk_var <- c('living_situation')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+<!-- plot_title <- "Long-standing conditions or disabilities" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
+<!-- ### Summary -->
 
+<!-- `r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]` -->
 
-plot_title = "Living situation"
-```
+<!-- ### Comparisons -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- ```{r conditions_bullets} -->
+<!-- create_bullets_herts(chk_diff, grouped_by_question = T)$Table -->
+<!-- ``` -->
 
-### Summary
+<!-- <!-- ### Graph: Count --> -->
+<!-- <!-- ```{r fig.height=6.5} --> -->
+<!-- <!-- create_multicat_plot_herts(chk_stats, by = "count")$result --> -->
+<!-- <!-- ``` --> -->
 
-`r create_sum_sentence_herts()`
+<!-- ### Graph -->
+<!-- ```{r, fig.height=6.5} -->
+<!-- create_multicat_plot_herts(chk_stats, q_coded = q_coded) -->
+<!-- ``` -->
 
-### Comparisons
 
-```{r living_situation_bullets}
-create_bullets_herts(chk_diff)$Table
-```
 
-### Graph
+<!-- ### Table -->
+<!-- ```{r conditions_table} -->
+<!-- create_tbl(chk_diff, multi_response = T) -->
+<!-- ``` -->
 
-```{r livingsit_graph}
-create_basic_plot(df = chk_stats,                    
-                  plot_custom_grp = plot_custom_grp,                    
-                  plot_title = plot_title)
-```
+<!-- ## School support {.tabset} -->
+<!-- **"Do you feel supported by your school and feel they offer you help with any difficulties you have?"** -->
 
-### Table
-```{r living_situation_table}
-create_tbl(chk_diff)
-```
+<!-- ``` {r school_supported_summary} -->
+<!-- chk_var <- c('school_supported') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-## Caring responsibilities {.tabset}
-**"Do you help to look after someone in your family who has a serious, mental or physical, illness or disability?"**
 
-``` {r caring_summary}
-chk_var <- c('caring')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
 
+<!-- plot_title = "School support" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-plot_title = "Caring responsibilities"
-```
+<!-- ### Summary -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- `r create_sum_sentence_herts()` -->
 
-### Summary
+<!-- ### Comparisons -->
 
-`r create_sum_sentence_herts()`
+<!-- ```{r school_supported_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ### Graph -->
 
-```{r caring_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- ```{r schoolsupp_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,                     -->
+<!--                   plot_title = plot_title) -->
+<!-- ``` -->
 
-### Graph
+<!-- ### Table -->
+<!-- ```{r school_supported_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-```{r caring_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- ## Living situation {.tabset} -->
+<!-- **"Who do you live with?"** -->
 
-### Table
-```{r caring_table}
-create_tbl(chk_diff)
-```
+<!-- ``` {r living_situation_summary} -->
+<!-- chk_var <- c('living_situation') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-## Child looked after {.tabset}
-**"Are you currently or have you ever been a child looked after (e.g., lived with foster carers/lived in a care home)?"**
 
-``` {r cla_summary}
-chk_var <- c('cla')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
 
+<!-- plot_title = "Living situation" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-plot_title = "Child looked after"
-```
+<!-- ### Summary -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- `r create_sum_sentence_herts()` -->
 
-### Summary
+<!-- ### Comparisons -->
 
-`r create_sum_sentence_herts()`
+<!-- ```{r living_situation_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ### Graph -->
 
-```{r cla_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- ```{r livingsit_graph} -->
+<!-- create_basic_plot(df = chk_stats,                     -->
+<!--                   plot_custom_grp = plot_custom_grp,                     -->
+<!--                   plot_title = plot_title) -->
+<!-- ``` -->
 
-### Graph
+<!-- ### Table -->
+<!-- ```{r living_situation_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-```{r cla_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- ## Caring responsibilities {.tabset} -->
+<!-- **"Do you help to look after someone in your family who has a serious, mental or physical, illness or disability?"** -->
 
-### Table
-```{r cla_table}
-create_tbl(chk_diff)
-```
+<!-- ``` {r caring_summary} -->
+<!-- chk_var <- c('caring') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
 
-## Adopted {.tabset}
-**"Are you adopted?"**
 
-``` {r adopted_summary}
-chk_var <- c('adopted')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
 
 
+<!-- plot_title = "Caring responsibilities" -->
+<!-- ``` -->
 
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
 
-plot_title = "Adopted"
-```
+<!-- ### Summary -->
 
-<span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span>
+<!-- `r create_sum_sentence_herts()` -->
 
-### Summary
+<!-- ### Comparisons -->
 
-`r create_sum_sentence_herts()`
+<!-- ```{r caring_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
 
-### Comparisons
+<!-- ### Graph -->
 
-```{r adopted_bullets}
-create_bullets_herts(chk_diff)$Table
-```
+<!-- ```{r caring_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
 
-### Graph
+<!-- ### Table -->
+<!-- ```{r caring_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
-```{r adopted_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
-```
+<!-- ## Child looked after {.tabset} -->
+<!-- **"Are you currently or have you ever been a child looked after (e.g., lived with foster carers/lived in a care home)?"** -->
 
-### Table
-```{r adopted_table}
-create_tbl(chk_diff)
-```
+<!-- ``` {r cla_summary} -->
+<!-- chk_var <- c('cla') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Child looked after" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r cla_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r cla_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r cla_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
+
+<!-- ## Adopted {.tabset} -->
+<!-- **"Are you adopted?"** -->
+
+<!-- ``` {r adopted_summary} -->
+<!-- chk_var <- c('adopted') -->
+<!-- chk_stats <- filter(stats, question %in% chk_var) -->
+<!-- chk_diff <- filter(stats_diffs, question %in% chk_var) -->
+
+
+
+
+<!-- plot_title = "Adopted" -->
+<!-- ``` -->
+
+<!-- <span style="color: #CC0000;">`r if(min(chk_diff$denominator.x) < 20){low_denom_warning}`</span> -->
+
+<!-- ### Summary -->
+
+<!-- `r create_sum_sentence_herts()` -->
+
+<!-- ### Comparisons -->
+
+<!-- ```{r adopted_bullets} -->
+<!-- create_bullets_herts(chk_diff)$Table -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- ```{r adopted_graph} -->
+<!-- create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title) -->
+<!-- ``` -->
+
+<!-- ### Table -->
+<!-- ```{r adopted_table} -->
+<!-- create_tbl(chk_diff) -->
+<!-- ``` -->
 
 <!-- # Diet and Lifestyle -->
 
