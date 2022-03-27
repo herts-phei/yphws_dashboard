@@ -1,7 +1,6 @@
 
 ## IN DEVELOPMENT. 
 
-library(tidyverse)
 library(rmarkdown)
 library(pins)
 library(shiny)
@@ -17,6 +16,7 @@ library(reactable)
 library(sparkline)
 library(glue)
 library(plyr)
+library(tidyverse)
 
 year <- "2021"
 board_register("rsconnect",
@@ -173,8 +173,16 @@ server <- function(input, output) {
       mutate(question_text.x = case_when(is.na(question_text.x) ~ question_text.y, 
                                          TRUE ~ question_text.x))
     
+    # for certain plots we want to visualise both years worth of data
+
+    rv$stats_combined <- rv$stats %>% 
+      dplyr::mutate(year = "2021") %>% 
+      dplyr::bind_rows(dplyr::mutate(rv$stats_old,
+                                     year = "2020"))
     
   })
+  
+  
   
   # Key Points --------------------------------------------------------------
   
@@ -183,6 +191,7 @@ server <- function(input, output) {
                  data = reactive(rv$data$data),
                  stats = reactive(rv$stats),
                  stats_old = reactive(rv$stats_old),
+                 stats_combined = reactive(rv$stats_combined),
                  q_coded = reactive(rv$data$q_coded),
                  comp = reactive(input$comp)
                  )
@@ -198,7 +207,7 @@ server <- function(input, output) {
                      q_coded = reactive(rv$data$q_coded))
   
   # Inequalities ------------------------------------------------------------
-  
+
   inequalities_mod_server("ineq",
                           params = reactive(rv$params),
                           q_coded = reactive(rv$data$q_coded),

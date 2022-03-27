@@ -28,42 +28,42 @@ key_mod <- function(id,
 
       ),
       fluidRow(
-        tabItem("name", 
-                bs4TabCard(width = 12, side = "right", status = "success",
-                           collapsible = FALSE, 
-                           title = "",
-                           tabPanel("Mental Health", 
-                                    fluidRow(
-                                      column(6, echarts4rOutput(ns("life_sat")),
-                                             echarts4rOutput(ns("life_worth"))),
-                                      column(6, echarts4rOutput(ns("self_harm")),
-                                             echarts4rOutput(ns("mh_services")))
-                                    ),
-                                    fluidRow(
-                                      column(12, 
-                                             uiOutput(ns("mh_year")),
-                                             uiOutput(ns("mh_breakdown")))
-                                    ),
-                                    fluidRow(
-                                      column(6, 
-                                             echarts4rOutput(ns("worries_graph"))),
-                                      column(6, 
-                                             echarts4rOutput(ns("coping_graph")))
-                                    )     
-                           ),
-                           tabPanel(
-                             "Lifestyle"
-                           ),
-                           tabPanel(
-                             "Safety"
-                           ),
-                           tabPanel(
-                             "Sexual Health"
-                           ),
-                           tabPanel(
-                             "Other"
-                           )) )
+        tablerCard(width = 5, 
+                   uiOutput(ns("mh_year")),
+                   uiOutput(ns("mh_breakdown")),
+                   br(),
+                   echarts4rOutput(ns("worries_graph")),
+                   echarts4rOutput(ns("coping_graph"))
+                   ),
+        tablerCard(width = 7, 
+                   htmlOutput(ns("key_themes_text")))
       )
+      # fluidRow(
+      #   tabItem("name", 
+      #           bs4TabCard(width = 12, side = "right", status = "success",
+      #                      collapsible = FALSE, 
+      #                      title = "",
+      #                      tabPanel("Mental Health", 
+      #                               fluidRow(
+      #                                 column(6, echarts4rOutput(ns("life_sat")),
+      #                                        echarts4rOutput(ns("life_worth"))),
+      #                                 column(6, echarts4rOutput(ns("self_harm")),
+      #                                        echarts4rOutput(ns("mh_services")))
+      #                               )    
+      #                      ),
+      #                      tabPanel(
+      #                        "Lifestyle"
+      #                      ),
+      #                      tabPanel(
+      #                        "Safety"
+      #                      ),
+      #                      tabPanel(
+      #                        "Sexual Health"
+      #                      ),
+      #                      tabPanel(
+      #                        "Other"
+      #                      )) )
+      # )
     )
     
   )
@@ -79,6 +79,7 @@ key_mod_server <- function(id,
                            data_old,
                            stats, 
                            stats_old,
+                           stats_combined,
                            q_coded,
                            comp) {
   moduleServer(
@@ -86,18 +87,6 @@ key_mod_server <- function(id,
     function(input, output, session) {
       
       ns <- NS(id)
-      
-      # for certain plots we want to visualise both years worth of data
-      stats_combined <- reactive({
-        
-        stats_old <- mutate(stats_old(), year = as.character(as.numeric(params()$year) - 1)) 
-        
-        stats() %>% 
-          mutate(year = as.character(as.numeric(params()$year))) %>% 
-          bind_rows(stats_old)
-        
-      })
-      
       
       # Info boxes --------------------------------------------------------------
       
@@ -110,6 +99,7 @@ key_mod_server <- function(id,
           title = "Responses this year",
           width = 12
         )
+        
       })
       
       # Total schools particiapted
@@ -203,6 +193,7 @@ key_mod_server <- function(id,
       
 
       # Group summary -----------------------------------------------------------
+      
       output$ethn_donut <- renderEcharts4r({
         
         stats <- stats()
@@ -241,179 +232,429 @@ key_mod_server <- function(id,
         
       })
 
-      
-      # MH & Wellbeing Graphs -------------------------------------------------------------------
 
-      output$life_sat <- renderEcharts4r({
+      # Text summary ------------------------------------------------------------
+
+      output$key_themes_text <- renderText({
         
-        stats_combined() %>% 
-          filter(question == "life_satisfied",
-                 response == "low",
-                 breakdown != "All Responses") %>% 
-          mutate(value = as.numeric(value)) %>% 
-          group_by(year) %>% 
-          e_charts(breakdown) %>% 
-          e_bar(value) %>%
-          e_tooltip(trigger = "axis") %>% 
-          e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
-          e_x_axis(axisLabel = list(interval = 0)) %>% 
-          e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
-          e_grid(bottom = 100) %>% 
-          e_title("Low life satisfaction",
-                  "Proportion from each group that responded with a rating of 4 or less out of 10.") %>% 
-          e_theme_custom("phei.json") %>% 
-          e_group("mh")
+        comp <- comp()
+        stats <- stats()
         
+        #TODO clean below
+        # --custom groups of interest for each breakdown--
+          
+          if (comp == "sex") {
+            group_name <- c("Female respondents")
+            group_breakdown <- c("Female")
+            key_data <- stats %>%
+              filter(breakdown %in% group_breakdown) }
+          
+          if (comp == "schyear") {
+            group_name <- NA
+            group_breakdown <- "All Respondents"
+            key_data <- stats }
+          
+          if (comp == "ethnicity") {
+            group_name <- c("Non-white respondents")
+            group_breakdown <- "Non-white"
+            key_data <- stats %>%
+              mutate(breakdown = case_when(!breakdown %in% c("All Responses", "White") ~ "Non-white", 
+                                                             TRUE ~ breakdown)) %>%
+              dplyr::group_by(breakdown, question, response) %>%
+              dplyr::mutate(denominator = case_when(breakdown == "Non-white" ~ sum(denominator), TRUE ~ denominator),
+                     count = case_when(breakdown == "Non-white" ~ sum(count), TRUE ~ count),
+                     value = round((count/denominator) * 100, 2)) %>%
+              dplyr::ungroup() %>%
+              distinct(breakdown, question, response, .keep_all = TRUE)
+          }
+          
+          if (comp == "sexuality") {
+            group_name <- c("Gay, lesbian or bisexual respondents")
+            group_breakdown <- c("Gay, lesbian or bisexual")
+            key_data <- stats %>%
+              filter(breakdown %in% group_breakdown) }
+          
+          if (comp == "imd_quintile") {
+            group_name <- "Respondents from the most deprived IMD quintile"
+            group_breakdown <- c("Quintile 1 - Most Deprived")
+            key_data <- stats %>%
+              filter(breakdown %in% group_breakdown) }
+          
+          if (comp == "caring") {
+            group_name <- "Young carers"
+            group_breakdown <- "Yes"
+            key_data <- stats %>%
+              filter(breakdown %in% c("Yes")) }
+          
+          if (comp == "smoke_ever") {
+            
+            group_name <- c("Smokers")
+            group_breakdown <- c("I smoke occasionally (less than 1 cigarette a week)",
+                                 "I smoke regularly (once a week or more)")
+            key_data <- stats %>%
+              mutate(breakdown = case_when(breakdown %in% group_breakdown ~ "Smoker",
+                                           TRUE ~ breakdown)) %>%
+              group_by(breakdown, question, response) %>%
+              mutate(denominator = sum(denominator),
+                     count = sum(count),
+                     value = round((count/denominator) * 100, 2)) %>%
+              ungroup() %>%
+              distinct(breakdown, question, response, .keep_all = TRUE)
+            
+          }
+          
+          if (comp == "selfharm_ever") {
+            group_name <- "Respondents who had self-harmed"
+            group_breakdown <- "Yes"
+            key_data <- stats %>%
+              filter(breakdown %in% c("Yes")) }
+          
+          if (comp == "bullied") {
+            group_name <- "Respondents who were bullied"
+            group_breakdown <- "Yes"
+            key_data <- stats %>%
+              filter(breakdown %in% c("Yes")) }
+          
+          if (comp == "District") {
+            group_name <- NA
+            group_breakdown <- "All Respondents"
+            key_data <- stats }
+          
+          # --Stats for all respondents ----
+          all_data <- stats %>%
+            filter(breakdown == "All Responses" & !is.na(question_text))
+          
+          # --Stats for key respondents ----
+          mh1 <- ifelse(!is.na(group_name), paste0("This statistic was ",
+                                                   filter(key_data, question == 'life_satisfied' & response == "low") %>%
+                                                     .$value, " for ", group_name), ".")
+          
+          mh2 <- ifelse(!is.na(group_name), paste0("This statistic was ",
+                                                   filter(key_data, question == 'life_satisfied_before_covid' & response == "low") %>% .$value,
+                                                   " for ", group_name), ".")
+          
+          mh3 <- ifelse(!is.na(group_name), paste0("From ", group_name, ", ",
+                                                   filter(key_data, question =='weight' & response=='Overweight') %>%
+                                                     .$value, " felt overweight, and ",
+                                                   filter(key_data, question =='weight' & response=='Underweight') %>%
+                                                     .$value, " felt underweight."), "")
+          
+          mh4 <- ifelse(!is.na(group_name), paste0(" From ", group_name, ", ",
+                                                   filter(key_data, question == 'mental_howaccess' & response == 'Yes') %>%
+                                                     .$value, " stated 'Yes'."), "")
+          
+          
+          ls1 <- ifelse(!is.na(group_name), paste0("This statistic was ",
+                                                   filter(key_data, question == 'pa_60' & response == "6-7") %>%
+                                                     .$value, " for ", group_name), ".")
+          
+          ls2 <- ifelse(!is.na(group_name), paste0("For ", group_name, " this was ",
+                                                   sum(filter(key_data, question == 'smoke_ever' &
+                                                                response != 'I have never smoked') %>% .$value), " and ",
+                                                   sum(filter(key_data, question == 'smoke_ever' &
+                                                                response == 'I smoke regularly (once a week or more)') %>% .$value),
+                                                   " respectively."), "")
+          
+          ls3 <- ifelse(!is.na(group_name), paste0("For ", group_name, " this was ",
+                                                   sum(filter(key_data, question == 'vaping' &
+                                                                response != 'I have never vaped') %>% .$value), " and ",
+                                                   sum(filter(key_data, question == 'vaping' &
+                                                                response == 'I vape regularly (once a week or more)') %>% .$value),
+                                                   " respectively."), "")
+          
+          ls4 <- ifelse(!is.na(group_name), paste0("For ", group_name, " this was ",
+                                                   sum(filter(key_data, question == 'alcohol_ever' &
+                                                                response != 'Never') %>% .$value), " and ",
+                                                   sum(filter(key_data, question == 'alcohol_ever' &
+                                                                response == '4 or more times a week') %>% .$value),
+                                                   " respectively."), "")
+          
+          ls5 <- ifelse(!is.na(group_name), paste0("For ", group_name, " this was ",
+                                                   sum(filter(key_data, question == 'drug_ever' &
+                                                                response != 'I have never taken drugs') %>% .$value), " and ",
+                                                   sum(filter(key_data, question == 'drug_ever' &
+                                                                response == 'I take drugs regularly (once a week or more)') %>% .$value),
+                                                   " respectively."), "")
+          
+          safety <- ifelse(!is.na(group_name), paste0("For ", group_name, " this was ",
+                                                      filter(key_data, question == 'safety_day' &
+                                                               response == 'Unsafe') %>% .$value, ", ",
+                                                      filter(key_data, question == 'safety_dark' &
+                                                               response == 'Unsafe') %>% .$value, ", ",
+                                                      filter(key_data, question == 'safety_school' &
+                                                               response == 'Unsafe') %>% .$value, ", and ",
+                                                      filter(key_data, question == 'safety_journey' &
+                                                               response == 'Unsafe') %>% .$value,
+                                                      " respectively."), "")
+          
+          sch1 <- ifelse(!is.na(group_name), paste0("This statistic was ",
+                                                    filter(key_data, question == 'schoolsupp_academic' & response == "Yes") %>%
+                                                      .$value, "% for ", group_name), ".")
+          
+          sch2 <- ifelse(!is.na(group_name), paste0("This statistic was ",
+                                                    filter(key_data, question == 'schoolsupp_wellbeing' & response == "Yes") %>%
+                                                      .$value, "% for ", group_name), ".")
+          
+          cov1 <- ifelse(!is.na(group_name), paste0("This statistic was ",
+                                                    filter(key_data, question == 'worry_covid19' & response == 'Yes') %>%
+                                                      .$value, " for ", group_name), ".")
+          
+          cov2 <- ifelse(!is.na(group_name), paste0("This statistic was ",
+                                                    filter(key_data, question == 'any_vacc_taken' & response == 'Yes') %>%
+                                                      .$value, " for ", group_name), ".")
+          
+          # --Text output ----
+          output <- HTML(
+            paste0(
+              "This box summarises the results of ", max(stats$denominator) ,
+              " pupils from schools in Hertfordshire who responded to the 2021 Young People’s Health & Wellbeing Survey (YPHWS).<br><br>",
+              
+              "<h1>Mental health and wellbeing</h1>",
+              filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
+              "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br><br>",
+              
+              "<b>", filter(all_data, question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value,
+              "</b>", " of all respondents rated  their satisfaction now compared to before COVID-19 as low. ", mh2, "<br><br>",
+              
+              "<b>", filter(all_data,  question =='weight' & response=='Overweight' & !is.na(question_text)) %>% .$value,
+              "</b> felt they were overweight while <b>",
+              filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
+              "</b> felt they were underweight. ", mh3, "<br><br>",
+              
+              # "The top 5 issues ", group_name, " were worried about were: ", worries_$question_text[1], " (", worries_$count[1], ")", ", ", worries_$question_text[2], " (", worries_$count[2], "), ",
+              # worries_$question_text[3], " (", worries_$count[3], "), ",worries_$question_text[4], " (", worries_$count[4], "), and ", worries_$question_text[5], " (", worries_$count[5], "). <br><br>",
+              #
+              "<b>", sum(filter(all_data,  question == 'mental_howaccess' & response != 'Yes') %>% .$value),
+              "</b> of respondents answered 'Not sure' or 'No' when asked if they knew how to access support and services for mental health. <b>",
+              sum(filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
+              "</b> answered 'Yes'. ", mh4, "<br><br>",
+              
+              "<h1>Lifestyle</h1>",
+              
+              "Out of all responses <b>", filter(all_data,  question == 'pa_60' & response == "6-7") %>% .$value,
+              "</b> had done a total of 60 minutes or more of physical activity 6-7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
+              " The most common response for this question was <b>",
+              filter(all_data,  question =='pa_60') %>% filter(count == max(count)) %>% .$response,
+              " days</b>. <br><br>",
+              
+              "<b>", sum(filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
+              "<b/> of respondents reported having ever smoked and <b>",
+              sum(filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
+              "</b> reported smoking regularly (once a week or more). ", ls2, "<br><br>",
+              
+              "<b>", sum(filter(all_data,  question == 'vaping' & response != 'I have never vaped') %>% .$value),
+              "</b> of respondents reported having ever vaped and <b>",
+              sum(filter(all_data,  question == 'vaping' & response == 'I vape regularly (once a week or more)') %>% .$value),
+              "</b> reported vaping regularly (once a week or more). ", ls3, "<br><br>",
+              
+              "<b>", sum(filter(all_data,  question == 'alcohol_ever' & response != 'Never') %>% .$value),
+              "</b> of respondents reported having had an alcoholic drink in the past 3 months and <b>",
+              sum(filter(all_data,  question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value),
+              "<b/> reported drinking 4 or more times a week. ", ls4, "<br><br>",
+              
+              "<b>", sum(filter(all_data,  question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value),
+              "</b> of respondents reported having ever taken drugs and <b>",
+              sum(filter(all_data,  question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value),
+              "</b> reported taking drugs regularly (once a week or more).", ls5, "<br><br>",
+              
+              "<h1>Safety</h1>",
+              
+              "Regarding safety, <b>",
+              sum(filter(all_data,  question == 'safety_day' & response == 'Unsafe') %>% .$value),
+              "</b> of respondents felt unsafe going out during the day, <b>",
+              sum(filter(all_data,  question == 'safety_dark' & response == 'Unsafe') %>% .$value),
+              "</b> felt unsafe going out after dark, <b>",
+              filter(all_data,  question == 'safety_school' & response == 'Unsafe' & !is.na(question_text)) %>% .$value,
+              "</b> felt unsafe at school, and <b>",
+              filter(all_data,  question == 'safety_journey' & response == 'Unsafe' & !is.na(question_text)) %>% .$value,
+              "</b> felt unsafe on their journey to school. ", safety, "<br><br>",
+              
+              "<h1>COVID-19</h1>",
+              
+              "<b>", filter(all_data, question == 'worry_covid19' & response == 'Yes') %>% .$value,
+              "</b> stated that COVID-19 was one of the issuers they worry about. ", cov1, "<br><br>",
+              
+              "<b>", filter(all_data,  question == 'any_vacc_taken' & response == 'Yes') %>% .$value,
+              "</b> stated that they have taken any dose of the COVID-19 vaccine. ", cov2
+              
+            )
+          )
+          
       })
-      
-      output$life_worth <- renderEcharts4r({
-         
-         stats_combined() %>% 
-           filter(question == "bullied",
-                  response == "Yes",
-                  breakdown != "All Responses") %>% 
-           mutate(value = as.numeric(value)) %>% 
-           group_by(year) %>% 
-           e_charts(breakdown) %>% 
-           e_bar(value) %>%
-           e_tooltip(trigger = "axis") %>% 
-           e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
-           e_x_axis(axisLabel = list(interval = 0)) %>% 
-           e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
-           e_grid(bottom = 100) %>% 
-           e_title("Bullying",
-                   "Proportion from each group that stated that they have been bullied before.") %>% 
-           e_theme_custom("phei.json") %>% 
-           e_group("mh")
-         
-         })
         
-      output$self_harm <- renderEcharts4r({
-          
-          stats_combined() %>% 
-            filter(question == "selfharm_ever",
-                   response == "Yes",
-                   breakdown != "All Responses") %>% 
-            mutate(value = as.numeric(value)) %>% 
-            group_by(year) %>% 
-            e_charts(breakdown) %>% 
-            e_bar(value) %>%
-            e_tooltip(trigger = "axis") %>% 
-            e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
-            e_x_axis(axisLabel = list(interval = 0)) %>% 
-            e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
-            e_legend(show = F) %>% 
-            e_grid(bottom = 100) %>% 
-            e_title("Self-harm",
-                    "Proportion from each group that stated that they had self-harmed before.") %>% 
-            e_theme_custom("phei.json") %>% 
-            e_group("mh")
-          
-          })
         
-      output$mh_services <- renderEcharts4r({
-          
-          stats_combined() %>% 
-            filter(question == "mental_howaccess",
-                   response == "Yes",
-                   breakdown != "All Responses") %>% 
-            mutate(value = as.numeric(value)) %>% 
-            group_by(year) %>% 
-            e_charts(breakdown) %>% 
-            e_bar(value) %>%
-            e_tooltip(trigger = "axis") %>% 
-            e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
-            e_x_axis(axisLabel = list(interval = 0)) %>% 
-            e_legend(show = F) %>% 
-            e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
-            e_grid(bottom = 100) %>% 
-            e_title("Accessing mental health services",
-                    "Proportion from each group stating that they knew how to access mental health services.") %>% 
-            e_theme_custom("phei.json") %>% 
-            e_group("mh") %>% 
-            e_connect_group("mh")
-          
-          })
+      # MH & Wellbeing Graphs -------------------------------------------------------------------
+        
+        output$mh_breakdown <- shiny::renderUI({
 
-      output$mh_breakdown <- renderUI({
-          
           shinyWidgets::prettyRadioButtons(
             inputId = ns("mh_breakdown"),
-            label = "", 
+            label = "",
             choices = unique(stats()$breakdown),
-            inline = TRUE, 
+            inline = TRUE,
             status = "info",
             fill = TRUE
           )
           
-        })
-      
-      output$mh_year <- renderUI({
-        
-        shinyWidgets::prettyRadioButtons(
-          inputId = ns("mh_year"),
-          label = "", 
-          choices = unique(stats_combined()$year),
-          inline = TRUE, 
-          status = "info",
-          fill = TRUE
-        )
-        
-      })
-        
-      output$worries_graph <- renderEcharts4r({
-        
-        stats <- stats_combined()
-        
-        stats %>% 
-          filter(grepl("worry_", question),
-                 breakdown == input$mh_breakdown,
-                 year == input$mh_year,
-                 response == "Yes") %>% 
-          group_by(breakdown) %>% 
-          arrange(count) %>% 
-          slice(tail(row_number(), 5)) %>% 
-          e_charts(question_text) %>% 
-          e_bar(count) %>% 
-          e_legend(show = FALSE) %>% 
-          e_flip_coords() %>% 
-          e_tooltip("item") %>% 
-          e_grid(left = "20%") %>% 
-          e_title("Top 5 worries",
-                  paste("For", input$mh_breakdown, "in", input$mh_year)) %>% 
-          e_theme("blue")
-        
-      })
-      
-      output$coping_graph <- renderEcharts4r({
-        
-        stats <- stats_combined()
-        
-        stats %>% 
-          filter(grepl("cope_", question),
-                 breakdown == input$mh_breakdown,
-                 year == input$mh_year,
-                 response == "Yes") %>% 
-          group_by(breakdown) %>% 
-          arrange(count) %>% 
-          slice(tail(row_number(), 5)) %>% 
-          e_charts(question_text) %>% 
-          e_bar(count) %>% 
-          e_legend(show = FALSE) %>% 
-          e_flip_coords() %>% 
-          e_tooltip("item") %>% 
-          e_grid(left = "20%") %>% 
-          e_title("Top 5 ways to cope",
-                  paste("For", input$mh_breakdown, "in", input$mh_year)) %>% 
-          e_theme("blue")
-        
-      })
-      
-      
 
+        })
+
+        output$mh_year <- shiny::renderUI({
+
+          shinyWidgets::prettyRadioButtons(
+            inputId = ns("mh_year"),
+            label = "",
+            choices = unique(stats_combined()$year),
+            inline = TRUE,
+            status = "info",
+            fill = TRUE
+          )
+
+        })
+        
+        output$worries_graph <- renderEcharts4r({
+          
+          stats <- stats_combined()
+          
+          stats %>% 
+            filter(grepl("worry_", question),
+                   breakdown == input$mh_breakdown,
+                   year == input$mh_year,
+                   response == "Yes") %>% 
+            group_by(breakdown) %>% 
+            arrange(count) %>% 
+            slice(tail(row_number(), 5)) %>% 
+            e_charts(question_text) %>% 
+            e_bar(count) %>% 
+            e_legend(show = FALSE) %>% 
+            e_flip_coords() %>% 
+            e_tooltip("item") %>% 
+            e_grid(left = "30%") %>%
+            e_title("Top 5 worries",
+                    paste("For", input$mh_breakdown, "in", input$mh_year)) %>%
+            e_theme("blue")
+          
+        })
+        
+        output$coping_graph <- renderEcharts4r({
+
+          stats <- stats_combined()
+
+          stats %>%
+            filter(grepl("cope_", question),
+                   breakdown == input$mh_breakdown,
+                   year == input$mh_year,
+                   response == "Yes") %>%
+            group_by(breakdown) %>%
+            arrange(count) %>%
+            slice(tail(row_number(), 5)) %>%
+            e_charts(question_text) %>%
+            e_bar(count) %>%
+            e_legend(show = FALSE) %>%
+            e_flip_coords() %>%
+            e_tooltip("item") %>%
+            e_grid(left = "40%") %>%
+            e_title("Top 5 ways to cope",
+                    paste("For", input$mh_breakdown, "in", input$mh_year)) %>%
+            e_theme("blue")
+
+        })
+        
+        # output$life_sat <- renderEcharts4r({
+        #   
+        #   stats_combined() %>% 
+        #     filter(question == "life_satisfied",
+        #            response == "low",
+        #            breakdown != "All Responses") %>% 
+        #     mutate(value = as.numeric(value)) %>% 
+        #     group_by(year) %>% 
+        #     e_charts(breakdown) %>% 
+        #     e_bar(value) %>%
+        #     e_tooltip(trigger = "axis") %>% 
+        #     e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+        #     e_x_axis(axisLabel = list(interval = 0)) %>% 
+        #     e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+        #     e_grid(bottom = 100) %>% 
+        #     e_title("Low life satisfaction",
+        #             "Proportion from each group that responded with a rating of 4 or less out of 10.") %>% 
+        #     e_theme_custom("phei.json") %>% 
+        #     e_group("mh")
+        #   
+        # })
+        # 
+        # output$life_worth <- renderEcharts4r({
+        #   
+        #   stats_combined() %>% 
+        #     filter(question == "bullied",
+        #            response == "Yes",
+        #            breakdown != "All Responses") %>% 
+        #     mutate(value = as.numeric(value)) %>% 
+        #     group_by(year) %>% 
+        #     e_charts(breakdown) %>% 
+        #     e_bar(value) %>%
+        #     e_tooltip(trigger = "axis") %>% 
+        #     e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+        #     e_x_axis(axisLabel = list(interval = 0)) %>% 
+        #     e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+        #     e_grid(bottom = 100) %>% 
+        #     e_title("Bullying",
+        #             "Proportion from each group that stated that they have been bullied before.") %>% 
+        #     e_theme_custom("phei.json") %>% 
+        #     e_group("mh")
+        #   
+        # })
+        # 
+        # output$self_harm <- renderEcharts4r({
+        #   
+        #   stats_combined() %>% 
+        #     filter(question == "selfharm_ever",
+        #            response == "Yes",
+        #            breakdown != "All Responses") %>% 
+        #     mutate(value = as.numeric(value)) %>% 
+        #     group_by(year) %>% 
+        #     e_charts(breakdown) %>% 
+        #     e_bar(value) %>%
+        #     e_tooltip(trigger = "axis") %>% 
+        #     e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+        #     e_x_axis(axisLabel = list(interval = 0)) %>% 
+        #     e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+        #     e_legend(show = F) %>% 
+        #     e_grid(bottom = 100) %>% 
+        #     e_title("Self-harm",
+        #             "Proportion from each group that stated that they had self-harmed before.") %>% 
+        #     e_theme_custom("phei.json") %>% 
+        #     e_group("mh")
+        #   
+        # })
+        # 
+        # output$mh_services <- renderEcharts4r({
+        #   
+        #   stats_combined() %>% 
+        #     filter(question == "mental_howaccess",
+        #            response == "Yes",
+        #            breakdown != "All Responses") %>% 
+        #     mutate(value = as.numeric(value)) %>% 
+        #     group_by(year) %>% 
+        #     e_charts(breakdown) %>% 
+        #     e_bar(value) %>%
+        #     e_tooltip(trigger = "axis") %>% 
+        #     e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+        #     e_x_axis(axisLabel = list(interval = 0)) %>% 
+        #     e_legend(show = F) %>% 
+        #     e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+        #     e_grid(bottom = 100) %>% 
+        #     e_title("Accessing mental health services",
+        #             "Proportion from each group stating that they knew how to access mental health services.") %>% 
+        #     e_theme_custom("phei.json") %>% 
+        #     e_group("mh") %>% 
+        #     e_connect_group("mh")
+        #   
+        # })
+        
+      })
+      
     }
-  )
-}
+
 
 
 
