@@ -1,7 +1,141 @@
 
 # Generate text -----------------------------------------------------------
 
+compare_last_yr <- function(df_new, 
+                            df_old,
+                            multicat = F, 
+                            response_interest = NA) {
+  
+  # df_new <- stats
+  # df_old <- stats_old
+  # var <- chk_var
+  
+  if (nrow(df_old) == 0) { return("") }
+  
+  # filtering to key groups
+  df_new <- df_new %>%
+    dplyr::filter(breakdown == "All Responses")
+  
+  df_old <- df_old %>%
+    dplyr::filter(breakdown == "All Responses")
+  
+  df_old_comp <- mutate(df_old, breakdown = "Previous All Responses")
+  
+  new_diffs <- get_stats_diffs(bind_rows(df_new, df_old_comp), 
+                               levels = c("All Responses", "Previous All Responses")) %>% 
+    filter(!is.na(breakdown.x)) %>% 
+    mutate(question_text.x = case_when(is.na(question_text.x) ~ question_text.y, TRUE ~ question_text.x))
+  
+  names(new_diffs) <- gsub(".x", "", names(new_diffs))
+  
+  if (nrow(new_diffs) == 0) { return("") }
+  
+  # match number of rows so cols can be binded
+  if(nrow(df_new) > nrow(df_old)) {
+    
+    df_new <- df_new %>% 
+      dplyr::semi_join(df_old, by = c("breakdown", "school", "question", "response"))
+    
+  } else if (nrow(df_new) < nrow(df_old)) {
+    
+    df_old <- df_old %>% 
+      dplyr::semi_join(df_new, by = c("breakdown", "school", "question", "response"))
+    
+  }
+  
+  names(df_old) <- paste0(names(df_old), "_old")
+  
+  # category of interest may be different depending on type of question ( single vs multi-category ). Also needs extra cleaning. 
+  if (multicat == F) { 
+    
+    resp_var <- "response" 
+    
+  } else { 
+    
+    resp_var <- "question" 
+    df_old <- df_old %>% 
+      filter(response_old == response_interest)
+    
+    df_new <- df_new %>% 
+      filter(response == response_interest)
+    
+  }
+  
+  # main df with comparisons and correct text for sentences
+  df <- dplyr::bind_cols(df_new, df_old) %>% 
+    dplyr::filter(breakdown %in% c("All Responses")) %>% 
+    left_join(select(new_diffs, response, question, diff), by = unique(c(resp_var, "response"))) %>% 
+    dplyr::mutate(school = dplyr::case_when(school == "All Schools" ~ "Hertfordshire", TRUE ~ school),
+                  school_old = dplyr::case_when(school_old == "All Schools" ~ "Hertfordshire", TRUE ~ school_old),
+                  val_comp = case_when(value > value_old ~ "HIGHER than", 
+                                       value < value_old ~ "LOWER than", 
+                                       value == value_old ~ "the SAME as"),
+                  val_diff = abs(value - value_old),
+                  diff = case_when(is.na(diff) ~ "statistically similar to", 
+                                   diff == "significantly higher than" ~ "statistically HIGHER than", 
+                                   diff == "significantly lower than" ~ "statistically LOWER than"),
+                  question_text = case_when(is.na(question_text) ~ question_text_old, TRUE ~ question_text_old)) %>% 
+    dplyr::distinct(breakdown, 2, response, .keep_all = TRUE)
+  
+  # if response_interest isn't given, default to the category with highest proportion and those that had differences.
+  if (is.na(response_interest)[1]) {
+    
+    main_grp <- c(df[[resp_var]][df$value == max(df$value)][1],
+                  df[[resp_var]][df$diff != "statistically SIMILAR to"])
+    main_grp <- sort(unique(main_grp))
+    
+  } else {
+    
+    main_grp <- c(response_interest, df[[resp_var]][df$diff != "statistically similar to"])
+    main_grp <- sort(unique(main_grp))
+    
+  }
+  
+  # If question is multicategory, sentence needs to be changed
+  if (multicat) { 
+    addition <- paste0(" for '", df$question_text, "'")
+    main_grp <- rep(response_interest, nrow(df))
+  } else {
+    addition <- rep("", length(main_grp))
+  }
+  
+  # get rows of interest for the sentences.
+  main_df <- df %>% 
+    dplyr::filter(breakdown == "All Responses", response %in% main_grp) %>% 
+    arrange(!!ensym(resp_var))
+  
+  main_val <- round(as.numeric(dplyr::pull(main_df, value)) * 100, 1) #percentage
+  main_comp <- dplyr::pull(main_df, diff) #whether it's higher/lower/same
+  main_val_old <- round(as.numeric(dplyr::pull(main_df, value_old)) * 100, 1) #percentage of previous year
+  
+  # main sentence
+  sentence <- glue::glue("This year, {main_val[1]}% answered '{main_grp[1]}'{addition[1]}, which was {main_comp[1]} last year ({main_val_old[1]}%).")
+  
+  # if a vector is given for response_interest, adjust the sentence so it summarises more than one category.
+  if (length(main_val) > 1) {
+    
+    if (length(main_val) == 2) { 
+      
+      sentence <- glue::glue("{sentence} Additionally, {main_val[-1]}% answered '{main_grp[-1]}'{addition[-1]}, which was {main_comp[-1]} last year ({main_val_old[-1]}%).")
+      
+    } else if (length(main_val) > 2) {
+      
+      main_comp <- gsub(" than| to", "", main_comp)
+      
+      sentence <- glue::glue("{sentence} Additionally, {
+                 glue::glue_collapse(glue::glue(
+                 'the proportion of young people that answered {glue::single_quote({main_grp[-1]})} {addition[-1]} was {main_comp[-1]}')
+                 , ', ', last = ', and ')}.")
+      
+    }
+  }
+  
+  return(sentence)
+  
+}
+
 create_sum_sentence <- function(dataset, 
+                                dataset_old, 
                                 multi = F, 
                                 value_of_interest = F, 
                                 full_data,
@@ -60,7 +194,12 @@ create_sum_sentence <- function(dataset,
         add <- paste0(" Among them, ", paste0(
           prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
         
-        sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question." , add, 
+        trend <- compare_last_yr(df_new = dataset, 
+                                 df_old = dataset_old, 
+                                 multi = F,
+                                 response_interest = NA)
+        
+        sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
                            "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up ", most_v[1], 
                            " of responses and the least common response was '", least_common[1], "', with ",
                            least_v[1], " of responses.")
@@ -135,8 +274,15 @@ create_sum_sentence <- function(dataset,
           distinct()
         
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
+        
+        # get trend sentence
+        trend <- compare_last_yr(df_new = dataset,
+                                 df_old = dataset_old,
+                                 multi = T,
+                                 response_interest = value_of_interest)
+        
         sentence <- paste0(sentence, "Among them, ", paste0(
-          prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
+          prop, " were ", grp_df$breakdown, collapse = ", "), ". ", trend)
         
         for(group in 1:length(c("All Responses", group_of_interest))) {
           
@@ -183,7 +329,6 @@ create_sum_sentence <- function(dataset,
   return(sentence)
   
 }
-
 
 # Graphs --------------------------------------------------------------
 

@@ -76,7 +76,7 @@ explore_mod_server <- function(id,
       # })
       
       # observe({
-      #   if ("Living Conditions" %in% input$domains ) {browser()}
+      #   if ("Diet and Lifestyle" %in% input$domains ) {browser()}
       # })
       
       # Data --------------------------------------------------------------------
@@ -139,7 +139,9 @@ explore_mod_server <- function(id,
         for (i in 1:length(chk_var())){
           
           # Current question
-          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
+            mutate(year = as.character(as.numeric(params$year)))
+          
           current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
             mutate(multi_cat = as.logical(multi_cat),
                    multi_binary = as.logical(multi_binary),
@@ -151,6 +153,15 @@ explore_mod_server <- function(id,
           # --Create text and plots based on type of question--
           # --Multicat questions
           if (multi) { 
+            
+            # response of interest (usually Yes)
+            if(multi_bin) { resp_interest = "Yes" } else {
+              
+              resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
+                                     collapse = "|")
+              resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
+              
+            }
             
             # multicat style plot
             int_plot <- create_multi_plot(df = current,
@@ -173,21 +184,22 @@ explore_mod_server <- function(id,
               trend_plot <- create_trend_table(stats = stats_,
                                                stats_old = current_old,
                                                params = params)
+
               
             } else {
               
               trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+              trend_text <- ""
               
             }
             
             # text differs depending on type of question
             if(!multi_bin) {
-            
-              resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
-                                     collapse = "|")
-              resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
+
+              names(current_old) <- gsub("prev_", "", names(current_old))
               text <- create_sum_sentence(dataset = current,
-                                          multi = multi,
+                                          dataset_old = current_old, 
+                                          multi = T,
                                           value_of_interest = resp_interest,
                                           full_data = chk_stats(),
                                           diffs = chk_diff(),
@@ -199,8 +211,11 @@ explore_mod_server <- function(id,
             } else {
               
               if (any(grepl("internet_", current$question))) { top <- NA } else { top <- 5 }
+              
+              names(current_old) <- gsub("prev_", "", names(current_old))
               text <- create_sum_sentence(dataset = current,
-                                          multi = multi,
+                                          dataset_old = current_old, 
+                                          multi = T,
                                           value_of_interest = "Yes",
                                           full_data = chk_stats(),
                                           diffs = chk_diff(),
@@ -216,8 +231,9 @@ explore_mod_server <- function(id,
             
             # text summary
             text <- create_sum_sentence(dataset = current,
+                                        dataset_old = current_old,
                                         multi = multi,
-                                        value_of_interest = "Yes",
+                                        value_of_interest = NA,
                                         full_data = chk_stats(),
                                         diffs = chk_diff(),
                                         custom_grp = unique(current$breakdown),
@@ -233,15 +249,11 @@ explore_mod_server <- function(id,
             # trend table
             if (nrow(current_old) > 0) {
               
-              current_old <- mutate(current_old, `2020` = value) %>% 
-                filter(response_of_interest == "TRUE")
+              current_old <- mutate(current_old, `2020` = value) 
               
               names(current_old) <- paste0("prev_", names(current_old))
               
-              stats_ <- current %>% 
-                filter(response_of_interest == "TRUE")
-              
-              trend_plot <- create_trend_table(stats = stats_,
+              trend_plot <- create_trend_table(stats = current,
                                                stats_old = current_old,
                                                params = params)
               
@@ -289,7 +301,7 @@ explore_mod_server <- function(id,
                                                      ))
                                        )) )
         }
-        
+
         return(l)
         
         
