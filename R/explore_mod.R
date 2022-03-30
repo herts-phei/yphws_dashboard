@@ -23,6 +23,14 @@ explore_mod <- function(id,
                ))
       ),
       column(offset = 3, 10, 
+             # shinyWidgets::prettyRadioButtons(
+             #   inputId = ns("explore_year"),
+             #   label = "Survey year:", 
+             #   choices = c("2021"),
+             #   inline = TRUE, 
+             #   status = "danger",
+             #   fill = TRUE
+             # ),
              shinyWidgets::prettyRadioButtons(
                inputId = ns("domains"),
                label = "Choose a topic:", 
@@ -48,7 +56,7 @@ explore_mod_server <- function(id,
                                diffs,
                                comp,
                                q_coded,
-                               q_coded_old) {
+                               grp_lookup) {
   
   moduleServer(
     id,
@@ -76,7 +84,7 @@ explore_mod_server <- function(id,
       # })
       
       # observe({
-      #   if ("Diet and Lifestyle" %in% input$domains ) {browser()}
+      #   if ("Sexual Health" %in% input$domains ) {browser()}
       # })
       
       # Data --------------------------------------------------------------------
@@ -89,7 +97,6 @@ explore_mod_server <- function(id,
           arrange(question_raw) %>% 
           filter(question_theme %in% input$domains)
         
-        #TODO deduplicate multicat questions.
         chk_var <- q_coded %>%
           filter(question_coded %in% single$question_coded,
                  !is.na(response)) %>%
@@ -105,7 +112,8 @@ explore_mod_server <- function(id,
         stats %>% 
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
                                                               "response" = "response")) %>% 
-          filter(question_coded_gen %in% chk_var())
+          filter(question_coded_gen %in% chk_var(),
+                 year == params()$year)
         
       })
       
@@ -114,7 +122,8 @@ explore_mod_server <- function(id,
         stats_old %>%
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
                                                                   "response" = "response")) %>%
-          filter(question_coded_gen %in% chk_var())
+          filter(question_coded_gen %in% chk_var(),
+                 year == as.character(as.numeric(params()$year) - 1))
       })
       
       chk_diff <- reactive({
@@ -122,7 +131,8 @@ explore_mod_server <- function(id,
         diffs %>% 
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
                                                                    "response" = "response")) %>% 
-          filter(question_coded_gen %in% chk_var())
+          filter(question_coded_gen %in% chk_var(),
+                 year == params$year)
       })
       
       # Boxes -------------------------------------------------------------------
@@ -134,6 +144,7 @@ explore_mod_server <- function(id,
         diffs <- diffs()
         comp <- comp()
         q_coded <- q_coded()
+        grp_lookup <- grp_lookup()
         
         l <- list()
         for (i in 1:length(chk_var())){
@@ -143,12 +154,16 @@ explore_mod_server <- function(id,
             mutate(year = as.character(as.numeric(params$year)))
           
           current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
-            mutate(multi_cat = as.logical(multi_cat),
-                   multi_binary = as.logical(multi_binary),
-                   year = "2020")
+            mutate(year = "2020")
           
           multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
+          
+          # find group of interest 
+          #TODO clean
+          grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$group_value, grp_lookup$group_value2)), collapse = "|"), 
+                                                 unique(current$breakdown))]
+          grp <- ifelse(length(grp) == 0, NA, grp)
           
           # --Create text and plots based on type of question--
           # --Multicat questions
@@ -195,7 +210,7 @@ explore_mod_server <- function(id,
             
             # text differs depending on type of question
             if(!multi_bin) {
-
+              
               names(current_old) <- gsub("prev_", "", names(current_old))
               text <- create_sum_sentence(dataset = current,
                                           dataset_old = current_old, 
@@ -204,7 +219,7 @@ explore_mod_server <- function(id,
                                           full_data = chk_stats(),
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
-                                          group_of_interest = unique(current$breakdown)[2],
+                                          group_of_interest = grp,
                                           q_coded = q_coded,
                                           top = NA)
               
@@ -220,7 +235,7 @@ explore_mod_server <- function(id,
                                           full_data = chk_stats(),
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
-                                          group_of_interest = unique(current$breakdown)[2],
+                                          group_of_interest = grp,
                                           q_coded = q_coded,
                                           top = top)
               

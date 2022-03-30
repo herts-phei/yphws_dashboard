@@ -85,17 +85,17 @@ ui <- tablerDashPage(
           fluidRow(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
-                       closable = FALSE,
-                       uiOutput("exp_report_comp"),
-                       uiOutput("exp_report_cat"),
-                       downloadButton("exp_report", "Export report")
+                       closable = FALSE
+                       #uiOutput("exp_report_comp"),
+                       #uiOutput("exp_report_cat"),
+                       #downloadButton("exp_report", "Export report")
                        )
           )
         ),
         tablerCard(width = 12, title = "Data table",
-                   closable = FALSE,
-                   downloadButton("exp_table", "Export table"), 
-                   reactableOutput("export")
+                   closable = FALSE
+                   #downloadButton("exp_table", "Export table"), 
+                   #reactableOutput("export")
         )
         
       )
@@ -117,72 +117,29 @@ server <- function(input, output) {
   # Uncomment for testing
   # observe({
   # 
-  #   if ("ethnicity" %in% input$comp) { browser() }
+  #   if ("District" %in% input$comp) { browser() }
   # 
   # })
   
   # --Load all data-----
   rv <- reactiveValues()
   rv$params <- get_params() # params
-  rv$data <- get_data(data = isolate(rv$params$data_pin), params = isolate(rv$params)) # Raw data, cumulative yearly
-  #rv$data_old <- get_data(isolate(rv$params$prev_data_pin), params = isolate(rv$params)) # Raw data, previous. 
-  
-  # --Generate statistics using raw data
-  observe({ 
-    data_current <- filter(rv$data$data, survey_year == rv$params$year)
-    rv$stats <- get_stats(
-      data = data_current,
-      group = input$comp,
-      q_coded = rv$data$q_coded
-    ) 
-    
-    # Previous years data
-    
-    data_prev <- filter(rv$data$data, survey_year == as.character(as.numeric(rv$params$year) - 1))
-    
-    if (input$comp %in% rv$data_old$q_coded_prev$question_coded){
-      group_old <- input$comp 
-    } else { 
-      group_old <- "sex"
-    }
-    
-    rv$stats_old <- get_stats(
-      data = data_prev,
-      group = group_old,
-      q_coded = rv$data$q_coded
-    )
-  })
-  
-  observe({
-    sel_comp <- rv$data$data %>% 
-      select(input$comp) 
-    sel_comp <- as.character(unique(na.omit(unlist(sel_comp))))
-    
-    rv$diffs <- get_stats_diffs(stats = rv$stats, 
-                                levels = c("All Responses", sel_comp), 
-                                compare_to_all = F) # TODO
-    
-    # comparisons with last year
-    old <- rv$stats_old %>% 
-      mutate(breakdown = paste("Previous", breakdown)) %>% 
-      filter(!is.na(breakdown))
-    
-    rv$diffs_w_old <- get_stats_diffs(stats = bind_rows(old, rv$stats), 
-                                      levels = c("All Responses", unique(old$breakdown), sel_comp),
-                                      compare_to_all = T) %>% 
-      mutate(question_text.x = case_when(is.na(question_text.x) ~ question_text.y, 
-                                         TRUE ~ question_text.x))
-    
-    # for certain plots we want to visualise both years worth of data
+  rv$data <- get_data() # Raw data, cumulative yearly
 
-    rv$stats_combined <- rv$stats %>% 
-      dplyr::mutate(year = "2021") %>% 
-      dplyr::bind_rows(dplyr::mutate(rv$stats_old,
-                                     year = "2020"))
+  # -- Filter data to breakdown selected ----
+  observe({
+    
+    df_selected <- rv$data$data[[input$comp]]
+    
+    # Stats
+    rv$stats_combined <- select(df_selected, year, 1:12) %>% distinct() # distinct because of repeated diffs that are now removed. 
+    rv$stats <- filter(rv$stats_combined, year == rv$params$year)
+    rv$stats_old <- filter(rv$stats_combined, year == as.character(as.numeric(rv$params$year) - 1))
+    
+    # Differences
+    rv$diffs <- filter(df_selected, year == rv$params$year)
     
   })
-  
-  
   
   # Key Points --------------------------------------------------------------
   
@@ -193,6 +150,7 @@ server <- function(input, output) {
                  stats_old = reactive(rv$stats_old),
                  stats_combined = reactive(rv$stats_combined),
                  q_coded = reactive(rv$data$q_coded),
+                 grp_lookup = reactive(rv$data$grp_lookup),
                  comp = reactive(input$comp)
                  )
   
@@ -204,7 +162,8 @@ server <- function(input, output) {
                      stats_old = reactive(rv$stats_old),
                      diffs = reactive(rv$diffs),
                      comp = reactive(input$comp),
-                     q_coded = reactive(rv$data$q_coded))
+                     q_coded = reactive(rv$data$q_coded),
+                     grp_lookup = reactive(rv$data$grp_lookup))
   
   # Inequalities ------------------------------------------------------------
 
@@ -215,141 +174,141 @@ server <- function(input, output) {
                           diffs = reactive(rv$diffs))
   
   # Export ------------------------------------------------------------------
-  
-  output$exp_report_comp <- renderUI({
-    
-    pickerInput("exp_report_comp", label = "Select what to group by in your report",
-                choices = list("Sex" = "sex", 
-                               "Year group" = "schyear", 
-                               "Ethnicity" = "ethnicity",
-                               "IMD Quintile" = "imd_quintile",
-                               "Sexuality" = "sexuality", 
-                               "Child looked after" = "cla",
-                               "Young carer" = "caring", 
-                               "Adopted" = "adopted", 
-                               "Smoker" = "smoke_ever",
-                               "Self-harm" = "selfharm_ever",
-                               "Bullied" = "bullied",
-                               "District" = "District"), 
-                selected = input$comp, 
-                multiple = FALSE)
-    
-  })
-  
-  output$exp_report_cat <- renderUI({
-    
-    choices <- rv$data$data %>% 
-      select(input$exp_report_comp) %>% 
-      distinct() %>% 
-      pull(input$exp_report_comp)
-    
-    pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
-                choices = as.character(na.omit(choices)), multiple = FALSE,
-                selected = as.character(na.omit(choices)[1]))
-    
-  })
-  
-  output$exp_report <- downloadHandler(
-    filename = "report.html",
-    content = function(file) {
-      tempReport <- file.path(tempdir(), "test.Rmd")
-      file.copy("test.Rmd", tempReport, overwrite = TRUE)
-
-      # Set up parameters to pass to Rmd document
-      params <- list(var = input$comp,
-                     cat = input$exp_report_cat)
-
-      # Knit the document, passing in the `params` list, and eval it in a
-      # child of the global environment (this isolates the code in the document
-      # from the code in this app).
-      show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
-      rmarkdown::render(tempReport, output_file = file,
-                        params = params,
-                        envir = new.env(parent = globalenv())
-      )
-      remove_modal_spinner() # remove it when done
-
-    }
-  )
-  
-  output$export <- renderReactable({
-    
-    rv$stats %>% 
-      mutate(value = round(value, 2), 
-             lowercl = round(lowercl, 2), 
-             uppercl = round(uppercl, 2),
-             response = as.character(response)) %>%
-      rename_with(str_to_title)  %>%
-      mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
-             Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
-                                       TRUE ~ Question_text)) %>%
-      left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
-                by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
-      mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
-                                         Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
-                                         Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
-                                         Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
-                                         Question == "survey_year" ~ "What year was the survey conducted?",
-                                         survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-                                           "In the past three months have you taken any of the following drugs?",
-                                         TRUE ~ survey_text_gen),
-             Question_text = str_to_sentence(Question_text)) %>%
-      mutate(Question_text = case_when(Question == "District" ~ "District",
-                                       Question == "khat_exp" ~ "Khat",
-                                       Question == "khat_offered" ~ "Khat",
-                                       Question == "mephedrone_exp" ~ "Mephedrone",
-                                       Question == "survey_year" ~ "Year",
-                                       survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-                                         "In the past three months have you taken any of the following drugs?",
-                                       TRUE ~ Question_text),
-             Response = str_replace_all(Response, "-", "--")) %>%
-      select(Breakdown, Category = Question_text, Response, Count, Denominator, Value) %>% 
-      # select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl) %>%
-      # having this many cols causes issues when the app is ran
-      reactable(filterable = TRUE)
-  })
-  
-  output$exp_table <- downloadHandler(
-    
-    filename = "data_table.csv",
-    content = function(con) { 
-      
-
-      data <- isolate(rv$stats) %>% 
-        mutate(value = round(value, 2), 
-               lowercl = round(lowercl, 2), 
-               uppercl = round(uppercl, 2),
-               response = as.character(response)) %>%
-        rename_with(str_to_title)  %>%
-        mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
-               Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
-                                         TRUE ~ Question_text)) %>%
-        left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
-                  by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
-        mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
-                                           Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
-                                           Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
-                                           Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
-                                           Question == "survey_year" ~ "What year was the survey conducted?",
-                                           survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-                                             "In the past three months have you taken any of the following drugs?",
-                                           TRUE ~ survey_text_gen),
-               Question_text = str_to_sentence(Question_text)) %>%
-        mutate(Question_text = case_when(Question == "District" ~ "District",
-                                         Question == "khat_exp" ~ "Khat",
-                                         Question == "khat_offered" ~ "Khat",
-                                         Question == "mephedrone_exp" ~ "Mephedrone",
-                                         Question == "survey_year" ~ "Year",
-                                         survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-                                           "In the past three months have you taken any of the following drugs?",
-                                         TRUE ~ Question_text),
-               Response = str_replace_all(Response, "-", "--")) %>% 
-        select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl)
-
-      write.csv(data, con)
-      }
-    
-  )
+  # 
+  # output$exp_report_comp <- renderUI({
+  #   
+  #   pickerInput("exp_report_comp", label = "Select what to group by in your report",
+  #               choices = list("Sex" = "sex", 
+  #                              "Year group" = "schyear", 
+  #                              "Ethnicity" = "ethnicity",
+  #                              "IMD Quintile" = "imd_quintile",
+  #                              "Sexuality" = "sexuality", 
+  #                              "Child looked after" = "cla",
+  #                              "Young carer" = "caring", 
+  #                              "Adopted" = "adopted", 
+  #                              "Smoker" = "smoke_ever",
+  #                              "Self-harm" = "selfharm_ever",
+  #                              "Bullied" = "bullied",
+  #                              "District" = "District"), 
+  #               selected = input$comp, 
+  #               multiple = FALSE)
+  #   
+  # })
+  # 
+  # output$exp_report_cat <- renderUI({
+  #   
+  #   choices <- rv$data$data %>% 
+  #     select(input$exp_report_comp) %>% 
+  #     distinct() %>% 
+  #     pull(input$exp_report_comp)
+  #   
+  #   pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
+  #               choices = as.character(na.omit(choices)), multiple = FALSE,
+  #               selected = as.character(na.omit(choices)[1]))
+  #   
+  # })
+  # 
+  # output$exp_report <- downloadHandler(
+  #   filename = "report.html",
+  #   content = function(file) {
+  #     tempReport <- file.path(tempdir(), "test.Rmd")
+  #     file.copy("test.Rmd", tempReport, overwrite = TRUE)
+  # 
+  #     # Set up parameters to pass to Rmd document
+  #     params <- list(var = input$comp,
+  #                    cat = input$exp_report_cat)
+  # 
+  #     # Knit the document, passing in the `params` list, and eval it in a
+  #     # child of the global environment (this isolates the code in the document
+  #     # from the code in this app).
+  #     show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
+  #     rmarkdown::render(tempReport, output_file = file,
+  #                       params = params,
+  #                       envir = new.env(parent = globalenv())
+  #     )
+  #     remove_modal_spinner() # remove it when done
+  # 
+  #   }
+  # )
+  # 
+  # output$export <- renderReactable({
+  #   
+  #   rv$stats %>% 
+  #     mutate(value = round(value, 2), 
+  #            lowercl = round(lowercl, 2), 
+  #            uppercl = round(uppercl, 2),
+  #            response = as.character(response)) %>%
+  #     rename_with(str_to_title)  %>%
+  #     mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
+  #            Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
+  #                                      TRUE ~ Question_text)) %>%
+  #     left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
+  #               by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
+  #     mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
+  #                                        Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
+  #                                        Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
+  #                                        Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
+  #                                        Question == "survey_year" ~ "What year was the survey conducted?",
+  #                                        survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+  #                                          "In the past three months have you taken any of the following drugs?",
+  #                                        TRUE ~ survey_text_gen),
+  #            Question_text = str_to_sentence(Question_text)) %>%
+  #     mutate(Question_text = case_when(Question == "District" ~ "District",
+  #                                      Question == "khat_exp" ~ "Khat",
+  #                                      Question == "khat_offered" ~ "Khat",
+  #                                      Question == "mephedrone_exp" ~ "Mephedrone",
+  #                                      Question == "survey_year" ~ "Year",
+  #                                      survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+  #                                        "In the past three months have you taken any of the following drugs?",
+  #                                      TRUE ~ Question_text),
+  #            Response = str_replace_all(Response, "-", "--")) %>%
+  #     select(Breakdown, Category = Question_text, Response, Count, Denominator, Value) %>% 
+  #     # select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl) %>%
+  #     # having this many cols causes issues when the app is ran
+  #     reactable(filterable = TRUE)
+  # })
+  # 
+  # output$exp_table <- downloadHandler(
+  #   
+  #   filename = "data_table.csv",
+  #   content = function(con) { 
+  #     
+  # 
+  #     data <- isolate(rv$stats) %>% 
+  #       mutate(value = round(value, 2), 
+  #              lowercl = round(lowercl, 2), 
+  #              uppercl = round(uppercl, 2),
+  #              response = as.character(response)) %>%
+  #       rename_with(str_to_title)  %>%
+  #       mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
+  #              Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
+  #                                        TRUE ~ Question_text)) %>%
+  #       left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
+  #                 by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
+  #       mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
+  #                                          Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
+  #                                          Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
+  #                                          Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
+  #                                          Question == "survey_year" ~ "What year was the survey conducted?",
+  #                                          survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+  #                                            "In the past three months have you taken any of the following drugs?",
+  #                                          TRUE ~ survey_text_gen),
+  #              Question_text = str_to_sentence(Question_text)) %>%
+  #       mutate(Question_text = case_when(Question == "District" ~ "District",
+  #                                        Question == "khat_exp" ~ "Khat",
+  #                                        Question == "khat_offered" ~ "Khat",
+  #                                        Question == "mephedrone_exp" ~ "Mephedrone",
+  #                                        Question == "survey_year" ~ "Year",
+  #                                        survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
+  #                                          "In the past three months have you taken any of the following drugs?",
+  #                                        TRUE ~ Question_text),
+  #              Response = str_replace_all(Response, "-", "--")) %>% 
+  #       select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl)
+  # 
+  #     write.csv(data, con)
+  #     }
+  #   
+  # )
   
   
 }

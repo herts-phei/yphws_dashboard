@@ -283,43 +283,44 @@ create_sum_sentence <- function(dataset,
         
         sentence <- paste0(sentence, "Among them, ", paste0(
           prop, " were ", grp_df$breakdown, collapse = ", "), ". ", trend)
-        
-        for(group in 1:length(c("All Responses", group_of_interest))) {
-          
-          grp_df <- data %>% 
-            filter(breakdown == c("All Responses", group_of_interest)[group]) 
-          
-          group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "students (total)", 
-                               paste0("<b>", grp_df$breakdown, "</b>"))
-          
-          # generate the values used for the sentences. 
-          df <- grp_df %>% 
-            filter(question %in% reps, response_of_interest == "TRUE") %>% 
-            left_join(q_coded, by = c("question" = "question_coded")) %>% 
-            #drop_na(reworded) %>% 
-            arrange(desc(count))
-          
-          if (binary) {
-            
-            # if we only want the top N responses, subset df
-            
-            if (!is.na(top)) { 
-              df <- df %>% 
-                arrange(desc(value)) %>% 
-                slice(1:top)
-              } 
-            
-            temp <- paste0("Out of responses from ", group_name, ", ", 
-                           glue_collapse(glue("{df$value} selected '{df$question_text.x}'"), ", ", last = ", and "))
-          } else{
-            temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
-                           glue_collapse(glue("{df$value} for '{df$question_text.x}'"), ", ", last = ", and "))
-          }
-          
-          sentence <- paste0(sentence, temp, ".<br><br>")
-          
-        }
       }
+      
+      for(group in 1:length(na.omit(c("All Responses", group_of_interest)))) {
+        
+        grp_df <- data %>% 
+          filter(breakdown == c("All Responses", group_of_interest)[group]) 
+        
+        group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "students (total)", 
+                             paste0("<b>", grp_df$breakdown, "</b>"))
+        
+        # generate the values used for the sentences. 
+        df <- grp_df %>% 
+          filter(question %in% reps, response_of_interest == "TRUE") %>% 
+          left_join(q_coded, by = c("question" = "question_coded")) %>% 
+          #drop_na(reworded) %>% 
+          arrange(desc(count))
+        
+        if (binary) {
+          
+          # if we only want the top N responses, subset df
+          
+          if (!is.na(top)) { 
+            df <- df %>% 
+              arrange(desc(value)) %>% 
+              slice(1:top)
+          } 
+          
+          temp <- paste0("Out of responses from ", group_name, ", ", 
+                         glue_collapse(glue("{df$value} selected '{df$question_text.x}'"), ", ", last = ", and "))
+        } else {
+          temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
+                         glue_collapse(glue("{df$value} for '{df$question_text.x}'"), ", ", last = ", and "))
+        }
+        
+        sentence <- paste0(sentence, temp, ".<br><br>")
+        
+      }
+        
     }
   }
   

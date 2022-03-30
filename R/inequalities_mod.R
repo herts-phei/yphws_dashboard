@@ -97,14 +97,14 @@ inequalities_mod_server <- function(id,
                                                             "response" = "response")) %>% 
           filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 
         
-        categories <- as.character(unique(df$breakdown.x))
+        categories <- as.character(unique(df$breakdown))
         categories <- categories[which(!grepl("All Responses", categories))]
 
         rug_df <- df %>% 
           #filter(response %in% resp_interest) %>% 
           mutate(Timeperiod = as.character(params$year),
                  TimeperiodSortable = as.character(params$year),
-                 value.x = as.numeric(gsub("%", "", as.character(value.x))),
+                 value = as.numeric(gsub("%", "", as.character(value))),
                  diff = ifelse(is.na(diff), "statistically similar", diff)) 
         
         tartan(df = rug_df,
@@ -112,13 +112,13 @@ inequalities_mod_server <- function(id,
                comparator_area = "All Responses",
                areas = categories,
                palette = "blues",
-               area_col = "breakdown.x",
+               area_col = "breakdown",
                period_col = "Timeperiod",
                period_sort_col = "TimeperiodSortable",
                indicator_col = "question_response",
-               value_col = "value.x",
-               upper_ci = "uppercl.x",
-               lower_ci = "lowercl.x")
+               value_col = "value",
+               upper_ci = "uppercl",
+               lower_ci = "lowercl")
         
         
       }, height = function() {60 * (length(for_height()))})
