@@ -79,20 +79,34 @@ ui <- tablerDashPage(
         tabName = "Export",
         tagList(
           fluidRow(
+            tablerCard(width = 12, title = "Data table",
+                       closable = FALSE,
+                       uiOutput("exp_year"), 
+                       uiOutput("exp_breakdown"),
+                       uiOutput("exp_theme"),
+                       uiOutput("exp_question"),
+                       # actionBttn(
+                       #   inputId = "export_button",
+                       #   label = "Update table", 
+                       #   style = "minimal",
+                       #   color = "danger"
+                       # ),
+                       br(),
+                       downloadButton("exp_table", "Export table"),
+                       br(),
+                       reactableOutput("data_table")
+            )
+          ),
+          fluidRow(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
-                       closable = FALSE
-                       #uiOutput("exp_report_comp"),
+                       closable = FALSE,
+                       uiOutput("exp_report_comp"),
                        #uiOutput("exp_report_cat"),
-                       #downloadButton("exp_report", "Export report")
+                       downloadButton("coming_soon", "Export report")
                        )
           )
         ),
-        tablerCard(width = 12, title = "Data table",
-                   closable = FALSE
-                   #downloadButton("exp_table", "Export table"), 
-                   #reactableOutput("export")
-        )
         
       )
       ,
@@ -116,7 +130,7 @@ server <- function(input, output) {
   #   if ("District" %in% input$comp) { browser() }
   # 
   # })
-  #browser()
+  
   # --Load all data-----
   rv <- reactiveValues()
   rv$params <- get_params() # params
@@ -125,7 +139,7 @@ server <- function(input, output) {
   # -- Filter data to breakdown selected ----
   observe({
     
-    df_selected <- rv$data$data[[input$comp]] |> 
+    df_selected <- rv$data$data[[input$comp]] %>% 
       mutate(value = formattable::percent(value, digits = 1),
              lowercl = formattable::percent(lowercl, digits = 1),
              uppercl = formattable::percent(uppercl, digits = 1),
@@ -180,40 +194,38 @@ server <- function(input, output) {
                           diffs = reactive(rv$diffs))
   
   # Export ------------------------------------------------------------------
-  # 
-  # output$exp_report_comp <- renderUI({
-  #   
-  #   pickerInput("exp_report_comp", label = "Select what to group by in your report",
-  #               choices = list("Sex" = "sex", 
-  #                              "Year group" = "schyear", 
-  #                              "Ethnicity" = "ethnicity",
-  #                              "IMD Quintile" = "imd_quintile",
-  #                              "Sexuality" = "sexuality", 
-  #                              "Child looked after" = "cla",
-  #                              "Young carer" = "caring", 
-  #                              "Adopted" = "adopted", 
-  #                              "Smoker" = "smoke_ever",
-  #                              "Self-harm" = "selfharm_ever",
-  #                              "Bullied" = "bullied",
-  #                              "District" = "District"), 
-  #               selected = input$comp, 
-  #               multiple = FALSE)
-  #   
-  # })
-  # 
+
+  output$exp_report_comp <- renderUI({
+
+    pickerInput("exp_report_comp", label = "Select what to group by in your report",
+                choices = list("Sex" = "sex",
+                               "Year group" = "schyear",
+                               "Ethnicity" = "ethnicity",
+                               "IMD Quintile" = "imd_quintile",
+                               "Sexuality" = "sexuality",
+                               "Young carer" = "caring",
+                               "Smoker" = "smoke_ever",
+                               "Self-harm" = "selfharm_ever",
+                               "Bullied" = "bullied",
+                               "District" = "District"),
+                selected = input$comp,
+                multiple = FALSE)
+
+  })
+
   # output$exp_report_cat <- renderUI({
-  #   
-  #   choices <- rv$data$data %>% 
-  #     select(input$exp_report_comp) %>% 
-  #     distinct() %>% 
+  # 
+  #   choices <- rv$data$data[[input$exp_report_comp]] %>%
+  #     select(input$exp_report_comp) %>%
+  #     distinct() %>%
   #     pull(input$exp_report_comp)
-  #   
+  # 
   #   pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
   #               choices = as.character(na.omit(choices)), multiple = FALSE,
   #               selected = as.character(na.omit(choices)[1]))
-  #   
-  # })
   # 
+  # })
+
   # output$exp_report <- downloadHandler(
   #   filename = "report.html",
   #   content = function(file) {
@@ -236,85 +248,120 @@ server <- function(input, output) {
   # 
   #   }
   # )
-  # 
-  # output$export <- renderReactable({
+
+  output$exp_year <- renderUI({
+    
+    shinyWidgets::awesomeCheckboxGroup(
+      inputId = "exp_year",
+      label = "Year:", 
+      choices = unique(rv$stats_combined$year),
+      selected = unique(rv$stats_combined$year),
+      inline = TRUE, 
+      status = "info"
+    )
+    
+  })
+  
+  output$exp_breakdown <- renderUI({
+    
+    shinyWidgets::awesomeCheckboxGroup(
+        inputId = "exp_breakdown",
+        label = "Breakdown:", 
+        choices = unique(rv$stats_combined$breakdown),
+        selected = unique(rv$stats_combined$breakdown),
+        inline = TRUE, 
+        status = "info"
+      )
+    
+  })
+  
+  output$exp_theme <- renderUI({
+    
+    pickerInput(
+      inputId = "exp_theme",
+      label = "Health topic:", 
+      choices = na.omit(unique(rv$data$q_coded$question_theme)),
+      selected = na.omit(unique(rv$data$q_coded$question_theme)),
+      multiple = TRUE
+    )
+    
+  })
+  
+  output$exp_question <- renderUI({
+    
+    filtered <- rv$data$q_coded %>% 
+      mutate(across(where(is.character), ~na_if(., "NA"))) %>% 
+      filter(question_theme %in% input$exp_theme, !is.na(survey_text)) %>% 
+      distinct() %>% 
+      pull(survey_text)
+      
+    pickerInput(
+      inputId = "exp_question",
+      label = "Question:", 
+      choices = filtered,
+      selected = filtered, 
+      multiple = TRUE
+    )
+    
+  })
+  
+  # Initial table data
+  observe({
+    
+    rv$table_data <- rv$data$data[[input$comp]]  %>%
+      left_join(select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded, 
+                by = c("question" = "question_coded")) %>% 
+      select(year, breakdown, topic = question_theme, question = survey_text, 
+             `question option` = question_text, response, 
+             count, denominator, value, lowercl, uppercl) %>% 
+      distinct() %>% 
+      filter(year %in% input$exp_year,
+             breakdown %in% input$exp_breakdown,
+             topic %in% input$exp_theme,
+             question %in% input$exp_question)
+    
+  })
+  
+  # event reactive table 
+  # observeEvent(input$export_button, {
   #   
-  #   rv$stats %>% 
-  #     mutate(value = round(value, 2), 
-  #            lowercl = round(lowercl, 2), 
-  #            uppercl = round(uppercl, 2),
-  #            response = as.character(response)) %>%
-  #     rename_with(str_to_title)  %>%
-  #     mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
-  #            Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
-  #                                      TRUE ~ Question_text)) %>%
-  #     left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
-  #               by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
-  #     mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
-  #                                        Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
-  #                                        Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
-  #                                        Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
-  #                                        Question == "survey_year" ~ "What year was the survey conducted?",
-  #                                        survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-  #                                          "In the past three months have you taken any of the following drugs?",
-  #                                        TRUE ~ survey_text_gen),
-  #            Question_text = str_to_sentence(Question_text)) %>%
-  #     mutate(Question_text = case_when(Question == "District" ~ "District",
-  #                                      Question == "khat_exp" ~ "Khat",
-  #                                      Question == "khat_offered" ~ "Khat",
-  #                                      Question == "mephedrone_exp" ~ "Mephedrone",
-  #                                      Question == "survey_year" ~ "Year",
-  #                                      survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-  #                                        "In the past three months have you taken any of the following drugs?",
-  #                                      TRUE ~ Question_text),
-  #            Response = str_replace_all(Response, "-", "--")) %>%
-  #     select(Breakdown, Category = Question_text, Response, Count, Denominator, Value) %>% 
-  #     # select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl) %>%
-  #     # having this many cols causes issues when the app is ran
-  #     reactable(filterable = TRUE)
+  #   rv$table_data <- rv$data$data[[input$comp]]  %>%
+  #     left_join(select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded, 
+  #               by = c("question" = "question_coded")) %>% 
+  #     select(year, breakdown, topic = question_theme, question = survey_text, 
+  #            `question option` = question_text, response, 
+  #            count, denominator, value, lowercl, uppercl) %>% 
+  #     distinct() %>% 
+  #     filter(year %in% input$exp_year,
+  #            breakdown %in% input$exp_breakdown,
+  #            topic %in% input$exp_theme,
+  #            question %in% input$exp_question)
+  #   
   # })
-  # 
-  # output$exp_table <- downloadHandler(
-  #   
-  #   filename = "data_table.csv",
-  #   content = function(con) { 
-  #     
-  # 
-  #     data <- isolate(rv$stats) %>% 
-  #       mutate(value = round(value, 2), 
-  #              lowercl = round(lowercl, 2), 
-  #              uppercl = round(uppercl, 2),
-  #              response = as.character(response)) %>%
-  #       rename_with(str_to_title)  %>%
-  #       mutate(Question = str_replace_all(Question, "bully_others", "bullied_others"),
-  #              Question_text = case_when(Question == "bullied_others" ~ "have ever bullied or picked on someone else",
-  #                                        TRUE ~ Question_text)) %>%
-  #       left_join(select(isolate(rv$data$q_coded), question_coded, question_text, survey_text_gen, survey_text),
-  #                 by = c("Question" = "question_coded", "Question_text" = "question_text")) %>%
-  #       mutate(survey_text_gen = case_when(Question == "District" ~ "What district is your school in?",
-  #                                          Question == "khat_exp" ~ "In the past three months have you taken any of the following drugs?",
-  #                                          Question == "khat_offered" ~ "In the past three months have you been offered any of the following drugs?",
-  #                                          Question == "mephedrone_exp" ~ "In the past three months have you taken any of the following drugs?",
-  #                                          Question == "survey_year" ~ "What year was the survey conducted?",
-  #                                          survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-  #                                            "In the past three months have you taken any of the following drugs?",
-  #                                          TRUE ~ survey_text_gen),
-  #              Question_text = str_to_sentence(Question_text)) %>%
-  #       mutate(Question_text = case_when(Question == "District" ~ "District",
-  #                                        Question == "khat_exp" ~ "Khat",
-  #                                        Question == "khat_offered" ~ "Khat",
-  #                                        Question == "mephedrone_exp" ~ "Mephedrone",
-  #                                        Question == "survey_year" ~ "Year",
-  #                                        survey_text_gen == "n the past three months have you taken any of the following drugs?" ~
-  #                                          "In the past three months have you taken any of the following drugs?",
-  #                                        TRUE ~ Question_text),
-  #              Response = str_replace_all(Response, "-", "--")) %>% 
-  #       select(Breakdown, `Survey Question` = survey_text_gen, Category = Question_text, Response, Count, Denominator, Value, Lowercl, Uppercl)
-  # 
-  #     write.csv(data, con)
-  #     }
-  #   
-  # )
+  
+  output$data_table <- renderReactable({
+
+     rv$table_data %>% 
+      reactable(filterable = TRUE, defaultPageSize = 10, 
+                columns = list(
+                  value = colDef(format = colFormat(percent = TRUE, digits = 1)),
+                  lowercl = colDef(format = colFormat(percent = TRUE, digits = 1)),
+                  uppercl = colDef(format = colFormat(percent = TRUE, digits = 1))
+                ))
+      
+  })
+
+  output$exp_table <- downloadHandler(
+
+    filename = "data.csv",
+    content = function(con) {
+
+      data <- rv$table_data
+      write.csv(data, con)
+
+      }
+
+  )
   
   
 }
