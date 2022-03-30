@@ -4,7 +4,7 @@ Project Status: Inactive
 
 # Introduction
 
-This project is a public dashboard showing the yearly survey data from the Young People's Health & Wellbeing Survey broken down by different groups (e.g. sex, age, ethnicity) and compared to other groups. 
+The Young People's Health & Wellbeing Survey Public Dashboard shows yearly survey data from the annual Young People's Health & Wellbeing Survey broken down by different groups (e.g. sex, age, ethnicity). The dashboard replaces the [interactive HTML report](https://www.hertshealthevidence.org/documents/yphws/yphws-hertfordshire-report-2021.html). 
 
 ### Summary tab
 
