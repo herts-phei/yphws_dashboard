@@ -15,6 +15,7 @@ library(sparkline)
 library(glue)
 library(plyr)
 library(tidyverse)
+library(rmdformats)
 
 year <- "2021"
 
