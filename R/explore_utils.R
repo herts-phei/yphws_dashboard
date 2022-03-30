@@ -391,7 +391,8 @@ create_multi_plot <- function(df,
   
   df <- df %>% 
     filter(!is.na(question_text)) %>% 
-    droplevels()
+    droplevels() %>% 
+    mutate(value = round(value, 1))
   
   if (binary) {
     
@@ -405,7 +406,7 @@ create_multi_plot <- function(df,
                                                               uppercl, ")"), 30), "<extra></extra>")) %>%
       layout(title = list(text = paste("<b>", plot_title, "</b>"), 
                           yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
-             xaxis = list(title = "Percent", tickformat = "%"),
+             xaxis = list(title = "Percent", tickformat = ".0%"),
              yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
                      modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))

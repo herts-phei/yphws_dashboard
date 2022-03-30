@@ -1,6 +1,4 @@
-
-## IN DEVELOPMENT. 
-
+library(devtools)
 library(rmarkdown)
 library(pins)
 library(shiny)
@@ -19,9 +17,6 @@ library(plyr)
 library(tidyverse)
 
 year <- "2021"
-board_register("rsconnect",
-               server = "srv-gcp-ms-connect:3939",
-               key = Sys.getenv("CONNECT_API_KEY"))
 
 domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
              "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
@@ -120,7 +115,7 @@ server <- function(input, output) {
   #   if ("District" %in% input$comp) { browser() }
   # 
   # })
-  
+  #browser()
   # --Load all data-----
   rv <- reactiveValues()
   rv$params <- get_params() # params
@@ -129,7 +124,17 @@ server <- function(input, output) {
   # -- Filter data to breakdown selected ----
   observe({
     
-    df_selected <- rv$data$data[[input$comp]]
+    df_selected <- rv$data$data[[input$comp]] |> 
+      mutate(value = formattable::percent(value, digits = 1),
+             lowercl = formattable::percent(lowercl, digits = 1),
+             uppercl = formattable::percent(uppercl, digits = 1),
+             lowereb = value - lowercl,
+             uppereb = uppercl - value,
+             value.y = formattable::percent(value, digits = 1),
+             lowercl.y = formattable::percent(lowercl, digits = 1),
+             uppercl.y = formattable::percent(uppercl, digits = 1),
+             lowereb.y = value - lowercl,
+             uppereb.y = uppercl - value)
     
     # Stats
     rv$stats_combined <- select(df_selected, year, 1:12) %>% distinct() # distinct because of repeated diffs that are now removed. 

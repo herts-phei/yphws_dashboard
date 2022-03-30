@@ -65,24 +65,7 @@ explore_mod_server <- function(id,
       ns <- NS(id)
       
       # Reactive UIs ------------------------------------------------------------
-      
-      # output$questions <- renderUI({
-      # 
-      #   stats <- stats()
-      #   diffs <- diffs()
-      #   comp <- comp()
-      #   q_coded <- q_coded()
-      # 
-      #   questions <- isolate(q_coded) %>%
-      #     mutate(survey_text = as.character(survey_text)) %>%
-      #     filter(question_theme %in% input$domains)
-      # 
-      #   pickerInput(ns("questions"), label = "Select/type in a question (multiple can be selected)",
-      #               choices = as.character(unique(questions$survey_text)), multiple = T,
-      #               selected = as.character(unique(questions$survey_text)),
-      #               options = list(`live-search` = TRUE))
-      # })
-      
+
       # observe({
       #   if ("Sexual Health" %in% input$domains ) {browser()}
       # })

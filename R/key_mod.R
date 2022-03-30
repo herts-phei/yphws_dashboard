@@ -137,7 +137,7 @@ key_mod_server <- function(id,
           filter(breakdown == "All Responses", 
                  question == "ethnicity",
                  !response %in% c("White", "Prefer not to say")) %>% 
-          summarise(value = sum(value)) %>% 
+          summarise(value = sum(value))  %>% 
           pull(value)
         
         tablerStatCard(
@@ -208,10 +208,11 @@ key_mod_server <- function(id,
                  question == comp()) %>% 
           mutate(value = round(as.numeric(value), 2) * 100) %>% 
           e_charts(response) %>% 
-          e_pie(value, radius = c("50%", "70%")) %>% 
-          e_labels(formatter = htmlwidgets::JS("function(params){
-           return(`${params.value}`);}")) %>% 
+          e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
+                                                              formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`+'%');}"))) %>% 
           e_tooltip("item") %>% 
+          e_grid(left = "10%", right = "10%") %>%
           e_legend(bottom = 0) %>% 
           e_title("Group breakdown in %") %>% 
           e_theme_custom("phei.json")
@@ -229,10 +230,11 @@ key_mod_server <- function(id,
                    question == "ethnicity") %>% 
             mutate(value = round(as.numeric(value), 2) * 100) %>% 
             e_charts(response) %>% 
-            e_pie(value, radius = c("50%", "70%")) %>% 
-            e_labels(formatter = htmlwidgets::JS("function(params){
-           return(`${params.value}`);}")) %>% 
+            e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
+                                                                formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`+'%');}"))) %>% 
             e_tooltip("item") %>% 
+            e_grid(left = "10%", right = "10%") %>%
             e_legend(bottom = 0) %>% 
             e_title("Ethnicity breakdown in %") %>% 
             e_theme_custom("phei.json")
@@ -244,9 +246,9 @@ key_mod_server <- function(id,
                    question == "imd_quintile") %>% 
             mutate(value = round(as.numeric(value), 2) * 100) %>% 
             e_charts(response) %>% 
-            e_pie(value, radius = c("50%", "70%")) %>% 
-            e_labels(formatter = htmlwidgets::JS("function(params){
-           return(`${params.value}`);}")) %>% 
+            e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
+                                                                formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`+'%');}"))) %>% 
             e_tooltip("item") %>% 
             e_legend(bottom = 0) %>% 
             e_title("IMD breakdown in %") %>% 
@@ -358,11 +360,11 @@ key_mod_server <- function(id,
         # --Text output ----
         output <- HTML(
           paste0(
-            "This box summarises the results of ", max(stats$denominator) ,
-            " pupils from schools in Hertfordshire who responded to the 2021 Young People’s Health & Wellbeing Survey (YPHWS).<br><br>",
+            "This box summarises the results of <b>", max(stats$denominator) ,
+            "</b> pupils from schools in Hertfordshire who responded to the 2021 Young People’s Health & Wellbeing Survey (YPHWS).<br><br>",
             
             "<h1>Mental health and wellbeing</h1>",
-            filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
+            "<b>", filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br><br>",
             
             "<b>", filter(all_data, question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value,
@@ -481,11 +483,12 @@ key_mod_server <- function(id,
             e_bar(count) %>% 
             e_legend(show = FALSE) %>% 
             e_flip_coords() %>% 
+            e_x_axis(splitNumber = 2) %>% 
             e_tooltip("item") %>% 
             e_grid(left = "30%") %>%
             e_title("Top 5 worries",
                     paste("For", input$mh_breakdown, "in", input$mh_year)) %>%
-            e_theme("blue")
+            e_theme("walden")
           
         })
         
@@ -505,11 +508,12 @@ key_mod_server <- function(id,
             e_bar(count) %>%
             e_legend(show = FALSE) %>%
             e_flip_coords() %>%
+            e_x_axis(splitNumber = 2) %>% 
             e_tooltip("item") %>%
-            e_grid(left = "40%") %>%
+            e_grid(left = "44%") %>%
             e_title("Top 5 ways to cope",
                     paste("For", input$mh_breakdown, "in", input$mh_year)) %>%
-            e_theme("blue")
+            e_theme("walden")
 
         })
         
