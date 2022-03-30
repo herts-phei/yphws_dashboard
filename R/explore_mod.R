@@ -66,9 +66,9 @@ explore_mod_server <- function(id,
       
       # Reactive UIs ------------------------------------------------------------
 
-      # observe({
-      #   if ("Sexual Health" %in% input$domains ) {browser()}
-      # })
+      observe({
+        if ("Sexual Health" %in% input$domains ) {browser()}
+      })
       
       # Data --------------------------------------------------------------------
       
@@ -115,7 +115,7 @@ explore_mod_server <- function(id,
           left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
                                                                    "response" = "response")) %>% 
           filter(question_coded_gen %in% chk_var(),
-                 year == params$year)
+                 year == params()$year)
       })
       
       # Boxes -------------------------------------------------------------------

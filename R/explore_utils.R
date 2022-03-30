@@ -3,6 +3,7 @@
 
 compare_last_yr <- function(df_new, 
                             df_old,
+                            diffs_all,
                             multicat = F, 
                             response_interest = NA) {
   
@@ -21,12 +22,9 @@ compare_last_yr <- function(df_new,
   
   df_old_comp <- mutate(df_old, breakdown = "Previous All Responses")
   
-  new_diffs <- get_stats_diffs(bind_rows(df_new, df_old_comp), 
-                               levels = c("All Responses", "Previous All Responses")) %>% 
-    filter(!is.na(breakdown.x)) %>% 
-    mutate(question_text.x = case_when(is.na(question_text.x) ~ question_text.y, TRUE ~ question_text.x))
-  
-  names(new_diffs) <- gsub(".x", "", names(new_diffs))
+  new_diffs <- diffs_all %>% 
+    filter(!is.na(breakdown)) %>% 
+    mutate(question_text = case_when(is.na(question_text) ~ question_text.y, TRUE ~ question_text))
   
   if (nrow(new_diffs) == 0) { return("") }
   
@@ -34,12 +32,12 @@ compare_last_yr <- function(df_new,
   if(nrow(df_new) > nrow(df_old)) {
     
     df_new <- df_new %>% 
-      dplyr::semi_join(df_old, by = c("breakdown", "school", "question", "response"))
+      dplyr::semi_join(df_old, by = c("breakdown", "question", "response"))
     
   } else if (nrow(df_new) < nrow(df_old)) {
     
     df_old <- df_old %>% 
-      dplyr::semi_join(df_new, by = c("breakdown", "school", "question", "response"))
+      dplyr::semi_join(df_new, by = c("breakdown", "question", "response"))
     
   }
   
@@ -65,9 +63,7 @@ compare_last_yr <- function(df_new,
   df <- dplyr::bind_cols(df_new, df_old) %>% 
     dplyr::filter(breakdown %in% c("All Responses")) %>% 
     left_join(select(new_diffs, response, question, diff), by = unique(c(resp_var, "response"))) %>% 
-    dplyr::mutate(school = dplyr::case_when(school == "All Schools" ~ "Hertfordshire", TRUE ~ school),
-                  school_old = dplyr::case_when(school_old == "All Schools" ~ "Hertfordshire", TRUE ~ school_old),
-                  val_comp = case_when(value > value_old ~ "HIGHER than", 
+    dplyr::mutate(val_comp = case_when(value > value_old ~ "HIGHER than", 
                                        value < value_old ~ "LOWER than", 
                                        value == value_old ~ "the SAME as"),
                   val_diff = abs(value - value_old),
@@ -154,7 +150,7 @@ create_sum_sentence <- function(dataset,
     data <- dataset
     # generate the values used for the sentences. 
     
-    df <- dataset[dataset$breakdown == "All Responses" & dataset$school == "All Schools", ]
+    df <- dataset[dataset$breakdown == "All Responses", ]
     
     most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)]
     most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)]
@@ -163,8 +159,7 @@ create_sum_sentence <- function(dataset,
     
     # If all students responded to this question, skip the sex breakdown. Include if not. 
     
-    total_resp <- sum(dataset$count[dataset$breakdown == "All Responses" &
-                                      dataset$school == "All Schools"], na.rm = TRUE)
+    total_resp <- sum(dataset$count[dataset$breakdown == "All Responses"], na.rm = TRUE)
     max_resp <- max(full_data$denominator)
     
     perc <- round(total_resp / max_resp * 100, 1)
@@ -197,6 +192,7 @@ create_sum_sentence <- function(dataset,
         trend <- compare_last_yr(df_new = dataset, 
                                  df_old = dataset_old, 
                                  multi = F,
+                                 diffs_all = diffs,
                                  response_interest = NA)
         
         sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
@@ -204,7 +200,7 @@ create_sum_sentence <- function(dataset,
                            " of responses and the least common response was '", least_common[1], "', with ",
                            least_v[1], " of responses.")
         
-        df1 <- dataset[dataset$breakdown %in% group_of_interest & dataset$school == "All Schools", ]
+        df1 <- dataset[dataset$breakdown %in% group_of_interest, ]
         
         most_common <- df1 %>%
           group_by(breakdown) %>% 
@@ -278,7 +274,8 @@ create_sum_sentence <- function(dataset,
         # get trend sentence
         trend <- compare_last_yr(df_new = dataset,
                                  df_old = dataset_old,
-                                 multi = T,
+                                 diffs_all = diffs, 
+                                 multicat = T,
                                  response_interest = value_of_interest)
         
         sentence <- paste0(sentence, "Among them, ", paste0(
@@ -391,8 +388,7 @@ create_multi_plot <- function(df,
   
   df <- df %>% 
     filter(!is.na(question_text)) %>% 
-    droplevels() %>% 
-    mutate(value = round(value, 1))
+    droplevels() 
   
   if (binary) {
     
@@ -406,7 +402,7 @@ create_multi_plot <- function(df,
                                                               uppercl, ")"), 30), "<extra></extra>")) %>%
       layout(title = list(text = paste("<b>", plot_title, "</b>"), 
                           yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
-             xaxis = list(title = "Percent", tickformat = ".0%"),
+             xaxis = list(title = "Percent", tickformat = ".1%"),
              yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
                      modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
@@ -442,7 +438,7 @@ create_multi_plot <- function(df,
               transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
       layout(barmode = "stack", 
              title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
-             xaxis = list(title = "Percent", tickformat = "%"),
+             xaxis = list(title = "Percent", tickformat = ".1%"),
              updatemenus = list(type_list),
              yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
