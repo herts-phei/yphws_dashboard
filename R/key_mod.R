@@ -35,8 +35,9 @@ key_mod <- function(id,
                    echarts4rOutput(ns("worries_graph")),
                    echarts4rOutput(ns("coping_graph"))
                    ),
-        tablerCard(width = 7, 
-                   htmlOutput(ns("key_themes_text")))
+        tablerCard(width = 7,
+                   htmlOutput(ns("key_themes_text"))
+                   )
       )
       # fluidRow(
       #   tabItem("name", 
@@ -263,72 +264,72 @@ key_mod_server <- function(id,
       # Text summary ------------------------------------------------------------
 
       output$key_themes_text <- renderText({
-        
+
         comp <- comp()
         stats <- stats()
         grp_lookup <- grp_lookup()
-        
+
         group_name <- grp_lookup$group_value[grp_lookup$group == comp]
         group_breakdown <- ifelse(is.na(group_name), "All Responses", group_name)
-        key_data <- stats %>% 
+        key_data <- stats %>%
           filter(breakdown %in% group_breakdown)
-          
+
         # --Stats for all respondents ----
         all_data <- stats %>%
           filter(breakdown == "All Responses" & !is.na(question_text))
-        
+
         # --Stats for key respondents ----
         mh1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                  filter(key_data, question == 'life_satisfied' & response == "low") %>%
                                                    .$value, "</b> for ", group_name,  " respondents."), "")
-        
+
         mh2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                  filter(key_data, question == 'life_satisfied_before_covid' & response == "low") %>% .$value,
                                                  "</b> for ", group_name, " respondents."), "")
-        
+
         mh3 <- ifelse(!is.na(group_name), paste0("From ", group_name, " respondents, <b>",
                                                  filter(key_data, question =='weight' & response=='Overweight') %>%
                                                    .$value, "</b> felt overweight, and <b>",
                                                  filter(key_data, question =='weight' & response=='Underweight') %>%
                                                    .$value, "</b> felt underweight."), "")
-        
+
         mh4 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, <b>",
                                                  filter(key_data, question == 'mental_howaccess' & response == 'Yes') %>%
                                                    .$value, "</b> stated 'Yes'."), "")
-        
-        
+
+
         ls1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                  filter(key_data, question == 'pa_60' & response == "6-7") %>%
                                                    .$value, "</b> for ", group_name, " respondents."), "")
-        
+
         ls2 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
                                                  sum(filter(key_data, question == 'smoke_ever' &
                                                               response != 'I have never smoked') %>% .$value), "</b> and <b>",
                                                  sum(filter(key_data, question == 'smoke_ever' &
                                                               response == 'I smoke regularly (once a week or more)') %>% .$value),
                                                  "</b> respectively."), "")
-        
+
         ls3 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
                                                  sum(filter(key_data, question == 'vaping' &
                                                               response != 'I have never vaped') %>% .$value), "</b> and <b>",
                                                  sum(filter(key_data, question == 'vaping' &
                                                               response == 'I vape regularly (once a week or more)') %>% .$value),
                                                  "</b> respectively."), "")
-        
+
         ls4 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
                                                  sum(filter(key_data, question == 'alcohol_ever' &
                                                               response != 'Never') %>% .$value), "</b> and <b>",
                                                  sum(filter(key_data, question == 'alcohol_ever' &
                                                               response == '4 or more times a week') %>% .$value),
                                                  "</b> respectively."), "")
-        
+
         ls5 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
                                                  sum(filter(key_data, question == 'drug_ever' &
                                                               response != 'I have never taken drugs') %>% .$value), "</b> and <b>",
                                                  sum(filter(key_data, question == 'drug_ever' &
                                                               response == 'I take drugs regularly (once a week or more)') %>% .$value),
                                                  "</b> respectively."), "")
-        
+
         safety <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
                                                     filter(key_data, question == 'safety_day' &
                                                              response == 'Unsafe') %>% .$value, ", ",
@@ -339,42 +340,42 @@ key_mod_server <- function(id,
                                                     filter(key_data, question == 'safety_journey' &
                                                              response == 'Unsafe') %>% .$value,
                                                     "</b> respectively."), "")
-        
+
         sch1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                   filter(key_data, question == 'schoolsupp_academic' & response == "Yes") %>%
                                                     .$value, "%</b> for ", group_name, " respondents."), "")
-        
+
         sch2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                   filter(key_data, question == 'schoolsupp_wellbeing' & response == "Yes") %>%
                                                     .$value, "%</b> for ", group_name, " respondents."), "")
-        
+
         cov1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                   filter(key_data, question == 'worry_covid19' & response == 'Yes') %>%
                                                     .$value, "</b> for ", group_name, " respondents."), "")
-        
+
         cov2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                   filter(key_data, question == 'any_vacc_taken' & response == 'Yes') %>%
                                                     .$value, "</b> for ", group_name, " respondents."), "")
-          
-          
+
+
         # --Text output ----
         output <- HTML(
           paste0(
             "This box summarises the results of <b>", max(stats$denominator) ,
             "</b> pupils from schools in Hertfordshire who responded to the 2021 Young People’s Health & Wellbeing Survey (YPHWS).<br><br>",
-            
+
             "<h1>Mental health and wellbeing</h1>",
             "<b>", filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br><br>",
-            
+
             "<b>", filter(all_data, question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b>", " of all respondents rated  their satisfaction now compared to before COVID-19 as low. ", mh2, "<br><br>",
-            
+
             "<b>", filter(all_data,  question =='weight' & response=='Overweight' & !is.na(question_text)) %>% .$value,
             "</b> felt they were overweight while <b>",
             filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
             "</b> felt they were underweight. ", mh3, "<br><br>",
-            
+
             # "The top 5 issues ", group_name, " were worried about were: ", worries_$question_text[1], " (", worries_$count[1], ")", ", ", worries_$question_text[2], " (", worries_$count[2], "), ",
             # worries_$question_text[3], " (", worries_$count[3], "), ",worries_$question_text[4], " (", worries_$count[4], "), and ", worries_$question_text[5], " (", worries_$count[5], "). <br><br>",
             #
@@ -382,37 +383,37 @@ key_mod_server <- function(id,
             "</b> of respondents answered 'Not sure' or 'No' when asked if they knew how to access support and services for mental health. <b>",
             sum(filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
             "</b> answered 'Yes'. ", mh4, "<br><br>",
-            
+
             "<h1>Lifestyle</h1>",
-            
+
             "Out of all responses <b>", filter(all_data,  question == 'pa_60' & response == "6-7") %>% .$value,
             "</b> had done a total of 60 minutes or more of physical activity 6-7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
             " The most common response for this question was <b>",
             filter(all_data,  question =='pa_60') %>% filter(count == max(count)) %>% .$response,
             " days</b>. <br><br>",
-            
+
             "<b>", sum(filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
             "</b> of respondents reported having ever smoked and <b>",
             sum(filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
             "</b> reported smoking regularly (once a week or more). ", ls2, "<br><br>",
-            
+
             "<b>", sum(filter(all_data,  question == 'vaping' & response != 'I have never vaped') %>% .$value),
             "</b> of respondents reported having ever vaped and <b>",
             sum(filter(all_data,  question == 'vaping' & response == 'I vape regularly (once a week or more)') %>% .$value),
             "</b> reported vaping regularly (once a week or more). ", ls3, "<br><br>",
-            
+
             "<b>", sum(filter(all_data,  question == 'alcohol_ever' & response != 'Never') %>% .$value),
             "</b> of respondents reported having had an alcoholic drink in the past 3 months and <b>",
             sum(filter(all_data,  question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value),
             "</b> reported drinking 4 or more times a week. ", ls4, "<br><br>",
-            
+
             "<b>", sum(filter(all_data,  question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value),
             "</b> of respondents reported having ever taken drugs and <b>",
             sum(filter(all_data,  question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value),
             "</b> reported taking drugs regularly (once a week or more).", ls5, "<br><br>",
-            
+
             "<h1>Safety</h1>",
-            
+
             "Regarding safety, <b>",
             sum(filter(all_data,  question == 'safety_day' & response == 'Unsafe') %>% .$value),
             "</b> of respondents felt unsafe going out during the day, <b>",
@@ -422,19 +423,19 @@ key_mod_server <- function(id,
             "</b> felt unsafe at school, and <b>",
             filter(all_data,  question == 'safety_journey' & response == 'Unsafe' & !is.na(question_text)) %>% .$value,
             "</b> felt unsafe on their journey to school. ", safety, "<br><br>",
-            
+
             "<h1>COVID-19</h1>",
-            
+
             "<b>", filter(all_data, question == 'worry_covid19' & response == 'Yes') %>% .$value,
             "</b> stated that COVID-19 was one of the issuers they worry about. ", cov1, "<br><br>",
-            
+
             "<b>", filter(all_data,  question == 'any_vacc_taken' & response == 'Yes') %>% .$value,
             "</b> stated that they have taken any dose of the COVID-19 vaccine. ", cov2
-            
+
           )
         )
-        
-          
+
+
       })
         
         

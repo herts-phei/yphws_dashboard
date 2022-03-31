@@ -67,7 +67,7 @@ explore_mod_server <- function(id,
       # Reactive UIs ------------------------------------------------------------
 
       # observe({
-      #   if ("Sexual Health" %in% input$domains ) {browser()}
+      #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
       # })
       
       # Data --------------------------------------------------------------------
@@ -155,7 +155,7 @@ explore_mod_server <- function(id,
             # response of interest (usually Yes)
             if(multi_bin) { resp_interest = "Yes" } else {
               
-              resp_interest <- paste(c("On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
+              resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
                                      collapse = "|")
               resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
               

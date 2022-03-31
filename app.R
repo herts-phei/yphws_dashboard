@@ -16,6 +16,7 @@ library(glue)
 library(plyr)
 library(tidyverse)
 library(rmdformats)
+library(shinybusy)
 
 year <- "2021"
 
@@ -101,9 +102,9 @@ ui <- tablerDashPage(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
                        closable = FALSE,
-                       uiOutput("exp_report_comp"),
+                       uiOutput("exp_report_comp")
                        #uiOutput("exp_report_cat"),
-                       downloadButton("coming_soon", "Export report")
+                       #downloadButton("exp_report_button", "Export report")
                        )
           )
         ),
@@ -130,6 +131,7 @@ server <- function(input, output) {
   #   if ("District" %in% input$comp) { browser() }
   # 
   # })
+  
   
   # --Load all data-----
   rv <- reactiveValues()
@@ -158,7 +160,7 @@ server <- function(input, output) {
     
     # Differences
     rv$diffs <- filter(df_selected, year == rv$params$year)
-    
+
   })
   
   # Key Points --------------------------------------------------------------

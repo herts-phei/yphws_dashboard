@@ -612,7 +612,8 @@ create_trend_table <- function(stats,
     select(Indicator = question_response, Group = breakdown, `2020`, `2021`, 
            Trend, Change) %>% 
     mutate(`2020` = paste0(`2020`, "%"),
-           `2021` = paste0(`2021`, "%"))
+           `2021` = paste0(`2021`, "%")) %>% 
+    filter(!is.na(Indicator))
   
   table_df %>%
     reactable(defaultSorted = c("Indicator", "Group"), defaultPageSize = 100,
