@@ -67,7 +67,7 @@ explore_mod_server <- function(id,
       # Reactive UIs ------------------------------------------------------------
 
       # observe({
-      #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
+      #   if ("Smoking and Vaping" %in% input$domains ) {browser()}
       # })
       
       # Data --------------------------------------------------------------------
@@ -322,7 +322,7 @@ explore_mod_server <- function(id,
           
           text <- q_coded$heading[q_coded$question_coded_gen %in% current$question_coded_gen][1] # for TOC
 
-          l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[i], "'>", text, "</a><br><br>")
+          l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[1], "'>", text, "</a><br><br>")
 
         }
 
