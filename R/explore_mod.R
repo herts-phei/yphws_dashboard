@@ -66,9 +66,9 @@ explore_mod_server <- function(id,
       
       # Reactive UIs ------------------------------------------------------------
 
-      observe({
-        if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
-      })
+      # observe({
+      #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
+      # })
       
       # Data --------------------------------------------------------------------
       
