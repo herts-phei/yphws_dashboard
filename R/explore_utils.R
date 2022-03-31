@@ -168,10 +168,11 @@ create_sum_sentence <- function(dataset,
                          paste0(total_resp, " students", " (", perc, "%)"))
     
     # generate main sentence for All Responses
+    sentence <- paste0("Respondents were asked <b>'", df$survey_text_gen[1], "<b/><br><br>")
     
     if (is.na(total_resp)) { 
       
-      return(paste0("Within the school, no students responded to this question."))
+      return(paste0("No students responded to this question."))
       
     } else {
       
@@ -195,10 +196,10 @@ create_sum_sentence <- function(dataset,
                                  diffs_all = diffs,
                                  response_interest = NA)
         
-        sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
-                           "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up ", most_v[1], 
-                           " of responses and the least common response was '", least_common[1], "', with ",
-                           least_v[1], " of responses.")
+        sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
+                           "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
+                           "</b> of responses and the least common response was '", least_common[1], "', with <b>",
+                           least_v[1], "</b> of responses.")
         
         df1 <- dataset[dataset$breakdown %in% group_of_interest, ]
         
@@ -223,9 +224,9 @@ create_sum_sentence <- function(dataset,
       } else {
         
         sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ",
-                           "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up ", most_v[1], 
-                           " of responses and the least common response was '", least_common[1], "', with ",
-                           least_v[1], " of responses.")
+                           "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
+                           "</b> of responses and the least common response was '", least_common[1], "', with <b>",
+                           least_v[1], "</b> of responses.")
       }
       
     }
@@ -248,14 +249,17 @@ create_sum_sentence <- function(dataset,
     total_resp <- ifelse(total_resp == max_resp, "every student", 
                          paste0(total_resp, " students", " (", perc, "%)"))
     
+    # generate main sentence for All Responses
+    sentence <- paste0("Respondents were asked <b>'", df$survey_text_gen[1], "<b/><br><br>")
+    
     if (is.na(total_resp)) { 
       
-      return(paste0("Within the school, no students responded to this question."))
+      return(paste0("No students responded to this question."))
       
     } else {
       
       # Start main sentence. 
-      sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ")
+      sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. ")
       
       binary <- ifelse(all(unique(data$response) %in% c("Yes", "No")), TRUE, FALSE) # check if it's a Yes or No
       
@@ -308,10 +312,10 @@ create_sum_sentence <- function(dataset,
           } 
           
           temp <- paste0("Out of responses from ", group_name, ", ", 
-                         glue_collapse(glue("{df$value} selected '{df$question_text.x}'"), ", ", last = ", and "))
+                         glue_collapse(glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))
         } else {
           temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
-                         glue_collapse(glue("{df$value} for '{df$question_text.x}'"), ", ", last = ", and "))
+                         glue_collapse(glue("<b>{df$value}</b> for '{df$question_text.x}'"), ", ", last = ", and "))
         }
         
         sentence <- paste0(sentence, temp, ".<br><br>")

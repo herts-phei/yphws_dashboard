@@ -66,9 +66,9 @@ explore_mod_server <- function(id,
       
       # Reactive UIs ------------------------------------------------------------
 
-      # observe({
-      #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
-      # })
+      observe({
+        if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
+      })
       
       # Data --------------------------------------------------------------------
       
@@ -144,7 +144,7 @@ explore_mod_server <- function(id,
           
           # find group of interest 
           #TODO clean
-          grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$group_value, grp_lookup$group_value2)), collapse = "|"), 
+          grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
                                                  unique(current$breakdown))]
           grp <- ifelse(length(grp) == 0, NA, grp)
           
@@ -235,7 +235,7 @@ explore_mod_server <- function(id,
                                         full_data = chk_stats(),
                                         diffs = chk_diff(),
                                         custom_grp = unique(current$breakdown),
-                                        group_of_interest = unique(current$breakdown)[2],
+                                        group_of_interest = grp,
                                         q_coded = q_coded,
                                         top = NA)
             
