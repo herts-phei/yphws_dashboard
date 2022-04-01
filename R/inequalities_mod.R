@@ -20,6 +20,9 @@ inequalities_mod <- function(id,
                    closable = FALSE,
                    width = 4, 
                    uiOutput(ns("ineq_domains")),
+                   # actionLink(ns("selectall"), "Select All"),
+                   # actionLink(ns("deselectall"), "Deselect All"),
+                   #br(),
                    uiOutput(ns("ineq_questions"))),
         column(
                    width = 8,
@@ -36,6 +39,7 @@ inequalities_mod <- function(id,
 
 inequalities_mod_server <- function(id,
                                     params,
+                                    comp, 
                                     q_coded,
                                     stats,
                                     diffs) {
@@ -46,7 +50,7 @@ inequalities_mod_server <- function(id,
       
       ns <- NS(id)
 
-      #observe({if("Education" %in% input$ineq_domains) {browser()}})
+      observe({if("Mental Health and Wellbeing" %in% input$ineq_domains) {browser()}})
       
       # UIs ---------------------------------------------------------------------
 
@@ -66,27 +70,67 @@ inequalities_mod_server <- function(id,
         
       })
 
+      questions <- reactive({
+        
+        q_coded() %>%
+        mutate(survey_text = as.character(survey_text)) %>%
+        filter(question_theme %in% input$ineq_domains, 
+               response_of_interest == "TRUE",
+               question_coded != comp())
+        
+      })
+      
       output$ineq_questions <- renderUI({
 
-        questions <- q_coded() %>%
-          mutate(survey_text = as.character(survey_text)) %>%
-          filter(question_theme %in% input$ineq_domains, 
-                 response_of_interest == "TRUE")
-
-        checkboxGroupInput(
+        # shinyWidgets::prettyCheckboxGroup(
+        #   inputId = ns("ineq_questions"),
+        #   label = "Choose the indicators:", 
+        #   choices = as.character(unique(questions()$question_response)), 
+        #   bigger = TRUE,
+        #   status = "info",
+        #   animation = "jelly",
+        #   selected = as.character(unique(questions()$question_response))
+        # )
+        
+        pickerInput(
           inputId = ns("ineq_questions"),
-          label = "Choose the indicators:", 
-          choices = as.character(unique(questions$question_response)),
-          selected = as.character(unique(questions$question_response))
+          label = "Choose the indicators:",
+          choices = as.character(unique(questions()$question_response)), 
+          selected = as.character(unique(questions()$question_response)),
+          options = list(`actions-box` = TRUE),   
+          multiple = T
         )
 
       })
       
-      for_height <- reactive(input$ineq_questions)
+      
+      # observe({
+      #   if(is.null(input$selectall)) return(NULL)
+      #   if(is.null(input$deselectall)) return(NULL)
+      #   if (input$selectall > 0) {
+      #     shinyWidgets::updatePrettyCheckboxGroup(session, 
+      #                               "ineq_questions",
+      #                               "Choose the indicators:", 
+      #                               choices = as.character(unique(questions()$question_response)), 
+      #                               selected = as.character(unique(questions()$question_response)))
+      #   }
+      #   
+      #   if (input$deselectall > 0){
+      #     shinyWidgets::updatePrettyCheckboxGroup(session, 
+      #                               "ineq_questions",
+      #                               "Choose the indicators:", 
+      #                               choices = as.character(unique(questions()$question_response)))
+      #   }
+      #   
+      # })
+      
+      for_height <- reactive(input$questions)
       
       # Tartan rug -------------------------------------------------------------
       
       output$tartan <- renderPlot({
+        
+        if (is.null(input$ineq_questions)) { return(NULL) }
         
         params <- params()
         q_coded <- q_coded()

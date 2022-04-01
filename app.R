@@ -128,7 +128,7 @@ server <- function(input, output) {
   # Uncomment for testing
   # observe({
   # 
-  #   if ("District" %in% input$comp) { browser() }
+  #   if ("ethnicity" %in% input$comp) { browser() }
   # 
   # })
   
@@ -191,6 +191,7 @@ server <- function(input, output) {
 
   inequalities_mod_server("ineq",
                           params = reactive(rv$params),
+                          comp = reactive(input$comp), 
                           q_coded = reactive(rv$data$q_coded),
                           stats = reactive(rv$stats),
                           diffs = reactive(rv$diffs))

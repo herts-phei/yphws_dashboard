@@ -168,13 +168,19 @@ create_sum_sentence <- function(dataset,
                          paste0(total_resp, " students", " (", perc, "%)"))
     
     # generate main sentence for All Responses
-    sentence <- paste0("Respondents were asked <b>'", df$survey_text_gen[1], "</b><br><br>")
+    sentence <- paste0("Respondents were asked '", df$survey_text_gen[1], "'.<br><br>")
     
     if (is.na(total_resp)) { 
       
       return(paste0("No students responded to this question."))
       
     } else {
+      
+      trend <- compare_last_yr(df_new = dataset, 
+                               df_old = dataset_old, 
+                               multi = F,
+                               diffs_all = diffs,
+                               response_interest = NA)
       
       if (!is.na(group_of_interest)[1]) {
         
@@ -189,12 +195,6 @@ create_sum_sentence <- function(dataset,
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
         add <- paste0(" Among them, ", paste0(
           prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
-        
-        trend <- compare_last_yr(df_new = dataset, 
-                                 df_old = dataset_old, 
-                                 multi = F,
-                                 diffs_all = diffs,
-                                 response_interest = NA)
         
         sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
                            "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
@@ -223,7 +223,7 @@ create_sum_sentence <- function(dataset,
         
       } else {
         
-        sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ",
+        sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ", trend,
                            "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
                            "</b> of responses and the least common response was '", least_common[1], "', with <b>",
                            least_v[1], "</b> of responses.")
@@ -263,6 +263,13 @@ create_sum_sentence <- function(dataset,
       
       binary <- ifelse(all(unique(data$response) %in% c("Yes", "No")), TRUE, FALSE) # check if it's a Yes or No
       
+      # get trend sentence
+      trend <- compare_last_yr(df_new = dataset,
+                               df_old = dataset_old,
+                               diffs_all = diffs, 
+                               multicat = T,
+                               response_interest = value_of_interest)
+      
       if(!is.na(group_of_interest)) {
         
         grp_df <- data %>% 
@@ -274,16 +281,14 @@ create_sum_sentence <- function(dataset,
           distinct()
         
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
-        
-        # get trend sentence
-        trend <- compare_last_yr(df_new = dataset,
-                                 df_old = dataset_old,
-                                 diffs_all = diffs, 
-                                 multicat = T,
-                                 response_interest = value_of_interest)
-        
+
         sentence <- paste0(sentence, "Among them, ", paste0(
           prop, " were ", grp_df$breakdown, collapse = ", "), ". ", trend)
+        
+      } else {
+        
+        sentence <- paste0(sentence, trend)
+        
       }
       
       for(group in 1:length(na.omit(c("All Responses", group_of_interest)))) {
@@ -291,7 +296,7 @@ create_sum_sentence <- function(dataset,
         grp_df <- data %>% 
           filter(breakdown == c("All Responses", group_of_interest)[group]) 
         
-        group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "students (total)", 
+        group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "all students", 
                              paste0("<b>", grp_df$breakdown, "</b>"))
         
         # generate the values used for the sentences. 
@@ -355,7 +360,7 @@ create_basic_plot <- function(df,
       e_charts(response) %>% 
       e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
       function(params){
-      return('value: ' + Math.round(params.value[1] * 100, 3) + '%' +
+      return('value: ' + params.value[1] * 100 + '%' +
         '<br/>breakdown: ' + params.seriesName +
         '<br/>group: ' + params.value[params.encode.x[0]]) 
         }"))) %>%
@@ -400,7 +405,7 @@ create_multi_plot <- function(df,
       filter(response == "Yes") %>% 
       arrange(response) %>%
       plot_ly(x = ~value, y = ~question_text, type = "bar", name = ~breakdown, color = ~breakdown,
-              colors = "Blues", legendgroup = ~breakdown, orientation = 'h',
+              colors = "viridis", legendgroup = ~breakdown, orientation = 'h',
               hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ", 
                                                               response, "<br>(CI:", lowercl, " to ", 
                                                               uppercl, ")"), 30), "<extra></extra>")) %>%
@@ -435,7 +440,7 @@ create_multi_plot <- function(df,
     df %>%
       arrange(response) %>%
       plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
-              colors = "Blues", legendgroup = ~response, orientation = 'h',
+              colors = "viridis", legendgroup = ~response, orientation = 'h',
               hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ", 
                                                               response, "<br>(CI:", lowercl, " to ", 
                                                               uppercl, ")"), 30), "<extra></extra>"),

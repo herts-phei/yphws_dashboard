@@ -49,6 +49,8 @@ explore_mod <- function(id,
 
 # Server ------------------------------------------------------------------
 
+# NOTE: Selecting the Safety health topic will crash the app locally, but not on the server for some reason. 
+
 explore_mod_server <- function(id,
                                params,
                                stats,
@@ -66,9 +68,9 @@ explore_mod_server <- function(id,
       
       # Reactive UIs ------------------------------------------------------------
 
-      # observe({
-      #   if ("Smoking and Vaping" %in% input$domains ) {browser()}
-      # })
+      observe({
+        if ("" %in% input$domains ) {browser()}
+      })
       
       # Data --------------------------------------------------------------------
       
@@ -134,10 +136,10 @@ explore_mod_server <- function(id,
           
           # Current question
           current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
-            mutate(year = as.character(as.numeric(params$year)))
+            mutate(year = as.character(as.numeric(params()$year)))
           
           current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
-            mutate(year = "2020")
+            mutate(year = as.character(as.numeric(params()$year) - 1))
           
           multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
@@ -169,18 +171,18 @@ explore_mod_server <- function(id,
             # trend table
             if (nrow(current_old) > 0) {
               
-              current_old <- current_old %>% 
+              current_old_trend <- current_old %>% 
                 mutate(year = as.character(as.numeric(params$year) - 1),
                        `2020` = value) %>% 
                 filter(response_of_interest == "TRUE")
               
-              names(current_old) <- paste0("prev_", names(current_old))
+              names(current_old_trend) <- paste0("prev_", names(current_old_trend))
               
               stats_ <- current %>% 
                 filter(response_of_interest == "TRUE")
               
               trend_plot <- create_trend_table(stats = stats_,
-                                               stats_old = current_old,
+                                               stats_old = current_old_trend,
                                                params = params)
 
               
@@ -194,7 +196,6 @@ explore_mod_server <- function(id,
             # text differs depending on type of question
             if(!multi_bin) {
               
-              names(current_old) <- gsub("prev_", "", names(current_old))
               text <- create_sum_sentence(dataset = current,
                                           dataset_old = current_old, 
                                           multi = T,
@@ -210,7 +211,6 @@ explore_mod_server <- function(id,
               
               if (any(grepl("internet_", current$question))) { top <- NA } else { top <- 5 }
               
-              names(current_old) <- gsub("prev_", "", names(current_old))
               text <- create_sum_sentence(dataset = current,
                                           dataset_old = current_old, 
                                           multi = T,
@@ -247,12 +247,11 @@ explore_mod_server <- function(id,
             # trend table
             if (nrow(current_old) > 0) {
               
-              current_old <- mutate(current_old, `2020` = value) 
-              
-              names(current_old) <- paste0("prev_", names(current_old))
+              current_old_trend <- mutate(current_old, `2020` = value) 
+              names(current_old_trend) <- paste0("prev_", names(current_old_trend))
               
               trend_plot <- create_trend_table(stats = current,
-                                               stats_old = current_old,
+                                               stats_old = current_old_trend,
                                                params = params)
               
             } else {
