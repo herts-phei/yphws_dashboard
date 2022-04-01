@@ -109,11 +109,8 @@ ui <- tablerDashPage(
           )
         ),
         
-      )
-      ,
-      tablerTabItem(
-        tabName = "About"
-      )
+      ),
+      about_mod("about")
     )
   )
 )
@@ -366,8 +363,12 @@ server <- function(input, output) {
 
   )
   
+  # About -------------------------------------------------------------------
+
+  about_mod_server("about")
   
 }
+
 # Run the application 
 shinyApp(ui = ui, server = server)
 
