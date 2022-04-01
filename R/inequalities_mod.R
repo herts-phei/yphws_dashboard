@@ -50,7 +50,7 @@ inequalities_mod_server <- function(id,
       
       ns <- NS(id)
 
-      observe({if("Mental Health and Wellbeing" %in% input$ineq_domains) {browser()}})
+      # observe({if("Mental Health and Wellbeing" %in% input$ineq_domains) {browser()}})
       
       # UIs ---------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ inequalities_mod_server <- function(id,
       #   
       # })
       
-      for_height <- reactive(input$questions)
+      for_height <- reactive(input$ineq_questions)
       
       # Tartan rug -------------------------------------------------------------
       

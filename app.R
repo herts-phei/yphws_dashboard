@@ -129,7 +129,6 @@ server <- function(input, output) {
   # 
   # })
   
-  
   # --Load all data-----
   rv <- reactiveValues()
   rv$params <- get_params() # params
@@ -164,7 +163,6 @@ server <- function(input, output) {
   
   key_mod_server("key",
                  params = reactive(rv$params),
-                 data = reactive(rv$data$data),
                  stats = reactive(rv$stats),
                  stats_old = reactive(rv$stats_old),
                  stats_combined = reactive(rv$stats_combined),
@@ -298,9 +296,11 @@ server <- function(input, output) {
     pickerInput(
       inputId = "exp_question",
       label = "Question:", 
-      choices = filtered,
-      selected = filtered, 
-      multiple = TRUE
+      choices = unique(filtered),
+      selected = unique(filtered), 
+      multiple = TRUE,
+      options = list(`actions-box` = TRUE)
+      
     )
     
   })

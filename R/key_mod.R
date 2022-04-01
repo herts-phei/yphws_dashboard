@@ -90,9 +90,9 @@ key_mod_server <- function(id,
       
       ns <- NS(id)
       
-      # observe({
-      #   if ("2020" %in% input$mh_year ) {browser()}
-      # })
+      observe({
+        if ("2020" %in% input$mh_year ) {browser()}
+      })
       
       # Info boxes --------------------------------------------------------------
       
@@ -203,20 +203,45 @@ key_mod_server <- function(id,
       output$ethn_donut <- renderEcharts4r({
         
         stats <- stats()
+        grp <- q_coded()$heading[q_coded()$question_coded == comp()][1]
+          
+        if(comp() == "District") { grp <- "District" }
         
-        stats %>% 
-          filter(breakdown == "All Responses",
-                 question == comp()) %>% 
-          mutate(value = round(as.numeric(value), 2) * 100) %>% 
-          e_charts(response) %>% 
-          e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
-                                                              formatter = htmlwidgets::JS("function(params){
+        # since schyear question isn't present, visualise age instead.
+        if(comp() == "schyear") {
+          
+          stats %>% 
+            filter(breakdown == "All Responses",
+                   question == "age") %>% 
+            mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            e_charts(response) %>% 
+            e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
+                                                                formatter = htmlwidgets::JS("function(params){
            return(`${params.value}`+'%');}"))) %>% 
-          e_tooltip("item") %>% 
-          e_grid(left = "10%", right = "10%") %>%
-          e_legend(bottom = 0) %>% 
-          e_title("Group breakdown in %") %>% 
-          e_theme_custom("phei.json")
+            e_tooltip("item") %>% 
+            e_grid(left = "10%", right = "10%") %>%
+            e_legend(bottom = 0) %>% 
+            e_title("Age breakdown in %") %>% 
+            e_theme_custom("phei.json")
+          
+        } else {
+          
+          stats %>% 
+            filter(breakdown == "All Responses",
+                   question == comp()) %>% 
+            mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            e_charts(response) %>% 
+            e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
+                                                                formatter = htmlwidgets::JS("function(params){
+           return(`${params.value}`+'%');}"))) %>% 
+            e_tooltip("item") %>% 
+            e_grid(left = "10%", right = "10%") %>%
+            e_legend(bottom = 0) %>% 
+            e_title(paste(grp, "breakdown in %")) %>% 
+            e_theme_custom("phei.json")
+          
+        }
+
         
       })
       
@@ -269,7 +294,11 @@ key_mod_server <- function(id,
         stats <- stats()
         grp_lookup <- grp_lookup()
 
-        group_name <- grp_lookup$group_value[grp_lookup$group == comp]
+        #TODO clean this.
+        group_name <- unique(stats$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
+                                                                       unique(stats$breakdown))]
+        
+        group_name <- ifelse(length(group_name) == 0, NA, group_name)
         group_breakdown <- ifelse(is.na(group_name), "All Responses", group_name)
         key_data <- stats %>%
           filter(breakdown %in% group_breakdown)
@@ -299,7 +328,7 @@ key_mod_server <- function(id,
 
 
         ls1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                 filter(key_data, question == 'pa_60' & response == "6-7") %>%
+                                                 filter(key_data, question == 'pa_60' & response == "6 to 7") %>%
                                                    .$value, "</b> for ", group_name, " respondents."), "")
 
         ls2 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
@@ -386,8 +415,8 @@ key_mod_server <- function(id,
 
             "<h1>Lifestyle</h1>",
 
-            "Out of all responses <b>", filter(all_data,  question == 'pa_60' & response == "6-7") %>% .$value,
-            "</b> had done a total of 60 minutes or more of physical activity 6-7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
+            "Out of all responses <b>", filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
+            "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
             " The most common response for this question was <b>",
             filter(all_data,  question =='pa_60') %>% filter(count == max(count)) %>% .$response,
             " days</b>. <br><br>",
