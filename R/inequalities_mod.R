@@ -50,7 +50,7 @@ inequalities_mod_server <- function(id,
       
       ns <- NS(id)
 
-      # observe({if("Mental Health and Wellbeing" %in% input$ineq_domains) {browser()}})
+       #observe({if("Safety" %in% input$ineq_domains) {browser()}})
       
       # UIs ---------------------------------------------------------------------
 
@@ -137,6 +137,7 @@ inequalities_mod_server <- function(id,
         diffs <- diffs()
         
         df <- diffs %>% 
+          filter(year == params$year) %>% 
           left_join(select(q_coded, -question_text), by = c("question" = "question_coded", 
                                                             "response" = "response")) %>% 
           filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 

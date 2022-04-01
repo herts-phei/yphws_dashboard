@@ -54,7 +54,9 @@ tartan <- function(df,
   new_comparator_area <- stringr::str_wrap(comparator_area, 25)
   
   p_data <- df %>% 
-    dplyr::filter(!!ensym(indicator_col) %in% indicators) %>% 
+    dplyr::filter(!!ensym(indicator_col) %in% indicators,
+                  # TODO exclusive to dashboard!
+                  breakdown.y == comparator_area) %>% 
     dplyr::group_by(!!ensym(indicator_col)) %>%
     dplyr::filter(!!ensym(period_sort_col) == max(!!ensym(period_sort_col))) %>%
     dplyr::ungroup() %>%

@@ -143,11 +143,7 @@ server <- function(input, output) {
              uppercl = formattable::percent(uppercl, digits = 1),
              lowereb = value - lowercl,
              uppereb = uppercl - value,
-             value.y = formattable::percent(value, digits = 1),
-             lowercl.y = formattable::percent(lowercl, digits = 1),
-             uppercl.y = formattable::percent(uppercl, digits = 1),
-             lowereb.y = value - lowercl,
-             uppereb.y = uppercl - value)
+             value.y = formattable::percent(value.y, digits = 1))
     
     # Stats
     rv$stats_combined <- select(df_selected, year, 1:12) %>% distinct() # distinct because of repeated diffs that are now removed. 
