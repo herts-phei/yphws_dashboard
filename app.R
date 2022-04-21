@@ -223,8 +223,8 @@ server <- function(input, output) {
   output$exp_report <- downloadHandler(
     filename = "report.html",
     content = function(file) {
-      tempReport <- file.path(tempdir(), "test2.Rmd")
-      file.copy("test2.Rmd", tempReport, overwrite = TRUE)
+      tempReport <- file.path(tempdir(), "test.Rmd")
+      file.copy("test.Rmd", tempReport, overwrite = TRUE)
 
       # Set up parameters to pass to Rmd document
       params <- list(var = input$comp,
