@@ -19,7 +19,6 @@ params:
 ``` {r setup, include=F}
 # Setup -------------------------------------------------------------------
 
-library(prettydoc)
 library(pacman)
 library(devtools)
 library(knitr)
