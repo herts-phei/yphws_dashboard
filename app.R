@@ -31,6 +31,7 @@ library(viridis)
 library(formattable)
 library(urbnthemes)
 library(glue)
+library(pacman)
 
 year <- "2021"
 
