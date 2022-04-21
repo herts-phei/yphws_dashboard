@@ -17,7 +17,6 @@ library(plyr)
 library(tidyverse)
 library(rmdformats)
 library(shinybusy)
-library(prettydoc)
 
 year <- "2021"
 
