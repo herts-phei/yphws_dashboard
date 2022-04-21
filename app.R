@@ -102,8 +102,8 @@ ui <- tablerDashPage(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
                        closable = FALSE,
-                       uiOutput("exp_report_comp"),
-                       uiOutput("exp_report_cat"),
+                       # uiOutput("exp_report_comp"),
+                       # uiOutput("exp_report_cat"),
                        downloadButton("exp_report", "Export report")
                        )
           )
