@@ -104,7 +104,7 @@ ui <- tablerDashPage(
                        closable = FALSE,
                        uiOutput("exp_report_comp"),
                        uiOutput("exp_report_cat"),
-                       downloadButton("exp_report_button", "Export report")
+                       downloadButton("exp_report", "Export report")
                        )
           )
         ),
@@ -227,15 +227,15 @@ server <- function(input, output) {
       file.copy("test.Rmd", tempReport, overwrite = TRUE)
 
       # Set up parameters to pass to Rmd document
-      params <- list(var = input$comp,
-                     cat = input$exp_report_cat)
+      # params <- list(var = input$exp_report_comp,
+      #                cat = input$exp_report_cat)
 
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
       # from the code in this app).
       show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
       rmarkdown::render(tempReport, output_file = file,
-                        params = params,
+                        # params = params,
                         envir = new.env(parent = globalenv())
       )
       remove_modal_spinner() # remove it when done
