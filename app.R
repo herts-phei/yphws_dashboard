@@ -32,6 +32,7 @@ library(formattable)
 library(urbnthemes)
 library(glue)
 library(pacman)
+library(box)
 
 year <- "2021"
 
