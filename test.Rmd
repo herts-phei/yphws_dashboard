@@ -147,7 +147,7 @@ differences <- function(data, by, from, to, join = NULL) {
   # e.g. data, school, report_school, report_school returns differences between
   # each year of the report school (includes comaring year to itself)
   
-  box::use(magrittr[`%>%`])
+  # box::use(magrittr[`%>%`])
   
   data_from <- data[data[[by]] == from, ]
   data_to <- data[data[[by]] %in% to, ] 
@@ -165,10 +165,10 @@ get_stats <- function(data,
                       group,
                       sch = NA,
                       q_coded) { 
-  
-  box::use(magrittr[`%>%`])
-  box::use(dplyr[recode, case_when, n, everything])
-  box::use(tidyr[complete, expand, nesting])
+  # 
+  # box::use(magrittr[`%>%`])
+  # box::use(dplyr[recode, case_when, n, everything])
+  # box::use(tidyr[complete, expand, nesting])
   
   # recode scale to categories
   data <- data %>%
@@ -291,7 +291,7 @@ get_stats_diffs <- function(stats,
                             compare_to_all = F,
                             school = NA){
   
-  box::use(magrittr[`%>%`])
+  # box::use(magrittr[`%>%`])
   
   stats <- dplyr::filter(stats, breakdown %in% levels)
   
