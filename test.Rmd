@@ -1,10 +1,9 @@
 ---
-title: "<center>Young People's Health and Wellbeing Survey</center>"
+title: "<center>![](https://hcc-phei.shinyapps.io/yphws_dashboard/_w_d9a8bf48/img/yphws_logo_horizontal.png){style=width:50%;} <br> Young People's Health and Wellbeing Survey</center>"
 pagetitle: '`r paste("YPHWS Thematic Report for Hertfordshire")`'
 subtitle: '`r paste("Generated using YPHWS Dashboard")`'
 author: "Public Health Evidence & Intelligence, Hertfordshire County Council"
 date: '`r Sys.Date()`'
-logo: "https://hcc-phei.shinyapps.io/yphws_dashboard/_w_d9a8bf48/img/yphws_logo_horizontal.png"
 output:
   rmdformats::robobook:
     self_contained: true

@@ -86,12 +86,12 @@ ui <- tablerDashPage(
                        uiOutput("exp_breakdown"),
                        uiOutput("exp_theme"),
                        uiOutput("exp_question"),
-                       # actionBttn(
-                       #   inputId = "export_button",
-                       #   label = "Update table", 
-                       #   style = "minimal",
-                       #   color = "danger"
-                       # ),
+                       actionBttn(
+                         inputId = "export_button",
+                         label = "Update table",
+                         style = "minimal",
+                         color = "danger"
+                       ),
                        br(),
                        downloadButton("exp_table", "Export table"),
                        br(),
