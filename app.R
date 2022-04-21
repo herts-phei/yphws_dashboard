@@ -318,22 +318,22 @@ server <- function(input, output) {
     
   })
   
-  # event reactive table 
-  # observeEvent(input$export_button, {
-  #   
-  #   rv$table_data <- rv$data$data[[input$comp]]  %>%
-  #     left_join(select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded, 
-  #               by = c("question" = "question_coded")) %>% 
-  #     select(year, breakdown, topic = question_theme, question = survey_text, 
-  #            `question option` = question_text, response, 
-  #            count, denominator, value, lowercl, uppercl) %>% 
-  #     distinct() %>% 
-  #     filter(year %in% input$exp_year,
-  #            breakdown %in% input$exp_breakdown,
-  #            topic %in% input$exp_theme,
-  #            question %in% input$exp_question)
-  #   
-  # })
+  #event reactive table
+  observeEvent(input$export_button, {
+
+    rv$table_data <- rv$data$data[[input$comp]]  %>%
+      left_join(select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded,
+                by = c("question" = "question_coded")) %>%
+      select(year, breakdown, topic = question_theme, question = survey_text,
+             `question option` = question_text, response,
+             count, denominator, value, lowercl, uppercl) %>%
+      distinct() %>%
+      filter(year %in% input$exp_year,
+             breakdown %in% input$exp_breakdown,
+             topic %in% input$exp_theme,
+             question %in% input$exp_question)
+
+  })
   
   output$data_table <- renderReactable({
 
