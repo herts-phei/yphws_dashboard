@@ -14,6 +14,7 @@ output:
 params:
   var: "sex"
   cat: "Female"
+  rendered_by_shiny: FALSE
 ---
 
 ``` {r setup, include=F}
@@ -35,6 +36,9 @@ p_load(
 board_register("rsconnect",
                server = "srv-gcp-ms-connect:3939",
                key = Sys.getenv("CONNECT_API_KEY"))
+
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.2)  # set progress to 20%
 
 # Parameters --------------------------------------------------------------
 
@@ -89,6 +93,11 @@ responses_per_district <- data %>%
     TRUE ~ FALSE
   )) %>%
   filter(comparison == T)
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.5)  # set progress to 50%
 
 ```
 
@@ -694,7 +703,14 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
 }
 
 create_multicat_plot_herts <- purrr::quietly(create_multicat_plot_herts)
+```
 
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.7)  # set progress to 70%
+```
+
+``` {r}
 # Tables ------------------------------------------------------------------
 
 create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
@@ -1015,6 +1031,11 @@ cov1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ",
 cov2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
                                               filter(stats_all, question == 'any_vacc_taken' & response == 'Yes') %>% 
                                                 .$value, " for all responses."), "")
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(1)  # set progress to 100%
 ```
 
 >Hertfordshire's Young People's Health & Wellbeing Survey is jointly funded by Hertfordshire County Council's Public Health and Children's Services departments. Analysis is conducted by Public Health Evidence & Intelligence. Further information can be found at https://www.hertshealthevidence.org/surveys.aspx
