@@ -120,8 +120,7 @@ ui <- tablerDashPage(
                        closable = FALSE,
                        # uiOutput("exp_report_comp"),
                        # uiOutput("exp_report_cat"),
-                       downloadButton("exp_report", "Export report"),
-                       # textOutput("checkrender")
+                       downloadButton("exp_report", "Export report")
                        )
           )
         ),
