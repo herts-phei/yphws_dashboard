@@ -16,6 +16,22 @@ library(plyr)
 library(tidyverse)
 library(rmdformats)
 library(shinybusy)
+library(knitr)
+library(ggplot2)
+library(htmlwidgets)
+library(webshot)
+library(PHEindicatormethods)
+library(crosstalk)
+library(reactable)
+library(rmdformats)
+library(tinytex)
+library(remotes)
+library(viridis)
+library(formattable)
+library(urbnthemes)
+library(glue)
+library(pacman)
+library(rlang)
 
 
 year <- "2021"
@@ -103,9 +119,9 @@ ui <- tablerDashPage(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
                        closable = FALSE,
-                       uiOutput("exp_report_comp")
-                       #uiOutput("exp_report_cat"),
-                       #downloadButton("exp_report_button", "Export report")
+                       # uiOutput("exp_report_comp"),
+                       # uiOutput("exp_report_cat"),
+                       downloadButton("exp_report", "Export report")
                        )
           )
         ),
@@ -208,41 +224,46 @@ server <- function(input, output) {
 
   })
 
-  # output$exp_report_cat <- renderUI({
-  # 
-  #   choices <- rv$data$data[[input$exp_report_comp]] %>%
-  #     select(input$exp_report_comp) %>%
-  #     distinct() %>%
-  #     pull(input$exp_report_comp)
-  # 
-  #   pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
-  #               choices = as.character(na.omit(choices)), multiple = FALSE,
-  #               selected = as.character(na.omit(choices)[1]))
-  # 
-  # })
+  output$exp_report_cat <- renderUI({
 
-  # output$exp_report <- downloadHandler(
-  #   filename = "report.html",
-  #   content = function(file) {
-  #     tempReport <- file.path(tempdir(), "test.Rmd")
-  #     file.copy("test.Rmd", tempReport, overwrite = TRUE)
-  # 
-  #     # Set up parameters to pass to Rmd document
-  #     params <- list(var = input$comp,
-  #                    cat = input$exp_report_cat)
-  # 
-  #     # Knit the document, passing in the `params` list, and eval it in a
-  #     # child of the global environment (this isolates the code in the document
-  #     # from the code in this app).
-  #     show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
-  #     rmarkdown::render(tempReport, output_file = file,
-  #                       params = params,
-  #                       envir = new.env(parent = globalenv())
-  #     )
-  #     remove_modal_spinner() # remove it when done
-  # 
-  #   }
-  # )
+    choices <- rv$data$data[[input$exp_report_comp]] %>%
+      select(input$exp_report_comp) %>%
+      distinct() %>%
+      pull(input$exp_report_comp)
+
+    pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
+                choices = as.character(na.omit(choices)), multiple = FALSE,
+                selected = as.character(na.omit(choices)[1]))
+
+  })
+  
+    
+  output$exp_report <- downloadHandler(
+    filename = "report.html",
+    content = function(file) {
+      withProgress(message = "Rendering, please wait!", {
+      tempReport <- file.path(tempdir(), "test.Rmd")
+      file.copy("test.Rmd", tempReport, overwrite = TRUE)
+
+      # Set up parameters to pass to Rmd document
+      # params <- list(var = input$exp_report_comp,
+      #                cat = input$exp_report_cat)
+      params <- list(rendered_by_shiny = TRUE)
+
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      # show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+      # remove_modal_spinner() # remove it when done
+
+    })
+  
+    }
+  )
 
   output$exp_year <- renderUI({
     
@@ -319,22 +340,22 @@ server <- function(input, output) {
     
   })
   
-  # event reactive table 
-  # observeEvent(input$export_button, {
-  #   
-  #   rv$table_data <- rv$data$data[[input$comp]]  %>%
-  #     left_join(select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded, 
-  #               by = c("question" = "question_coded")) %>% 
-  #     select(year, breakdown, topic = question_theme, question = survey_text, 
-  #            `question option` = question_text, response, 
-  #            count, denominator, value, lowercl, uppercl) %>% 
-  #     distinct() %>% 
-  #     filter(year %in% input$exp_year,
-  #            breakdown %in% input$exp_breakdown,
-  #            topic %in% input$exp_theme,
-  #            question %in% input$exp_question)
-  #   
-  # })
+  #event reactive table
+  observeEvent(input$export_button, {
+
+    rv$table_data <- rv$data$data[[input$comp]]  %>%
+      left_join(select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded,
+                by = c("question" = "question_coded")) %>%
+      select(year, breakdown, topic = question_theme, question = survey_text,
+             `question option` = question_text, response,
+             count, denominator, value, lowercl, uppercl) %>%
+      distinct() %>%
+      filter(year %in% input$exp_year,
+             breakdown %in% input$exp_breakdown,
+             topic %in% input$exp_theme,
+             question %in% input$exp_question)
+
+  })
   
   output$data_table <- renderReactable({
 

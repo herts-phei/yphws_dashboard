@@ -1,5 +1,5 @@
 ---
-title: "<center>Young People's Health and Wellbeing Survey</center>"
+title: "<center>![](https://hcc-phei.shinyapps.io/yphws_dashboard/_w_d9a8bf48/img/yphws_logo_horizontal.png){style=width:50%;} <br> Young People's Health and Wellbeing Survey</center>"
 pagetitle: '`r paste("YPHWS Thematic Report for Hertfordshire")`'
 subtitle: '`r paste("Generated using YPHWS Dashboard")`'
 author: "Public Health Evidence & Intelligence, Hertfordshire County Council"
@@ -14,12 +14,12 @@ output:
 params:
   var: "sex"
   cat: "Female"
+  rendered_by_shiny: FALSE
 ---
 
 ``` {r setup, include=F}
 # Setup -------------------------------------------------------------------
 
-library(prettydoc)
 library(pacman)
 library(devtools)
 library(knitr)
@@ -36,6 +36,9 @@ p_load(
 board_register("rsconnect",
                server = "srv-gcp-ms-connect:3939",
                key = Sys.getenv("CONNECT_API_KEY"))
+
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.2)  # set progress to 20%
 
 # Parameters --------------------------------------------------------------
 
@@ -90,6 +93,11 @@ responses_per_district <- data %>%
     TRUE ~ FALSE
   )) %>%
   filter(comparison == T)
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.5)  # set progress to 50%
 
 ```
 
@@ -148,7 +156,7 @@ differences <- function(data, by, from, to, join = NULL) {
   # e.g. data, school, report_school, report_school returns differences between
   # each year of the report school (includes comaring year to itself)
   
-  box::use(magrittr[`%>%`])
+  # box::use(magrittr[`%>%`])
   
   data_from <- data[data[[by]] == from, ]
   data_to <- data[data[[by]] %in% to, ] 
@@ -166,10 +174,10 @@ get_stats <- function(data,
                       group,
                       sch = NA,
                       q_coded) { 
-  
-  box::use(magrittr[`%>%`])
-  box::use(dplyr[recode, case_when, n, everything])
-  box::use(tidyr[complete, expand, nesting])
+  # 
+  # box::use(magrittr[`%>%`])
+  # box::use(dplyr[recode, case_when, n, everything])
+  # box::use(tidyr[complete, expand, nesting])
   
   # recode scale to categories
   data <- data %>%
@@ -292,7 +300,7 @@ get_stats_diffs <- function(stats,
                             compare_to_all = F,
                             school = NA){
   
-  box::use(magrittr[`%>%`])
+  # box::use(magrittr[`%>%`])
   
   stats <- dplyr::filter(stats, breakdown %in% levels)
   
@@ -695,7 +703,14 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
 }
 
 create_multicat_plot_herts <- purrr::quietly(create_multicat_plot_herts)
+```
 
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.7)  # set progress to 70%
+```
+
+``` {r}
 # Tables ------------------------------------------------------------------
 
 create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
@@ -1016,6 +1031,11 @@ cov1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ",
 cov2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
                                               filter(stats_all, question == 'any_vacc_taken' & response == 'Yes') %>% 
                                                 .$value, " for all responses."), "")
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(1)  # set progress to 100%
 ```
 
 >Hertfordshire's Young People's Health & Wellbeing Survey is jointly funded by Hertfordshire County Council's Public Health and Children's Services departments. Analysis is conducted by Public Health Evidence & Intelligence. Further information can be found at https://www.hertshealthevidence.org/surveys.aspx
