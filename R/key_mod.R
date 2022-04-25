@@ -90,9 +90,9 @@ key_mod_server <- function(id,
       
       ns <- NS(id)
       
-      observe({
-        if ("2020" %in% input$mh_year ) {browser()}
-      })
+      # observe({
+      #   if ("2020" %in% input$mh_year ) {browser()}
+      # })
       
       # Info boxes --------------------------------------------------------------
       
