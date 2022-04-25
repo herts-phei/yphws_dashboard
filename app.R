@@ -1,4 +1,3 @@
-library(devtools)
 library(rmarkdown)
 library(pins)
 library(shiny)
@@ -18,6 +17,7 @@ library(tidyverse)
 library(rmdformats)
 library(shinybusy)
 
+
 year <- "2021"
 
 domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
@@ -30,6 +30,7 @@ names(domains) <- domains
 # UI ----------------------------------------------------------------
 
 ui <- tablerDashPage(
+  tags$head(includeScript("google-analytics.html")),
   title = "Dashboard", 
   navbar = tablerDashNav(
     id = "nav",
@@ -86,12 +87,12 @@ ui <- tablerDashPage(
                        uiOutput("exp_breakdown"),
                        uiOutput("exp_theme"),
                        uiOutput("exp_question"),
-                       # actionBttn(
-                       #   inputId = "export_button",
-                       #   label = "Update table", 
-                       #   style = "minimal",
-                       #   color = "danger"
-                       # ),
+                       actionBttn(
+                         inputId = "export_button",
+                         label = "Update table",
+                         style = "minimal",
+                         color = "danger"
+                       ),
                        br(),
                        downloadButton("exp_table", "Export table"),
                        br(),
