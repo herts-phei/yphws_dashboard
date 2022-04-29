@@ -46,7 +46,7 @@ names(domains) <- domains
 # UI ----------------------------------------------------------------
 
 ui <- tablerDashPage(
-  tags$head(includeScript("google-analytics.html")),
+  tags$head(includeHTML("google-analytics.html")),
   title = "Dashboard", 
   navbar = tablerDashNav(
     id = "nav",
