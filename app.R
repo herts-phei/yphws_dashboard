@@ -104,12 +104,6 @@ ui <- tablerDashPage(
                        uiOutput("exp_breakdown"),
                        uiOutput("exp_theme"),
                        uiOutput("exp_question"),
-                       actionBttn(
-                         inputId = "export_button",
-                         label = "Update table",
-                         style = "minimal",
-                         color = "danger"
-                       ),
                        br(),
                        downloadButton("exp_table", "Export table"),
                        br(),
@@ -119,10 +113,10 @@ ui <- tablerDashPage(
           fluidRow(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
-                       closable = FALSE,
+                       closable = FALSE
                        # uiOutput("exp_report_comp"),
                        # uiOutput("exp_report_cat"),
-                       downloadButton("exp_report", "Export report")
+                       #downloadButton("exp_report", "Export report")
                        )
           )
         ),
@@ -391,10 +385,6 @@ server <- function(input, output) {
   output$feedback_link <- renderUI({
     tagList(a("Feedback", href="https://surveys.hertfordshire.gov.uk/s/YPHWS_Evaluation/"))
   })
-    
-  # observeEvent(input$feedback_link,{
-  #   browseURL("https://surveys.hertfordshire.gov.uk/s/YPHWS_Evaluation/")
-  # })
   
 }
 
