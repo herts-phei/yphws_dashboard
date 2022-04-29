@@ -52,7 +52,7 @@ ui <- tablerDashPage(
     id = "nav",
     src = "img/yphws_logo_horizontal.png",
     tablerNavMenu(id = "tabs",
-                  pickerInput("comp", label = "Select what to group by:", width = "110px", 
+                  pickerInput("comp", label = "Select what to group by:", width = "170px", 
                               choices = list("Sex" = "sex", 
                                              "Year group" = "schyear", 
                                              "Ethnicity" = "ethnicity",
