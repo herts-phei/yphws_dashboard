@@ -47,7 +47,7 @@ inequalities_mod_server <- function(id,
   moduleServer(
     id, 
     function(input, output, session) {
-      
+     
       ns <- NS(id)
 
        #observe({if("Safety" %in% input$ineq_domains) {browser()}})
@@ -129,6 +129,7 @@ inequalities_mod_server <- function(id,
       # Tartan rug -------------------------------------------------------------
       
       output$tartan <- renderPlot({
+        # browser()
         
         if (is.null(input$ineq_questions)) { return(NULL) }
         
@@ -166,7 +167,7 @@ inequalities_mod_server <- function(id,
                lower_ci = "lowercl")
         
         
-      }, height = function() {60 * (length(for_height()))})
+      }, height = function() {60 * (max(1, length(for_height())))})
       
       # Intro text --------------------------------------------------------------------
       
