@@ -52,7 +52,7 @@ ui <- tablerDashPage(
     src = "img/yphws_logo_horizontal.png",
     tablerNavMenu(id = "tabs",
                   tags$head(includeHTML("google-analytics.html")),
-                  pickerInput("comp", label = "Select what to group by",
+                  pickerInput("comp", label = "Select what to group by:", width = "180px", 
                               choices = list("Sex" = "sex", 
                                              "Year group" = "schyear", 
                                              "Ethnicity" = "ethnicity",
@@ -83,9 +83,10 @@ ui <- tablerDashPage(
                   tablerNavMenuItem(
                     "About",
                     tabName = "About"
+                  ), 
+                  tablerNavMenuItem(
+                    uiOutput("feedback_link")
                   )
-                  
-                  
     )
   ),
   body = tablerDashBody(
@@ -97,18 +98,12 @@ ui <- tablerDashPage(
         tabName = "Export",
         tagList(
           fluidRow(
-            tablerCard(width = 12, title = "Data table",
+            tablerCard(width = 12, title = "Data table", 
                        closable = FALSE,
                        uiOutput("exp_year"), 
                        uiOutput("exp_breakdown"),
                        uiOutput("exp_theme"),
                        uiOutput("exp_question"),
-                       actionBttn(
-                         inputId = "export_button",
-                         label = "Update table",
-                         style = "minimal",
-                         color = "danger"
-                       ),
                        br(),
                        downloadButton("exp_table", "Export table"),
                        br(),
@@ -118,10 +113,10 @@ ui <- tablerDashPage(
           fluidRow(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
-                       closable = FALSE,
+                       closable = FALSE
                        # uiOutput("exp_report_comp"),
                        # uiOutput("exp_report_cat"),
-                       downloadButton("exp_report", "Export report")
+                       #downloadButton("exp_report", "Export report")
                        )
           )
         ),
@@ -384,6 +379,12 @@ server <- function(input, output) {
   # About -------------------------------------------------------------------
 
   about_mod_server("about")
+  
+  # Send Feedback -----------------------------------------------------------
+
+  output$feedback_link <- renderUI({
+    tagList(a("Feedback", href="https://surveys.hertfordshire.gov.uk/s/YPHWS_Evaluation/"))
+  })
   
 }
 
