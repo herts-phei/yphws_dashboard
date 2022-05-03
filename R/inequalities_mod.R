@@ -167,7 +167,7 @@ inequalities_mod_server <- function(id,
                lower_ci = "lowercl")
         
         
-      }, height = function() {60 * (max(1, length(for_height())))})
+      }, height = function() {60 * (max(1, length(for_height())))}, res = 96)
       
       # Intro text --------------------------------------------------------------------
       
