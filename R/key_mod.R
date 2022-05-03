@@ -7,15 +7,13 @@ key_mod <- function(id,
   
   tablerTabItem(
     tabName = name,
-    tagList(
-      fluidRow( 
-        uiOutput(ns("infobox1")),
-        uiOutput(ns("infobox2")),
-        uiOutput(ns("infobox3")),
-        uiOutput(ns("infobox4")),
-        uiOutput(ns("infobox5")),
-        uiOutput(ns("infobox6"))
-      )
+    fluidRow(
+        infobox_mod(ns("infobox1")),
+        infobox_mod(ns("infobox2")),
+        infobox_mod(ns("infobox3")),
+        infobox_mod(ns("infobox4")),
+        infobox_mod(ns("infobox5")),
+        infobox_mod(ns("infobox6"))
     ),
     tagList(
       fluidRow(
@@ -71,7 +69,6 @@ key_mod <- function(id,
   
 }
 
-
 # Server ------------------------------------------------------------------
 
 key_mod_server <- function(id,
@@ -97,91 +94,56 @@ key_mod_server <- function(id,
       # Info boxes --------------------------------------------------------------
       
       # Total responses
-      output$infobox1 <- renderUI({
-        
-        value <- max(stats()$denominator, na.rm = TRUE) 
-        tablerStatCard(
-          value = value,
-          title = "Responses this year",
-          width = 12
-        )
-        
-      })
+      infobox_mod_server("infobox1",
+                         value = max(stats()$denominator, na.rm = TRUE),
+                         title = "Responses this year"
+                         )
       
-      # Total schools particiapted
-      output$infobox2 <- renderUI({
-        
-        value <- params()$unique_schools
-        tablerStatCard(
-          value = value,
-          title = "Schools participated",
-          width = 12
-        )
-      })
+      # Total schools participated
+      infobox_mod_server("infobox2",
+                         value = params()$unique_schools,
+                         title = "Schools participated"
+      )
       
       # Female 
-      output$infobox3 <- renderUI({
-        
-        value <- stats()$value[stats()$question == "sex" & stats()$response == "Female"][1]
-        
-        tablerStatCard(
-          value = value,
-          title = "Female respondents",
-          width = 12
-        )
-      })
+      infobox_mod_server("infobox3",
+                         value = stats()$value[stats()$question == "sex" & stats()$response == "Female"][1],
+                         title = "Female respondents"
+      )
       
       # Non-white
-      output$infobox4 <- renderUI({
-        
-        value <- stats() %>% 
-          filter(breakdown == "All Responses", 
-                 question == "ethnicity",
-                 !response %in% c("White", "Prefer not to say")) %>% 
-          summarise(value = sum(value))  %>% 
-          pull(value)
-        
-        tablerStatCard(
-          value = value,
-          title = "Non-white respondents",
-          width = 12
-        )
-      })
+      infobox_mod_server("infobox4",
+                         value = stats() %>% 
+                           filter(breakdown == "All Responses",
+                                  question == "ethnicity",
+                                  !response %in% c("White", "Prefer not to say")) %>%
+                           summarise(value = sum(value))  %>%
+                           pull(value),
+                         title = "Non-white respondents"
+      )
       
       # LGBTQ+
-      output$infobox5 <- renderUI({
-
-        value <- stats() %>% 
-          filter(breakdown == "All Responses", 
-                 question == "sexuality",
-                 response %in% c("Gay, lesbian or bisexual", 
-                                 "Other")) %>% 
-          summarise(value = sum(value)) %>% 
-          pull(value)
-        
-        tablerStatCard(
-          value = value,
-          title = "LGBTQ+ respondents",
-          width = 12
-        )
-      })
+      infobox_mod_server("infobox5",
+                         value = stats() %>% 
+                           filter(breakdown == "All Responses",
+                                  question == "sexuality",
+                                  response %in% c("Gay, lesbian or bisexual",
+                                                  "Other")) %>%
+                           summarise(value = sum(value)) %>%
+                           pull(value),
+                         title = "LGBTQ+ respondents"
+      )
       
       # Lowest IMD Quintile 
-      output$infobox6 <- renderUI({
-
-        value <- stats() %>% 
-          filter(breakdown == "All Responses", 
-                 question == "imd_quintile",
-                 response == "Quintile 1 - Most Deprived") %>% 
-          summarise(value = sum(value)) %>% 
-          pull(value)
-        
-        tablerStatCard(
-          value = value,
-          title = "IMD Quint. 1(most deprived)",
-          width = 12
-        )
-      })
+      infobox_mod_server("infobox6",
+                         value = stats() %>% 
+                           filter(breakdown == "All Responses",
+                                  question == "imd_quintile",
+                                  response == "Quintile 1 - Most Deprived") %>%
+                           summarise(value = sum(value)) %>%
+                           pull(value),
+                         title = "IMD Quint. 1 (most deprived)"
+      )
       
       # Text --------------------------------------------------------------------
       
@@ -641,7 +603,3 @@ key_mod_server <- function(id,
       })
       
     }
-
-
-
-
