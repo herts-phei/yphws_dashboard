@@ -46,12 +46,12 @@ names(domains) <- domains
 # UI ----------------------------------------------------------------
 
 ui <- tablerDashPage(
-  tags$head(includeScript("google-analytics.html")),
   title = "Dashboard", 
   navbar = tablerDashNav(
     id = "nav",
     src = "img/yphws_logo_horizontal.png",
     tablerNavMenu(id = "tabs",
+                  tags$head(includeHTML("google-analytics.html")),
                   pickerInput("comp", label = "Select what to group by",
                               choices = list("Sex" = "sex", 
                                              "Year group" = "schyear", 
