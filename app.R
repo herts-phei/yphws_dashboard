@@ -113,10 +113,10 @@ ui <- tablerDashPage(
           fluidRow(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
-                       closable = FALSE
-                       # uiOutput("exp_report_comp"),
-                       # uiOutput("exp_report_cat"),
-                       #downloadButton("exp_report", "Export report")
+                       closable = FALSE,
+                       uiOutput("exp_report_comp"),
+                       uiOutput("exp_report_cat"),
+                       downloadButton("exp_report", "Export report")
                        )
           )
         ),
@@ -221,10 +221,13 @@ server <- function(input, output) {
 
   output$exp_report_cat <- renderUI({
 
-    choices <- rv$data$data[[input$exp_report_comp]] %>%
-      select(input$exp_report_comp) %>%
-      distinct() %>%
-      pull(input$exp_report_comp)
+    # choices <- rv$data$data[[input$exp_report_comp]] %>%
+    #   select(input$exp_report_comp) %>%
+    #   distinct() %>%
+    #   pull(input$exp_report_comp)
+
+    choices <- unique(rv$data$data[[input$exp_report_comp]]$breakdown)
+
 
     pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
                 choices = as.character(na.omit(choices)), multiple = FALSE,
@@ -241,8 +244,8 @@ server <- function(input, output) {
       file.copy("test.Rmd", tempReport, overwrite = TRUE)
 
       # Set up parameters to pass to Rmd document
-      # params <- list(var = input$exp_report_comp,
-      #                cat = input$exp_report_cat)
+      params <- list(var = input$exp_report_comp,
+                     cat = input$exp_report_cat)
       params <- list(rendered_by_shiny = TRUE)
 
       # Knit the document, passing in the `params` list, and eval it in a
