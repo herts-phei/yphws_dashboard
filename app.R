@@ -113,10 +113,10 @@ ui <- tablerDashPage(
           fluidRow(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
-                       closable = FALSE
+                       closable = FALSE,
                        # uiOutput("exp_report_comp"),
                        # uiOutput("exp_report_cat"),
-                       #downloadButton("exp_report", "Export report")
+                       downloadButton("exp_report", "Export report")
                        )
           )
         ),
