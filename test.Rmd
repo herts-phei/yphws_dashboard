@@ -33,9 +33,12 @@ p_load(
   echarts4r, glue
 )
 
-board_register("rsconnect",
-               server = "srv-gcp-ms-connect:3939",
-               key = Sys.getenv("CONNECT_API_KEY"))
+# board_register("rsconnect",
+#                server = "srv-gcp-ms-connect:3939",
+#                key = Sys.getenv("CONNECT_API_KEY"))
+
+board <- board_rsconnect(server = "https://hertscc.managed.mango-solutions.com/connect",
+                         key = Sys.getenv("CONNECT_API_KEY"))
 
 if (params$rendered_by_shiny)
   shiny::setProgress(0.2)  # set progress to 20%
@@ -56,11 +59,11 @@ districts <- c(
 # Load data ---------------------------------------------------------------
 
 # questions coded
-q_coded <- pin_get("hau/YPHWS_question_lookup_2021", board = "rsconnect") %>%
+q_coded <- pins::pin_read(board, "hau/YPHWS_question_lookup_2021") %>%
   purrr::map_dfr(~ as.character(.))
 
 # survey data
-data <- pin_get(data_pin, board = "rsconnect") %>%
+data <- pins::pin_read(board, data_pin) %>%
   mutate(
     imd_quintile = case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
     imd_quintile = case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),
