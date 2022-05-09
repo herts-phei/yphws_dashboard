@@ -210,7 +210,7 @@ server <- function(input, output) {
                                "IMD Quintile" = "imd_quintile",
                                "Sexuality" = "sexuality",
                                "Young carer" = "caring",
-                               "Smoker" = "smoke_ever",
+                               #"Smoker" = "smoke_ever",
                                "Self-harm" = "selfharm_ever",
                                "Bullied" = "bullied",
                                "District" = "District"),
