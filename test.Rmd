@@ -1334,7 +1334,7 @@ create_bullets_herts(chk_diff, grouped_by_question = T)$Table
 
 ### Graph
 ```{r, fig.height=6.5}
-create_multicat_plot_herts(chk_stats, q_coded = q_coded)
+create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 ```
 
 
