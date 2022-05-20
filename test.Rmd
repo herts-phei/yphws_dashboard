@@ -1,5 +1,5 @@
 ---
-title: "<center>![](https://hcc-phei.shinyapps.io/yphws_dashboard/_w_d9a8bf48/img/yphws_logo_horizontal.png){style=width:50%;} <br> Young People's Health and Wellbeing Survey</center>"
+title: "<center>Young People's Health and Wellbeing Survey</center>"
 pagetitle: '`r paste("YPHWS Thematic Report for Hertfordshire")`'
 subtitle: '`r paste("Generated using YPHWS Dashboard")`'
 author: "Public Health Evidence & Intelligence, Hertfordshire County Council"
@@ -41,7 +41,7 @@ board <- board_rsconnect(server = "https://hertscc.managed.mango-solutions.com/c
                          key = Sys.getenv("CONNECT_API_KEY"))
 
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.2)  # set progress to 20%
+  shiny::setProgress(0.1)  # set progress to 10%
 
 # Parameters --------------------------------------------------------------
 
@@ -123,11 +123,6 @@ responses_per_district <- data %>%
   filter(comparison == T)
 ```
 
-``` {r}
-if (params$rendered_by_shiny)
-  shiny::setProgress(0.5)  # set progress to 50%
-
-```
 
 ```{r functions, include=F}
 
@@ -693,7 +688,7 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
               transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
       layout(barmode = "stack", 
              title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
-             xaxis = list(title = "Percent", tickformat = "%"),
+             xaxis = list(title = "Percent", tickformat = ".1%"),
              updatemenus = list(type_list),
              autosize = F, height = 600,
              margin = list(r = 250,
@@ -735,7 +730,7 @@ create_multicat_plot_herts <- purrr::quietly(create_multicat_plot_herts)
 
 ``` {r}
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.7)  # set progress to 70%
+  shiny::setProgress(0.2)  
 ```
 
 ``` {r}
@@ -819,7 +814,7 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
   df <- df %>%
     filter(question %in% keep_these) %>%
     left_join(select(q_coded, question_coded, question_theme), by = c("question" = "question_coded")) %>%
-    rename(Theme = question_theme)
+    dplyr::rename(Theme = question_theme)
   
   df <- df[!is.na(df$diff), ]
   
@@ -862,7 +857,7 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
     
     df$sentences <- unlist(sentences)
     
-    df <- rename(df, "Differences found" = sentences, "Breakdown" = breakdown.x,
+    df <- dplyr::rename(df, "Differences found" = sentences, "Breakdown" = breakdown.x,
                  Question = question_text.x)
     
     prevent_dupes <- df %>%
@@ -1686,6 +1681,12 @@ create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_cust
 create_tbl(chk_diff)
 ```
 
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.3)  
+```
+
+
 ## Dentist check-up {.tabset}
 **"Within the last year have you had a check-up at the dentist?"**
 
@@ -1889,6 +1890,12 @@ create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_cust
 ```{r smoke_ever_table}
 create_tbl(chk_diff)
 ```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.4)  
+```
+
 
 ## Vaping {.tabset}
 **“Thinking about vaping / e-cigarettes only, which of the following best describes you?”**
@@ -2248,6 +2255,11 @@ create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 create_tbl(chk_diff, multi_response = T)
 ```
 
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.5)  
+```
+
 # Drug Use
 
 This section contains information about the drug use of students including whether they've been offered any drugs, whether they've used any drugs, how often they use drugs, where they get drugs, and whether they are trying to reduce or doing drugs.
@@ -2502,6 +2514,11 @@ create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 ### Table
 ```{r drugtaken_table}
 create_tbl(chk_diff, multi_response = T)
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.6)  
 ```
 
 ## Mixing drugs and alcohol {.tabset}
@@ -2899,6 +2916,11 @@ create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 ### Table
 ```{r wellbeing_table,fig.height=6.5}
 create_tbl(chk_diff, multi_response = T)
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.7)  
 ```
 
 ## Worries {.tabset}
@@ -3430,6 +3452,11 @@ create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 create_tbl(chk_diff, multi_response = T)
 ```
 
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.8)  
+```
+
 # Safety
 
 This section contains information about safety, online safety, and any experiences of violence by the students.
@@ -3926,6 +3953,11 @@ create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 ### Table
 ```{r clubs_table}
 create_tbl(chk_diff, multi_response = T)
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.9)  
 ```
 
 ## Prospects {.tabset}
