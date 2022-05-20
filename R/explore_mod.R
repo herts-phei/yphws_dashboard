@@ -120,6 +120,7 @@ explore_mod_server <- function(id,
                  year == params()$year)
       })
       
+
       # Boxes -------------------------------------------------------------------
       boxes <- reactive({
         
@@ -163,8 +164,20 @@ explore_mod_server <- function(id,
               
             }
             
+            if(comp == "schyear"){
+              order <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")
+              
+              current_plot <- current 
+              
+              current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
+              
+            }else{
+              
+              current_plot <- current
+            }
+            
             # multicat style plot
-            int_plot <- create_multi_plot(df = current,
+            int_plot <- create_multi_plot(df = current_plot,
                                           plot_title = "",
                                           binary = multi_bin)
             
@@ -239,9 +252,23 @@ explore_mod_server <- function(id,
                                         q_coded = q_coded,
                                         top = NA)
             
+            if(comp == "schyear"){
+              
+              order <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")
+              
+              current_plot <- current 
+              
+              current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
+              
+            }else{
+              current_plot <- current
+              
+              order <- unique(current_plot$breakdown)
+            }
+            
             # interactive plot
-            int_plot <- create_basic_plot(df = current,
-                                          plot_custom_grp = unique(current$breakdown),
+            int_plot <- create_basic_plot(df = current_plot,
+                                          plot_custom_grp = order,
                                           plot_title = "")
             
             # trend table
