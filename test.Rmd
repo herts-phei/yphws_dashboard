@@ -1056,11 +1056,6 @@ cov2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ",
                                                 .$value, " for all responses."), "")
 ```
 
-``` {r}
-if (params$rendered_by_shiny)
-  shiny::setProgress(1)  # set progress to 100%
-```
-
 >Hertfordshire's Young People's Health & Wellbeing Survey is jointly funded by Hertfordshire County Council's Public Health and Children's Services departments. Analysis is conducted by Public Health Evidence & Intelligence. Further information can be found at https://www.hertshealthevidence.org/surveys.aspx
 
 This report summarises the results of `r as.character(max(filter(stats) %>% select(denominator)))` pupils from `r length(unique(data$school))` schools who responded to the `r year` Young People's Health & Wellbeing Survey (YPHWS).
@@ -4221,4 +4216,9 @@ create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 ### Table
 ```{r no_vacc_reason_table}
 create_tbl(chk_diff, multi_response = T)
+```
+
+``` {r}
+if (params$rendered_by_shiny)
+  shiny::setProgress(1)  # set progress to 100%
 ```
