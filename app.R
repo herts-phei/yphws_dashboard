@@ -114,8 +114,8 @@ ui <- tablerDashPage(
             tablerCard(title = "Export full report (COMING SOON)",
                        width = 12, 
                        closable = FALSE,
-                       # uiOutput("exp_report_comp"),
-                       # uiOutput("exp_report_cat"),
+                       uiOutput("exp_report_comp"),
+                       uiOutput("exp_report_cat"),
                        downloadButton("exp_report", "Export report")
                        )
           )
@@ -210,7 +210,7 @@ server <- function(input, output) {
                                "IMD Quintile" = "imd_quintile",
                                "Sexuality" = "sexuality",
                                "Young carer" = "caring",
-                               "Smoker" = "smoke_ever",
+                               #"Smoker" = "smoke_ever",
                                "Self-harm" = "selfharm_ever",
                                "Bullied" = "bullied",
                                "District" = "District"),
@@ -225,8 +225,10 @@ server <- function(input, output) {
     #   select(input$exp_report_comp) %>%
     #   distinct() %>%
     #   pull(input$exp_report_comp)
-
-    choices <- unique(rv$data$data[[input$exp_report_comp]]$breakdown)
+    
+    choices <- unique(rv$data$data[[input$exp_report_comp]]$breakdown) 
+    
+    choices <- choices[choices != "All Responses"]
 
 
     pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
@@ -235,7 +237,7 @@ server <- function(input, output) {
 
   })
   
-    
+  
   output$exp_report <- downloadHandler(
     filename = "report.html",
     content = function(file) {
@@ -245,23 +247,28 @@ server <- function(input, output) {
 
       # Set up parameters to pass to Rmd document
       params <- list(var = input$exp_report_comp,
-                     cat = input$exp_report_cat)
-      params <- list(rendered_by_shiny = TRUE)
+                     cat = input$exp_report_cat,
+                     rendered_by_shiny = TRUE)
 
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
       # from the code in this app).
       # show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
+
+     # includeHTML(
       rmarkdown::render(tempReport, output_file = file,
                         params = params,
                         envir = new.env(parent = globalenv())
+      #)
       )
+
       # remove_modal_spinner() # remove it when done
 
     })
-  
+
     }
   )
+
 
   output$exp_year <- renderUI({
     
