@@ -111,7 +111,7 @@ ui <- tablerDashPage(
             )
           ),
           fluidRow(
-            tablerCard(title = "Export full report (COMING SOON)",
+            tablerCard(title = "Export full report",
                        width = 12, 
                        closable = FALSE,
                        uiOutput("exp_report_comp"),
@@ -253,16 +253,12 @@ server <- function(input, output) {
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
       # from the code in this app).
-      # show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
-
      # includeHTML(
       rmarkdown::render(tempReport, output_file = file,
                         params = params,
                         envir = new.env(parent = globalenv())
       #)
       )
-
-      # remove_modal_spinner() # remove it when done
 
     })
 
