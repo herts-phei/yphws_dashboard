@@ -62,7 +62,7 @@ get_data <- function() {
 
     # survey data
     output$data <- readRDS("data-raw/stats.rds") 
-
+    
     return(output)
   
 }

@@ -2,7 +2,6 @@
 
 key_mod <- function(id, 
                     name = "KeyPoints") {
-  
   ns <- NS(id)
   
   tablerTabItem(
@@ -434,6 +433,19 @@ key_mod_server <- function(id,
         
         output$mh_breakdown <- shiny::renderUI({
 
+            if(comp() == "schyear"){
+            
+            shinyWidgets::prettyRadioButtons(
+              inputId = ns("mh_breakdown"),
+              label = "",
+              choices = unique(c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")),
+              inline = TRUE,
+              status = "info",
+              fill = TRUE
+            )
+            
+            }else{ 
+          
           shinyWidgets::prettyRadioButtons(
             inputId = ns("mh_breakdown"),
             label = "",
@@ -441,7 +453,7 @@ key_mod_server <- function(id,
             inline = TRUE,
             status = "info",
             fill = TRUE
-          )
+          )}
           
 
         })
@@ -481,7 +493,7 @@ key_mod_server <- function(id,
             e_title("Top 5 worries",
                     paste("For", input$mh_breakdown, "in", input$mh_year)) %>%
             e_theme("walden")
-          
+
         })
         
         output$coping_graph <- renderEcharts4r({

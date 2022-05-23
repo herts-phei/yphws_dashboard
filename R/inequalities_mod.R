@@ -129,10 +129,9 @@ inequalities_mod_server <- function(id,
       # Tartan rug -------------------------------------------------------------
       
       output$tartan <- renderPlot({
-        # browser()
-        
+
         if (is.null(input$ineq_questions)) { return(NULL) }
-        
+
         params <- params()
         q_coded <- q_coded()
         diffs <- diffs()
@@ -143,8 +142,16 @@ inequalities_mod_server <- function(id,
                                                             "response" = "response")) %>% 
           filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 
         
-        categories <- as.character(unique(df$breakdown))
-        categories <- categories[which(!grepl("All Responses", categories))]
+        if(comp() == "schyear"){
+          
+          categories <- unique(c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "Not at school/other"))
+          
+        }else{
+          
+          categories <- as.character(unique(df$breakdown))
+          categories <- categories[which(!grepl("All Responses", categories))]
+          
+        }
 
         rug_df <- df %>% 
           #filter(response %in% resp_interest) %>% 
