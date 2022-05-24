@@ -47,9 +47,9 @@ about_mod_server <- function(id) {
                  "The survey has been ongoing for two years with good uptake: 12,923 responses in the first year and 11,681 responses in the second.",
                  " The data in this dashboard is expected to update annually during spring with the latest survey data, collected during November - December",
                  " in the previous year. Please note that additional questions/indicators may be added in response to health concerns during the time of the survey (e.g. COVID-19).",
-                 " For more information about the survey and supporting reports, please visit the <a href='https://www.hertshealthevidence.org/yphws/what-is-the-yphws.aspx'>YPHWS page</a>",
+                 " For more information about the survey and supporting reports, please visit the <a href='https://www.hertshealthevidence.org/yphws/what-is-the-yphws.aspx' target='_blank'>YPHWS page</a>",
                  " on the Herts Health Evidence website. For information on support for young people's health, please visit <a href='https://www.healthforteens.co.uk/hertfordshire'>Health for Teens</a>",
-                 " or <a href='https://www.justtalkherts.org'>Just Talk</a><br><br>If you have queries about the dashboard or the survey data, you can email the Public Health",
+                 " or <a href='https://www.justtalkherts.org' target='_blank'>Just Talk</a><br><br>If you have queries about the dashboard or the survey data, you can email the Public Health",
                  " Evidence & Intelligence Team at <a href=mailto:ph.intelligence@hertfordshire.gov.uk>Ph.intelligence@hertfordshire.gov.uk</a>.")
         )
       })
