@@ -51,6 +51,7 @@ ui <- tablerDashPage(
     id = "nav",
     src = "img/yphws_logo_horizontal.png",
     tablerNavMenu(id = "tabs",
+                  tags$head(includeScript("navAppend.js")),
                   tags$head(includeHTML("google-analytics.html")),
                   pickerInput("comp", label = "Select what to group by:", width = "180px", 
                               choices = list("Sex" = "sex", 
@@ -83,10 +84,10 @@ ui <- tablerDashPage(
                   tablerNavMenuItem(
                     "About",
                     tabName = "About"
-                  ), 
-                  tablerNavMenuItem(
-                    uiOutput("feedback_link")
-                  )
+                  )#, 
+                  #tablerNavMenuItem(
+                  #  uiOutput("feedback_link")
+                  #)
     )
   ),
   body = tablerDashBody(
@@ -389,7 +390,7 @@ server <- function(input, output) {
   # Send Feedback -----------------------------------------------------------
 
   output$feedback_link <- renderUI({
-    tagList(a("Feedback", href="https://surveys.hertfordshire.gov.uk/s/YPHWS_Evaluation/"))
+    tagList(a("Feedback", href="https://surveys.hertfordshire.gov.uk/s/YPHWS_Evaluation/", target="_blank"))
   })
   
 }
