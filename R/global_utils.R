@@ -51,14 +51,14 @@ get_data <- function() {
     output <- list()
 
     # questions lookup
-    output$q_coded <- read_csv("data-raw/q_coded.csv") %>%
+    output$q_coded <- read.csv("data-raw/q_coded.csv") %>%
       purrr::map_dfr(~ as.character(.)) %>%
-      dplyr::mutate(across(where(is.character), ~na_if(., "NA")))
+      dplyr::mutate(dplyr::across(where(is.character), ~na_if(., "NA")))
     
     # group lookup
-    output$grp_lookup <- read_csv("data-raw/grp_lookup.csv") %>%
+    output$grp_lookup <- read.csv("data-raw/grp_lookup.csv") %>%
       purrr::map_dfr(~ as.character(.)) %>%
-      dplyr::mutate(across(where(is.character), ~na_if(., "NA")))
+      dplyr::mutate(dplyr::across(where(is.character), ~na_if(., "NA")))
 
     # survey data
     output$data <- readRDS("data-raw/stats.rds") 

@@ -3,7 +3,7 @@
 explore_mod <- function(id,
                         name = "ExploreData") {
   
-  ns <- NS(id)
+  ns <- shiny::NS(id)
   
   domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
                "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
@@ -12,34 +12,34 @@ explore_mod <- function(id,
   
   names(domains) <- domains
   
-  tablerTabItem(
+  tablerDash::tablerTabItem(
     tabName = "ExploreData",
-    fluidRow(
-      column(2, tags$style(HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
-             tagList(
-               fluidRow(
-                 tablerCard(width = 2,
-                            htmlOutput(ns("explore_links")))
-               ))
+    shiny::fluidRow(
+      shiny::column(2, tags$style(shiny::HTML(".col-sm-2{position:fixed; z-index:1; height: 75%; overflow-y:auto;}")),
+                    shiny::tagList(
+                      shiny::fluidRow(
+                        tablerDash::tablerCard(width = 2,
+                                               shiny::htmlOutput(ns("explore_links")))
+                      ))
       ),
-      column(offset = 3, 10, 
-             # shinyWidgets::prettyRadioButtons(
-             #   inputId = ns("explore_year"),
-             #   label = "Survey year:", 
-             #   choices = c("2021"),
-             #   inline = TRUE, 
-             #   status = "danger",
-             #   fill = TRUE
-             # ),
-             shinyWidgets::prettyRadioButtons(
-               inputId = ns("domains"),
-               label = "Choose a topic:", 
-               choices = domains,
-               inline = TRUE, 
-               status = "danger",
-               fill = TRUE
-             ),
-             uiOutput(ns("explore_boxes")))
+      shiny::column(offset = 3, 10, 
+                    # shinyWidgets::prettyRadioButtons(
+                    #   inputId = ns("explore_year"),
+                    #   label = "Survey year:", 
+                    #   choices = c("2021"),
+                    #   inline = TRUE, 
+                    #   status = "danger",
+                    #   fill = TRUE
+                    # ),
+                    shinyWidgets::prettyRadioButtons(
+                      inputId = ns("domains"),
+                      label = "Choose a topic:", 
+                      choices = domains,
+                      inline = TRUE, 
+                      status = "danger",
+                      fill = TRUE
+                    ),
+                    shiny::uiOutput(ns("explore_boxes")))
     )
   )
   
@@ -60,69 +60,69 @@ explore_mod_server <- function(id,
                                q_coded,
                                grp_lookup) {
   
-  moduleServer(
+  shiny::moduleServer(
     id,
     function(input, output, session) {
       
-      ns <- NS(id)
+      ns <- shiny::NS(id)
       
       # Reactive UIs ------------------------------------------------------------
-
+      
       # observe({
       #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
       # })
       
       # Data --------------------------------------------------------------------
       
-      chk_var <- reactive({
+      chk_var <- shiny::reactive({
         
         q_coded <- q_coded()
         # vector of selected vars
         single <- q_coded %>% 
-          arrange(question_raw) %>% 
-          filter(question_theme %in% input$domains)
+          dplyr::arrange(question_raw) %>% 
+          dplyr::filter(question_theme %in% input$domains)
         
         chk_var <- q_coded %>%
-          filter(question_coded %in% single$question_coded,
-                 !is.na(response)) %>%
-          pull(question_coded_gen)
+          dplyr::filter(question_coded %in% single$question_coded,
+                        !is.na(response)) %>%
+          dplyr::pull(question_coded_gen)
         
         return(unique(chk_var))
         
       })
       
       # filtered datasets
-      chk_stats <- reactive({
+      chk_stats <- shiny::reactive({
         stats <- stats()
         stats %>% 
-          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
-                                                              "response" = "response")) %>% 
-          filter(question_coded_gen %in% chk_var(),
-                 year == params()$year)
+          dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                                            "response" = "response")) %>% 
+          dplyr::filter(question_coded_gen %in% chk_var(),
+                        year == params()$year)
         
       })
       
-      chk_stats_old <- reactive({
+      chk_stats_old <- shiny::reactive({
         stats_old <- stats_old()
         stats_old %>%
-          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
-                                                                  "response" = "response")) %>%
-          filter(question_coded_gen %in% chk_var(),
-                 year == as.character(as.numeric(params()$year) - 1))
+          dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                                            "response" = "response")) %>%
+          dplyr::filter(question_coded_gen %in% chk_var(),
+                        year == as.character(as.numeric(params()$year) - 1))
       })
       
-      chk_diff <- reactive({
+      chk_diff <- shiny::reactive({
         diffs <- diffs()
         diffs %>% 
-          left_join(select(q_coded(), -question_text), by = c("question" = "question_coded",
-                                                                   "response" = "response")) %>% 
-          filter(question_coded_gen %in% chk_var(),
-                 year == params()$year)
+          dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
+                                                                            "response" = "response")) %>% 
+          dplyr::filter(question_coded_gen %in% chk_var(),
+                        year == params()$year)
       })
       
-
+      
       # Boxes -------------------------------------------------------------------
-      boxes <- reactive({
+      boxes <- shiny::reactive({
         
         params <- params()
         stats <- stats()
@@ -136,11 +136,11 @@ explore_mod_server <- function(id,
         for (i in 1:length(chk_var())){
           
           # Current question
-          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
-            mutate(year = as.character(as.numeric(params()$year)))
+          current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
+            dplyr::mutate(year = as.character(as.numeric(params()$year)))
           
-          current_old <- filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
-            mutate(year = as.character(as.numeric(params()$year) - 1))
+          current_old <- dplyr::filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
+            dplyr::mutate(year = as.character(as.numeric(params()$year) - 1))
           
           multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
@@ -185,19 +185,19 @@ explore_mod_server <- function(id,
             if (nrow(current_old) > 0) {
               
               current_old_trend <- current_old %>% 
-                mutate(year = as.character(as.numeric(params$year) - 1),
-                       `2020` = value) %>% 
-                filter(response_of_interest == "TRUE")
+                dplyr::mutate(year = as.character(as.numeric(params$year) - 1),
+                              `2020` = value) %>% 
+                dplyr::filter(response_of_interest == "TRUE")
               
               names(current_old_trend) <- paste0("prev_", names(current_old_trend))
               
               stats_ <- current %>% 
-                filter(response_of_interest == "TRUE")
+                dplyr::filter(response_of_interest == "TRUE")
               
               trend_plot <- create_trend_table(stats = stats_,
                                                stats_old = current_old_trend,
                                                params = params)
-
+              
               
             } else {
               
@@ -274,7 +274,7 @@ explore_mod_server <- function(id,
             # trend table
             if (nrow(current_old) > 0) {
               
-              current_old_trend <- mutate(current_old, `2020` = value) 
+              current_old_trend <- dplyr::mutate(current_old, `2020` = value) 
               names(current_old_trend) <- paste0("prev_", names(current_old_trend))
               
               trend_plot <- create_trend_table(stats = current,
@@ -289,43 +289,43 @@ explore_mod_server <- function(id,
           }
           
           # --Create boxes --
-          l[[i]] <- tabItem("name", 
-                            bs4TabCard(width = 12, side = "right", status = "success",
-                                       collapsible = FALSE, 
-                                       title = HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", current$heading[1],"<br>")),
-                                       tabPanel("Summary", 
-                                                HTML(
-                                                  text
-                                                ),
-                                                br(),
-                                                int_plot
-                                       ),
-                                       tabPanel(
-                                         "Trend",
-                                         br(),
-                                         trend_plot
-                                       ),
-                                       tabPanel(
-                                         "Table", 
-                                         chk_stats() %>% 
-                                           mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
-                                                  lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
-                                                  uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
-                                           ) %>% 
-                                           filter(question_coded_gen %in% chk_var()[i]) %>% 
-                                           select(breakdown, question = question_text, response, value, count, denominator,
-                                                  lowercl, uppercl) %>% 
-                                           reactable(groupBy = c("breakdown", "question"),
-                                                     columns = list(
-                                                       value = colDef(maxWidth = 70),
-                                                       count = colDef(maxWidth = 65),
-                                                       denominator = colDef(maxWidth = 70),
-                                                       lowercl = colDef(maxWidth = 70),
-                                                       uppercl = colDef(maxWidth = 70)
-                                                     ))
-                                       )) )
+          l[[i]] <- bs4Dash::tabItem("name", 
+                                     bs4Dash::bs4TabCard(width = 12, side = "right", status = "success",
+                                                         collapsible = FALSE, 
+                                                         title = shiny::HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", current$heading[1],"<br>")),
+                                                         shiny::tabPanel("Summary", 
+                                                                         shiny::HTML(
+                                                                           text
+                                                                         ),
+                                                                         shiny::br(),
+                                                                         int_plot
+                                                         ),
+                                                         shiny::tabPanel(
+                                                           "Trend",
+                                                           shiny::br(),
+                                                           trend_plot
+                                                         ),
+                                                         shiny::tabPanel(
+                                                           "Table", 
+                                                           chk_stats() %>% 
+                                                             dplyr::mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
+                                                                           lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
+                                                                           uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
+                                                             ) %>% 
+                                                             dplyr::filter(question_coded_gen %in% chk_var()[i]) %>% 
+                                                             dplyr::select(breakdown, question = question_text, response, value, count, denominator,
+                                                                           lowercl, uppercl) %>% 
+                                                             reactable::reactable(groupBy = c("breakdown", "question"),
+                                                                                  columns = list(
+                                                                                    value = reactable::colDef(maxWidth = 70),
+                                                                                    count = reactable::colDef(maxWidth = 65),
+                                                                                    denominator = reactable::colDef(maxWidth = 70),
+                                                                                    lowercl = reactable::colDef(maxWidth = 70),
+                                                                                    uppercl = reactable::colDef(maxWidth = 70)
+                                                                                  ))
+                                                         )) )
         }
-
+        
         return(l)
         
         
@@ -333,33 +333,33 @@ explore_mod_server <- function(id,
       
       
       # TOC Links ---------------------------------------------------------------
-      links <- reactive({
-
+      links <- shiny::reactive({
+        
         stats <- stats()
         diffs <- diffs()
         comp <- comp()
         q_coded <- q_coded()
-
+        
         l <- list()
         for (i in 1:length(chk_var())){
-
+          
           # Current question
-          current <- filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+          current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i])
           
           text <- q_coded$heading[q_coded$question_coded_gen %in% current$question_coded_gen][1] # for TOC
-
+          
           l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[1], "'>", text, "</a><br><br>")
-
+          
         }
-
+        
         output <- paste(unlist(l), collapse = "")
-
+        
         return(output)
-
+        
       })
-
-      output$explore_boxes <- renderUI(boxes())
-      output$explore_links <- renderText(links())
+      
+      output$explore_boxes <- shiny::renderUI(boxes())
+      output$explore_links <- shiny::renderText(links())
       
     }
   )

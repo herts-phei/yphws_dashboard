@@ -36,9 +36,9 @@ tartan <- function(df,
   # duplicate a dummy "Area" that has period values so it can be a column in the tartan rug 
   value_vector <- df[[period_col]][df[[indicator_col]] %in% indicators & df[[area_col]] == comparator_area]
   date_rows <- df %>% 
-    dplyr::filter(!!ensym(area_col) == comparator_area,
-                  !!ensym(indicator_col) %in% indicators) %>% 
-    mutate(diff = NA)
+    dplyr::filter(!!dplyr::ensym(area_col) == comparator_area,
+                  !!dplyr::ensym(indicator_col) %in% indicators) %>% 
+    dplyr::mutate(diff = NA)
   
   # the following doesn't work unless indexed for some reason
   date_rows[[area_col]] <- "Period"
@@ -54,15 +54,15 @@ tartan <- function(df,
   new_comparator_area <- stringr::str_wrap(comparator_area, 25)
   
   p_data <- df %>% 
-    dplyr::filter(!!ensym(indicator_col) %in% indicators,
+    dplyr::filter(!!dplyr::ensym(indicator_col) %in% indicators,
                   # TODO exclusive to dashboard!
                   breakdown.y == comparator_area) %>% 
-    dplyr::group_by(!!ensym(indicator_col)) %>%
-    dplyr::filter(!!ensym(period_sort_col) == max(!!ensym(period_sort_col))) %>%
+    dplyr::group_by(!!dplyr::ensym(indicator_col)) %>%
+    dplyr::filter(!!dplyr::ensym(period_sort_col) == max(!!dplyr::ensym(period_sort_col))) %>%
     dplyr::ungroup() %>%
     dplyr::bind_rows(date_rows) %>%
-    dplyr::filter(!!ensym(area_col) %in% c("Period", comparator_area, new_comparator_area, areas)) %>% 
-    dplyr::select(!!ensym(area_col), !!ensym(indicator_col), !!ensym(period_col), !!ensym(value_col), !!ensym(upper_ci), !!ensym(lower_ci), diff) %>% 
+    dplyr::filter(!!dplyr::ensym(area_col) %in% c("Period", comparator_area, new_comparator_area, areas)) %>% 
+    dplyr::select(!!dplyr::ensym(area_col), !!dplyr::ensym(indicator_col), !!dplyr::ensym(period_col), !!dplyr::ensym(value_col), !!dplyr::ensym(upper_ci), !!dplyr::ensym(lower_ci), diff) %>% 
     dplyr::mutate(colour = dplyr::case_when(diff == "significantly higher than" ~ higher, 
                                             diff == "significantly lower than" ~ lower, 
                                             TRUE ~ col_y),
@@ -70,9 +70,8 @@ tartan <- function(df,
                                             is.na(!!ensym(value_col)) ~ "#f5f5f5",
                                             is.na(diff) ~ "#f5f5f5",
                                             TRUE ~ colour), 
-                  diff = dplyr::case_when(!!ensym(area_col) %in% c(comparator_area, new_comparator_area) ~ "comparator", 
-                                          TRUE ~ diff),
-                  text_colour = dplyr::case_when(colour %in% c(col_r, col_db) ~ "white", TRUE ~ "black")) %>% 
+                  diff = ifelse(!!dplyr::ensym(area_col) %in% c(comparator_area, new_comparator_area), "comparator", diff),
+                  text_colour = ifelse(colour %in% c(col_r, col_db), "white", "black")) %>% 
     dplyr::distinct()
   
   # use str_wrap in advance
@@ -84,10 +83,10 @@ tartan <- function(df,
   p_data[[indicator_col]] <- ordered(p_data[[indicator_col]], levels = new_ind_levels)
   
   p_data %>% 
-    ggplot2::ggplot(aes(!!ensym(area_col), 
-                        !!ensym(indicator_col), fill = colour)) +
+    ggplot2::ggplot(aes(!!dplyr::ensym(area_col), 
+                        !!dplyr::ensym(indicator_col), fill = colour)) +
     ggplot2::geom_tile(show.legend = T, colour = "white", size = 0.8) +
-    ggplot2::geom_text(aes(label = !!ensym(value_col), colour = text_colour), 
+    ggplot2::geom_text(ggplot2::aes(label = !!dplyr::ensym(value_col), colour = text_colour), 
                        show.legend = FALSE, size = 3.5) +
     ggplot2::scale_x_discrete(position = "top") +
     ggplot2::scale_fill_manual(values = c("#e3e3e3" = "#e3e3e3", "#ffc000" ="#ffc000", 
@@ -97,15 +96,15 @@ tartan <- function(df,
                                breaks = c(lower, higher, "#ffc000"),
                                labels = labels) + 
     ggplot2::scale_colour_manual(values = c("white" = "white", "black" = "black"), guide = FALSE) +
-    ggplot2::theme(axis.text.x = element_text(angle = 90, hjust = 0, face = "bold"),
-                   axis.text.y = element_text(face = "bold"),
-                   axis.ticks = element_blank(),
-                   panel.grid.major = element_blank(), 
-                   panel.grid.minor = element_blank(),
-                   axis.title.x = element_blank(),
-                   axis.title.y = element_blank(),
-                   legend.title = element_blank(),
-                   panel.background = element_rect(fill = "#f8f8f8"),
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 0, face = "bold"),
+                   axis.text.y = ggplot2::element_text(face = "bold"),
+                   axis.ticks = ggplot2::element_blank(),
+                   panel.grid.major = ggplot2::element_blank(), 
+                   panel.grid.minor = ggplot2::element_blank(),
+                   axis.title.x = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank(),
+                   legend.title = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_rect(fill = "#f8f8f8"),
                    legend.position = "bottom") 
   
 }

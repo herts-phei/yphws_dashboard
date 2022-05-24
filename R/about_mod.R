@@ -3,20 +3,20 @@
 about_mod <- function(id,
                       name = "About") {
   
-  ns <- NS(id)
+  ns <- shiny::NS(id)
   
-  tablerTabItem(
+  tablerDash::tablerTabItem(
     tabName = name,
-    fluidRow(
-      column(12, 
-             tablerCard(width = 12, title = "About the survey",
-                        htmlOutput(ns("info"))),
-             tablerCard(width = 12, title = "Using the dashboard", 
-                        htmlOutput(ns("using"))),
-             tablerCard(width = 12, title = "Survey question",
-                        "To download the full set of questions asked this year, please click the button below.",
-                        br(),
-                        downloadButton(ns("download_q"), label = "Download file"))
+    shiny::fluidRow(
+      shiny::column(12, 
+                    tablerDash::tablerCard(width = 12, title = "About the survey",
+                                           shiny::htmlOutput(ns("info"))),
+                    tablerDash::tablerCard(width = 12, title = "Using the dashboard", 
+                                           shiny::htmlOutput(ns("using"))),
+                    tablerDash::tablerCard(width = 12, title = "Survey question",
+                                           "To download the full set of questions asked this year, please click the button below.",
+                                           shiny::br(),
+                                           shiny::downloadButton(ns("download_q"), label = "Download file"))
       )
     )
   )
@@ -28,15 +28,15 @@ about_mod <- function(id,
 
 about_mod_server <- function(id) {
   
-  moduleServer(
+  shiny::moduleServer(
     id,
     function(input, output, session) {
       
-      ns <- NS(id)
-
-      output$info <- renderText({
+      ns <- shiny::NS(id)
+      
+      output$info <- shiny::renderText({
         
-        HTML(
+        shiny::HTML(
           paste0("This dashboard shows data from the annual Young People’s Health & Wellbeing Survey (YPHWS) at Hertfordshire level.",
                  " The Young People’s Health & Wellbeing Survey (YPHWS) is an anonymous online survey which gathers self-reported",
                  " information annually from those aged 11-19 in Hertfordshire. The survey includes questions about home life, wellbeing,",
@@ -54,9 +54,9 @@ about_mod_server <- function(id) {
         )
       })
       
-      output$using <- renderText({
+      output$using <- shiny::renderText({
         
-        HTML(
+        shiny::HTML(
           paste0(
             "To get the most out of the dashboard, we recommend starting by selecting how you want the data to be broken down by using the selection in the navigation bar.",
             " This will affect your data views in all tabs. If you select Sex, for example, most graphs and tables will be broken down by All, Female, Male, and Other. Selecting",
@@ -72,7 +72,7 @@ about_mod_server <- function(id) {
         
       })
       
-      output$download_q <- downloadHandler(
+      output$download_q <- shiny::downloadHandler(
         filename <- function() {
           paste("output.docx", sep=".")
         },

@@ -3,9 +3,9 @@
 infobox_mod <- function(id, 
                         name = "infobox") {
   
-  ns <- NS(id)
+  ns <- shiny::NS(id)
   
-  uiOutput(ns("infobox"))
+  shiny::uiOutput(ns("infobox"))
   
 }
 
@@ -15,15 +15,15 @@ infobox_mod_server <- function(id,
                                value,
                                title) {
   
-  moduleServer(
+  shiny::moduleServer(
     id, 
     function(input, output, session) {
       
-      ns <- NS(id)
+      ns <- shiny::NS(id)
       
-      output$infobox <- renderUI({
+      output$infobox <- shiny::renderUI({
         
-        tablerStatCard(
+        tablerDash::tablerStatCard(
           value = value,
           title = title,
           width = 12

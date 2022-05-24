@@ -3,30 +3,30 @@
 inequalities_mod <- function(id,
                              name = "Inequalities") {
   
-  ns <- NS(id)
+  ns <- shiny::NS(id)
   
-  tablerTabItem(
+  tablerDash::tablerTabItem(
     tabName = name,
-    tagList(
-      fluidRow(
-        tablerCard(title = "Introduction",
-                   closable = FALSE,
-                   width = 12, 
-                   htmlOutput(ns("ineq_text"))
+    shiny::tagList(
+      shiny::fluidRow(
+        tablerDash::tablerCard(title = "Introduction",
+                               closable = FALSE,
+                               width = 12, 
+                               shiny::htmlOutput(ns("ineq_text"))
         )
       ),
-      fluidRow(
-        tablerCard(title = "Filters",
-                   closable = FALSE,
-                   width = 4, 
-                   uiOutput(ns("ineq_domains")),
-                   # actionLink(ns("selectall"), "Select All"),
-                   # actionLink(ns("deselectall"), "Deselect All"),
-                   #br(),
-                   uiOutput(ns("ineq_questions"))),
-        column(
-                   width = 8,
-                   plotOutput(ns("tartan")))
+      shiny::fluidRow(
+        tablerDash::tablerCard(title = "Filters",
+                               closable = FALSE,
+                               width = 4, 
+                               shiny::uiOutput(ns("ineq_domains")),
+                               # actionLink(ns("selectall"), "Select All"),
+                               # actionLink(ns("deselectall"), "Deselect All"),
+                               #br(),
+                               shiny::uiOutput(ns("ineq_questions"))),
+        shiny::column(
+          width = 8,
+          shiny::plotOutput(ns("tartan")))
       )
     )
     
@@ -44,44 +44,44 @@ inequalities_mod_server <- function(id,
                                     stats,
                                     diffs) {
   
-  moduleServer(
+  shiny::moduleServer(
     id, 
     function(input, output, session) {
-     
-      ns <- NS(id)
-
-       #observe({if("Safety" %in% input$ineq_domains) {browser()}})
+      
+      ns <- shiny::NS(id)
+      
+      #observe({if("Safety" %in% input$ineq_domains) {browser()}})
       
       # UIs ---------------------------------------------------------------------
-
-      output$ineq_domains <- renderUI({
+      
+      output$ineq_domains <- shiny::renderUI({
         
         params <- params()
-    
+        
         shinyWidgets::prettyCheckboxGroup(
-            inputId = ns("ineq_domains"),
-            label = "Choose the health topic(s):", 
-            choices = params$domains, 
-            bigger = TRUE,
-            status = "info",
-            animation = "jelly",
-            selected = params$domains[1]
-          )
+          inputId = ns("ineq_domains"),
+          label = "Choose the health topic(s):", 
+          choices = params$domains, 
+          bigger = TRUE,
+          status = "info",
+          animation = "jelly",
+          selected = params$domains[1]
+        )
         
       })
-
-      questions <- reactive({
+      
+      questions <- shiny::reactive({
         
         q_coded() %>%
-        mutate(survey_text = as.character(survey_text)) %>%
-        filter(question_theme %in% input$ineq_domains, 
-               response_of_interest == "TRUE",
-               question_coded != comp())
+          dplyr::mutate(survey_text = as.character(survey_text)) %>%
+          dplyr::filter(question_theme %in% input$ineq_domains, 
+                        response_of_interest == "TRUE",
+                        question_coded != comp())
         
       })
       
       output$ineq_questions <- renderUI({
-
+        
         # shinyWidgets::prettyCheckboxGroup(
         #   inputId = ns("ineq_questions"),
         #   label = "Choose the indicators:", 
@@ -92,7 +92,7 @@ inequalities_mod_server <- function(id,
         #   selected = as.character(unique(questions()$question_response))
         # )
         
-        pickerInput(
+        shinyWidgets::pickerInput(
           inputId = ns("ineq_questions"),
           label = "Choose the indicators:",
           choices = as.character(unique(questions()$question_response)), 
@@ -100,7 +100,7 @@ inequalities_mod_server <- function(id,
           options = list(`actions-box` = TRUE),   
           multiple = T
         )
-
+        
       })
       
       
@@ -124,23 +124,23 @@ inequalities_mod_server <- function(id,
       #   
       # })
       
-      for_height <- reactive(input$ineq_questions)
+      for_height <- shiny::reactive(input$ineq_questions)
       
       # Tartan rug -------------------------------------------------------------
       
-      output$tartan <- renderPlot({
-
+      output$tartan <- shiny::renderPlot({
+        
         if (is.null(input$ineq_questions)) { return(NULL) }
-
+        
         params <- params()
         q_coded <- q_coded()
         diffs <- diffs()
         
         df <- diffs %>% 
-          filter(year == params$year) %>% 
-          left_join(select(q_coded, -question_text), by = c("question" = "question_coded", 
-                                                            "response" = "response")) %>% 
-          filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 
+          dplyr::filter(year == params$year) %>% 
+          dplyr::left_join(dplyr::select(q_coded, -question_text), by = c("question" = "question_coded", 
+                                                                          "response" = "response")) %>% 
+          dplyr::filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 
         
         if(comp() == "schyear"){
           
@@ -152,13 +152,13 @@ inequalities_mod_server <- function(id,
           categories <- categories[which(!grepl("All Responses", categories))]
           
         }
-
+        
         rug_df <- df %>% 
           #filter(response %in% resp_interest) %>% 
-          mutate(Timeperiod = as.character(params$year),
-                 TimeperiodSortable = as.character(params$year),
-                 value = as.numeric(gsub("%", "", as.character(value))),
-                 diff = ifelse(is.na(diff), "statistically similar", diff)) 
+          dplyr::mutate(Timeperiod = as.character(params$year),
+                        TimeperiodSortable = as.character(params$year),
+                        value = as.numeric(gsub("%", "", as.character(value))),
+                        diff = ifelse(is.na(diff), "statistically similar", diff)) 
         
         tartan(df = rug_df,
                indicators = unique(rug_df$question_response),
@@ -178,7 +178,7 @@ inequalities_mod_server <- function(id,
       
       # Intro text --------------------------------------------------------------------
       
-      output$ineq_text <- renderText({
+      output$ineq_text <- shiny::renderText({
         paste0("This tab can be used to view significant differences between groups across different questions/indicators. ",
                "A tartan rug plot will be created based of the selected health topic/s. You can select which indicators (questions) ",
                "under the selected health topic/s you'd like to be added to the tartan rug. Please allow a few seconds after selection ", 
@@ -190,5 +190,5 @@ inequalities_mod_server <- function(id,
       })
       
     }
-)
+  )
 }

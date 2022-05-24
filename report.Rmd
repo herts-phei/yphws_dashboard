@@ -20,25 +20,8 @@ params:
 ``` {r setup, include=F}
 # Setup -------------------------------------------------------------------
 
-library(pacman)
-library(devtools)
-library(knitr)
-
 knitr::opts_chunk$set(results = 'asis', comment = NA, prompt = F, cache = F, echo = F,
                out.extra = 'class="plot"', warning = F, message = F)
-
-p_load(
-  pins, tidyverse, knitr, ggplot2, rmarkdown, htmlwidgets, webshot, PHEindicatormethods,
-  plotly, crosstalk, reactable, rmdformats, tinytex, remotes, viridis, formattable, urbnthemes,
-  echarts4r, glue
-)
-
-# board_register("rsconnect",
-#                server = "srv-gcp-ms-connect:3939",
-#                key = Sys.getenv("CONNECT_API_KEY"))
-
-board <- board_rsconnect(server = "https://hertscc.managed.mango-solutions.com/connect",
-                         key = Sys.getenv("CONNECT_API_KEY"))
 
 if (params$rendered_by_shiny)
   shiny::setProgress(0.1)  # set progress to 10%
