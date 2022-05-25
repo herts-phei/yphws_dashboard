@@ -206,14 +206,10 @@ server <- function(input, output) {
   
   output$exp_report_cat <- shiny::renderUI({
     
-    # choices <- rv$data$data[[input$exp_report_comp]] %>%
-    #   select(input$exp_report_comp) %>%
-    #   distinct() %>%
-    #   pull(input$exp_report_comp)
     
     choices <- unique(rv$data$data[[input$exp_report_comp]]$breakdown) 
     
-    choices <- choices[choices != "All Responses"]
+    choices <- choices[choices != "All Responses" & choices != "Non-white"]
     
     
     shinyWidgets::pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
