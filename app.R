@@ -19,6 +19,7 @@ library(sparkline)
 library(tablerDash)
 library(tinytex)
 library(viridis)
+library(formattable)
 
 year <- "2021"
 
