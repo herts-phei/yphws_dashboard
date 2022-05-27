@@ -26,6 +26,7 @@ knitr::opts_chunk$set(results = 'asis', comment = NA, prompt = F, cache = F, ech
 if (params$rendered_by_shiny)
   shiny::setProgress(0.1)  # set progress to 10%
 
+# board <- pins::board_rsconnect(server = "https://hertscc.managed.mango-solutions.com/connect",                         key = Sys.getenv("CONNECT_API_KEY"))
 # Parameters --------------------------------------------------------------
 
 year <- 2021 # year of survey
@@ -47,17 +48,17 @@ q_coded <- pins::pin_read(board, "hau/YPHWS_question_lookup_2021") %>%
 # survey data
 data <- pins::pin_read(board, data_pin) %>%
   mutate(
-    imd_quintile = case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
-    imd_quintile = case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),
-    imd_quintile = case_when(imd_quintile %in% "3" ~ "Quintile 3", TRUE ~ imd_quintile),
-    imd_quintile = case_when(imd_quintile %in% "4" ~ "Quintile 4", TRUE ~ imd_quintile),
-    imd_quintile = case_when(imd_quintile %in% "5" ~ "Quintile 5 - Least Deprived", TRUE ~ imd_quintile)
+    imd_quintile = dplyr::case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
+    imd_quintile = dplyr::case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),
+    imd_quintile = dplyr::case_when(imd_quintile %in% "3" ~ "Quintile 3", TRUE ~ imd_quintile),
+    imd_quintile = dplyr::case_when(imd_quintile %in% "4" ~ "Quintile 4", TRUE ~ imd_quintile),
+    imd_quintile = dplyr::case_when(imd_quintile %in% "5" ~ "Quintile 5 - Least Deprived", TRUE ~ imd_quintile)
   ) %>%
   select(-lsoa_code)
 
 if(group == "caring"){
 data <- data %>%
-  mutate(caring = case_when(caring == "Yes" ~ "Young carer",
+  dplyr::mutate(caring = dplyr::case_when(caring == "Yes" ~ "Young carer",
                             caring == "No" ~ "Non-carer",
                             caring == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ NA_character_))
@@ -66,7 +67,7 @@ data <- data %>%
 
 if(group == "bullied"){
   data <- data %>%
-  mutate(bullied = case_when(bullied == "Yes" ~ "Bullied",
+  dplyr::mutate(bullied = dplyr::case_when(bullied == "Yes" ~ "Bullied",
                             bullied == "No" ~ "Not bullied",
                             bullied == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ NA_character_))
@@ -75,7 +76,7 @@ if(group == "bullied"){
 
 if(group == "selfharm_ever"){
   data <- data %>%
-  mutate(selfharm_ever = case_when(selfharm_ever == "Yes" ~ "Self-harmed",
+  dplyr::mutate(selfharm_ever = dplyr::case_when(selfharm_ever == "Yes" ~ "Self-harmed",
                             selfharm_ever == "No" ~ "Not self-harmed",
                             selfharm_ever == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ NA_character_))
@@ -84,26 +85,26 @@ if(group == "selfharm_ever"){
 
 # get list of schools with more than 50 responses
 school_vec <- data %>%
-  group_by(school) %>%
+  dplyr::group_by(school) %>%
   dplyr::summarise(count = n()) %>%
-  arrange(desc(count)) %>%
-  filter(count >= 60) %>%
-  pull(school)
+  dplyr::arrange(desc(count)) %>%
+  dplyr::filter(count >= 60) %>%
+  dplyr::pull(school)
 
 # districts with enough responses for comparisons
 responses_per_district <- data %>%
-  select(school, District) %>%
-  filter(school %in% school_vec) %>%
-  group_by(District) %>%
+  dplyr::select(school, District) %>%
+  dplyr::filter(school %in% school_vec) %>%
+  dplyr::group_by(District) %>%
   dplyr::mutate(school_count = n()) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   dplyr::summarise(District, school_count, schools_per_district = n()) %>%
-  distinct() %>%
-  mutate(comparison = case_when(
+  dplyr::distinct() %>%
+  dplyr::mutate(comparison = case_when(
     school_count >= 250 & schools_per_district > 1 ~ TRUE,
     TRUE ~ FALSE
   )) %>%
-  filter(comparison == T)
+  dplyr::filter(comparison == T)
 ```
 
 
@@ -187,13 +188,13 @@ get_stats <- function(data,
   
   # recode scale to categories
   data <- data %>%
-    dplyr::mutate(life_satisfied = recode(life_satisfied, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  life_worthwhile = recode(life_worthwhile, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  life_happyyesterday = recode(life_happyyesterday, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  life_satisfied_before_covid = recode(life_satisfied_before_covid, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
-                  alcohol_perday = recode(alcohol_perday, "0"="none","1"="1-2","2"="1-2","3"="3-4","4"="3-4","5"="5-6","6"="5-6","7"="7-9","8"="7-9","9"="7-9","10"="10+"),
-                  pa_60 = recode(pa_60, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"),
-                  pa_30 = recode(pa_30, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"))
+    dplyr::mutate(life_satisfied = dplyr::recode(life_satisfied, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  life_worthwhile = dplyr::recode(life_worthwhile, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  life_happyyesterday = dplyr::recode(life_happyyesterday, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  life_satisfied_before_covid = dplyr::recode(life_satisfied_before_covid, "0"="low","1"="low","2"="low","3"="low","4"="low","5"="medium","6"="medium","7"="high","8"="high","9"="very high","10"="very high"),
+                  alcohol_perday = dplyr::recode(alcohol_perday, "0"="none","1"="1-2","2"="1-2","3"="3-4","4"="3-4","5"="5-6","6"="5-6","7"="7-9","8"="7-9","9"="7-9","10"="10+"),
+                  pa_60 = dplyr::recode(pa_60, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"),
+                  pa_30 = dplyr::recode(pa_30, "0"="none","1"="1-3","2"="1-3","3"="1-3","4"="4-5","5"="4-5","6"="6-7","7"="6-7"))
   
   data_l <- list()
   
@@ -270,7 +271,7 @@ get_stats <- function(data,
         
         # temporarily bind full data for complete
         dplyr::bind_rows(dplyr::select(stats, school, question, response) %>% dplyr::filter(school == "All Schools")) %>% 
-        complete(expand(., school, .data[[group[g]]], 
+        tidyr::complete(expand(., school, .data[[group[g]]], 
                         nesting(question, response))) %>% 
         dplyr::group_by_all() %>%
         dplyr::filter(!is.na(response)) %>%
@@ -395,12 +396,12 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
       if (!is.na(group_of_interest)[1]) {
         
         grp_df <- data %>% 
-          filter(breakdown %in% group_of_interest) %>% 
-          group_by(breakdown) %>% 
-          filter(denominator == max(denominator)) %>% 
-          ungroup() %>% 
-          select(breakdown, denominator) %>% 
-          distinct()
+          dplyr::filter(breakdown %in% group_of_interest) %>% 
+          dplyr::group_by(breakdown) %>% 
+          dplyr::filter(denominator == max(denominator)) %>% 
+          dplyr::ungroup() %>% 
+          dplyr::select(breakdown, denominator) %>% 
+          dplyr::distinct()
         
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
         add <- paste0(" Among them, ", paste0(
@@ -414,20 +415,20 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
         df1 <- dataset[dataset$breakdown %in% group_of_interest & dataset$school == "All Schools", ]
         
         most_common <- df1 %>%
-          group_by(breakdown) %>% 
-          filter(count == max(count), !is.na(question_text)) %>% 
-          summarise(most_common = paste(response, collapse = "' or '"),
+          dplyr::group_by(breakdown) %>% 
+          dplyr::filter(count == max(count), !is.na(question_text)) %>% 
+          dplyr::summarise(most_common = paste(response, collapse = "' or '"),
                     most_v = value) %>% 
-          ungroup() %>% 
-          distinct() 
+          dplyr::ungroup() %>% 
+          dplyr::distinct() 
         
         least_common <- df1 %>% 
-          group_by(breakdown) %>% 
-          filter(count == min(count), !is.na(question_text), ) %>% 
-          summarise(least_common = paste(response, collapse = "' or '"),
+          dplyr::group_by(breakdown) %>% 
+          dplyr::filter(count == min(count), !is.na(question_text), ) %>% 
+          dplyr::summarise(least_common = paste(response, collapse = "' or '"),
                     least_v = value) %>% 
-          ungroup() %>% 
-          distinct() 
+          dplyr::ungroup() %>% 
+          dplyr::distinct() 
         
         sentence <- paste(sentence, "<br><br>", paste0("The most common response for ", group_of_interest, " was '", most_common$most_common, 
                                                        "', which made up ", most_common$most_v, " of responses and the least common response for ", 
@@ -472,12 +473,12 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
       if(!is.na(group_of_interest)) {
         
         grp_df <- data %>% 
-          filter(breakdown %in% group_of_interest) %>% 
-          group_by(breakdown) %>% 
-          filter(denominator == max(denominator)) %>% 
-          ungroup() %>% 
-          select(breakdown, denominator) %>% 
-          distinct()
+          dplyr::filter(breakdown %in% group_of_interest) %>% 
+          dplyr::group_by(breakdown) %>% 
+          dplyr::filter(denominator == max(denominator)) %>% 
+          dplyr::ungroup() %>% 
+          dplyr::select(breakdown, denominator) %>% 
+          dplyr::distinct()
         
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
         sentence <- paste0(sentence, "Among them, ", paste0(
@@ -486,16 +487,16 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
         for(group in 1:length(c("All Responses", group_of_interest))) {
           
           grp_df <- data %>% 
-            filter(breakdown == c("All Responses", group_of_interest)[group]) 
+            dplyr::filter(breakdown == c("All Responses", group_of_interest)[group]) 
           
           group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "students", grp_df$breakdown)
           
           # generate the values used for the sentences. 
           df <- grp_df %>% 
-            filter(question %in% reps, response == value_of_interest) %>% 
-            left_join(q_coded, by = c("question" = "question_coded")) %>% 
-            drop_na(reworded) %>% 
-            arrange(desc(count))
+            dplyr::filter(question %in% reps, response == value_of_interest) %>% 
+            dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
+            tidyr::drop_na(reworded) %>% 
+            dplyr::arrange(desc(count))
           
           if (binary) {
             temp <- paste0("Out of responses from ", group_name, ", ", 
@@ -531,23 +532,23 @@ create_basic_plot <- function(df,
   
   # plot object
   df %>% 
-    filter(breakdown %in% groups) %>% 
-    mutate(value = round(as.numeric(.$value), 3),
+    dplyr::filter(breakdown %in% groups) %>% 
+    dplyr::mutate(value = round(as.numeric(.$value), 3),
            lowercl = round(as.numeric(.$lowercl), 3),
            uppercl = round(as.numeric(.$uppercl), 3),
            response = str_wrap(response, 15),
            breakdown = factor(breakdown, levels = groups)) %>% 
-    filter(question %in% chk_var, 
+    dplyr::filter(question %in% chk_var, 
            !is.na(question_text)) %>% 
-    group_by(breakdown) %>% 
-    e_charts(response) %>% 
-    e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
+    dplyr::group_by(breakdown) %>% 
+    echarts4r::e_charts(response) %>% 
+    echarts4r::e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
       function(params){
       return('value: ' + Math.round(params.value[1] * 100, 3) + '%' +
         '<br/>breakdown: ' + params.seriesName +
         '<br/>group: ' + params.value[params.encode.x[0]]) 
         }"))) %>%
-    e_error_bar(lowercl, uppercl, name = .$breakdown,
+    echarts4r::e_error_bar(lowercl, uppercl, name = .$breakdown,
                 itemStyle = list(opacity = 0.6),
                 tooltip = list(formatter = htmlwidgets::JS("
       function(params){
@@ -556,60 +557,60 @@ create_basic_plot <- function(df,
       '<br/>upper CI: ' + Math.round(params.value[params.encode.y[1]] * 100, 3) +
         '%<br/>lower CI: ' + Math.round(params.value[params.encode.y[0]] * 100, 3) +
         '%') }"))) %>%
-    e_tooltip(trigger = "item") %>% 
-    e_grid(right = 180, left = 50) %>%
-    e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
-    e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
-    e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
-    e_legend(show = TRUE, type = "scroll", orient = "vertical",
+    echarts4r::e_tooltip(trigger = "item") %>% 
+    echarts4r::e_grid(right = 180, left = 50) %>%
+    echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+    echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
+    echarts4r::e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>% 
+    echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
              right = 10, top = 35, bottom = 10,
              itemHeight = 10, itemWidth = 20,
              textStyle = list(fontSize = 12)) %>%
-    e_theme("westeros") %>%
-    e_title(plot_title) %>% 
-    e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
+    echarts4r::e_theme("westeros") %>%
+    echarts4r::e_title(plot_title) %>% 
+    echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
                                                            image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
-    e_toolbox_feature(feature = c("dataZoom", "restore"))
+    echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore"))
   
 }
 
 mean_responses_plot <- function(df = data, vars = chk_var, custom_grp = group){
   
   df_year <- df %>%
-    select(breakdown = schyear, vars) %>%
-    mutate(across(vars, ~as.numeric(ifelse(.x == "Yes", 1, 0)))) %>%
-    mutate(total = rowSums(across(vars), na.rm = T)) %>%
-    group_by(breakdown) %>%
-    phe_mean(total) %>%
-    ungroup()
+    dplyr::select(breakdown = schyear, vars) %>%
+    dplyr::mutate(across(vars, ~as.numeric(ifelse(.x == "Yes", 1, 0)))) %>%
+    dplyr::mutate(total = rowSums(across(vars), na.rm = T)) %>%
+    dplyr::group_by(breakdown) %>%
+    PHEindicatormethods::phe_mean(total) %>%
+    dplyr::ungroup()
   
   df_sex <- df %>%
-    select(breakdown = sex, vars) %>%
-    mutate(across(vars, ~as.numeric(ifelse(.x == "Yes", 1, 0)))) %>%
-    mutate(total = rowSums(across(vars), na.rm = T)) %>%
-    group_by(breakdown) %>%
-    phe_mean(total) %>%
-    ungroup()
+    dplyr::select(breakdown = sex, vars) %>%
+    dplyr::mutate(across(vars, ~as.numeric(ifelse(.x == "Yes", 1, 0)))) %>%
+    dplyr::mutate(total = rowSums(across(vars), na.rm = T)) %>%
+    dplyr::group_by(breakdown) %>%
+    PHEindicatormethods::phe_mean(total) %>%
+    dplyr::ungroup()
   
   df_custom <- df %>%
-    select(breakdown := !!ensym(custom_grp), vars) %>%
-    mutate(across(chk_var, ~as.numeric(ifelse(.x == "Yes", 1, 0)))) %>%
-    mutate(total = rowSums(across(vars), na.rm = T)) %>%
-    group_by(breakdown) %>%
-    phe_mean(total) %>%
-    ungroup() %>%
-    filter(breakdown != "Prefer not to say")
+    dplyr::select(breakdown := !!ensym(custom_grp), vars) %>%
+    dplyr::mutate(across(chk_var, ~as.numeric(ifelse(.x == "Yes", 1, 0)))) %>%
+    dplyr::mutate(total = rowSums(across(vars), na.rm = T)) %>%
+    dplyr::group_by(breakdown) %>%
+    PHEindicatormethods::phe_mean(total) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(breakdown != "Prefer not to say")
   
-  df <- bind_rows(df_year, df_sex, df_custom) %>% filter(!is.na(breakdown))
+  df <- dplyr::bind_rows(df_year, df_sex, df_custom) %>% dplyr::filter(!is.na(breakdown))
   
   df %>%
-    e_charts(breakdown) %>% 
-    e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
+    echarts4r::e_charts(breakdown) %>% 
+    echarts4r::e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
       function(params){
       return('value: ' + Math.round(params.value[1], 2) +
         '<br/>group: ' + params.value[params.encode.x[0]])
         }"))) %>%
-    e_error_bar(lowercl, uppercl, name = .$breakdown,
+    echarts4r::e_error_bar(lowercl, uppercl, name = .$breakdown,
                 itemStyle = list(opacity = 0.4),
                 tooltip = list(formatter = htmlwidgets::JS("
       function(params){
@@ -617,25 +618,25 @@ mean_responses_plot <- function(df = data, vars = chk_var, custom_grp = group){
       '<br/>upper CI: ' + Math.round(params.value[params.encode.y[1]], 2) +
         '<br/>lower CI: ' + Math.round(params.value[params.encode.y[0]], 2)
         )}"))) %>%
-    e_tooltip(trigger = "item") %>% 
-    e_legend(show = F) %>%
-    e_y_axis(name = "Mean", nameLocation = "middle", nameGap = 35) %>% 
-    e_x_axis(axisLabel = list(interval = 0, rotate = 90)) %>%
-    e_title(paste("Mean number of", tolower(plot_title))) %>%
-    e_image_g(right = 80, top = 5, z = -999, style = list(opacity = 0.5, width = 120,
+    echarts4r::e_tooltip(trigger = "item") %>% 
+    echarts4r::e_legend(show = F) %>%
+    echarts4r::e_y_axis(name = "Mean", nameLocation = "middle", nameGap = 35) %>% 
+    echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = 90)) %>%
+    echarts4r::e_title(paste("Mean number of", tolower(plot_title))) %>%
+    echarts4r::e_image_g(right = 80, top = 5, z = -999, style = list(opacity = 0.5, width = 120,
                                                           image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
-    e_toolbox_feature(feature = c("dataZoom", "saveAsImage")) %>%
-    e_grid(bottom = 150)
+    echarts4r::e_toolbox_feature(feature = c("dataZoom", "saveAsImage")) %>%
+    echarts4r::e_grid(bottom = 150)
   
 }
 
 create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_coded = q_coded, by = "percent") {
   
-  df <- chk_stats %>% filter(!is.na(question_text)) %>% 
+  df <- chk_stats %>% dplyr::filter(!is.na(question_text)) %>% 
     droplevels() 
   
   df <- df %>% dplyr::arrange(response) %>% 
-    left_join(q_coded, by = c("question" = "question_coded"))
+    dplyr::left_join(q_coded, by = c("question" = "question_coded"))
   
   df$menu_text <- factor(df$menu_text)
   
@@ -662,14 +663,14 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
   
   if (by == "percent") {
     
-    group_by(df, breakdown, response, menu_text) %>%
-      arrange(response) %>%
-      plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
+    dplyr::group_by(df, breakdown, response, menu_text) %>%
+      dplyr::arrange(response) %>%
+      plotly::plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
               colors = "Blues", legendgroup = ~response, orientation = 'h',
               hovertemplate = ~paste(stringr::str_wrap(paste0(count, " in the ", breakdown, " breakdown replied ", response, "<br>(", value,
                                                               " [CI:", lowercl, " to ", uppercl, "])"), 30), "<extra></extra>"),
               transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
-      layout(barmode = "stack", 
+      plotly::layout(barmode = "stack", 
              title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
              xaxis = list(title = "Percent", tickformat = ".1%"),
              updatemenus = list(type_list),
@@ -685,14 +686,14 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
     
   } else {
     
-    group_by(df, question_text, response, breakdown) %>%
-      filter(response == "Yes") %>% 
-      arrange(response) %>%
-      mutate(question_text = str_wrap(question_text, 25)) %>%
-      plot_ly(x = ~count, y = ~question_text, type = "bar", name = ~response,
+    dplyr::group_by(df, question_text, response, breakdown) %>%
+      dplyr::filter(response == "Yes") %>% 
+      dplyr::arrange(response) %>%
+      dplyr::mutate(question_text = str_wrap(question_text, 25)) %>%
+      plotly::plot_ly(x = ~count, y = ~question_text, type = "bar", name = ~response,
               colors = "Blues", legendgroup = ~response, orientation = 'h',
               transforms = list(list(type = "filter", target = ~breakdown, operator = '=', value = groups[1]))) %>%
-      layout(barmode = "stack", title = list(text = paste("<b>", plot_title, "</b>"), xanchor = "left", y = 0.85, x = 0, font = list(size = 12)),
+      plotly::layout(barmode = "stack", title = list(text = paste("<b>", plot_title, "</b>"), xanchor = "left", y = 0.85, x = 0, font = list(size = 12)),
              xaxis = list(title = "Count of 'Yes'"),
              updatemenus = list(type_list),
              autosize = F, height = 800,
@@ -730,9 +731,9 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
       dplyr::rename(breakdown = breakdown.x, count = count.x, percentage = value.x, 
                     `lower CI` = lowercl.x,
                     `upper CI` = uppercl.x) %>% 
-      left_join(q_coded, by = c("question_text.x" = "question_text")) %>% 
-      select(breakdown, response, count, percentage, `lower CI`, `upper CI`) %>% 
-      mutate(`upper CI` = as.character(`upper CI`),
+      dplyr::left_join(q_coded, by = c("question_text.x" = "question_text")) %>% 
+      dplyr::select(breakdown, response, count, percentage, `lower CI`, `upper CI`) %>% 
+      dplyr::mutate(`upper CI` = as.character(`upper CI`),
              `lower CI` = as.character(`lower CI`))
     
     
@@ -740,7 +741,7 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
     
     groupedby <- c("breakdown", "question")
     data <- stats_diff %>% 
-      mutate(difference = case_when(lowercl.x > uppercl.y ~ "higher",
+      dplyr::mutate(difference = case_when(lowercl.x > uppercl.y ~ "higher",
                                     uppercl.x < lowercl.y ~ "lower",
                                     TRUE ~ "similar")) %>% 
       dplyr::rename(breakdown = breakdown.x, count = count.x, percentage = value.x,
@@ -750,21 +751,21 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
     if(length(unique(data$response)) <= 2) {
       
       data1 <- data %>% 
-        left_join(q_coded, by = c("question" = "question_coded")) %>% 
-        mutate(question = menu_text) %>% 
-        select(1, question, response, count, percentage, `lower CI`, `upper CI`) %>% 
-        distinct() %>% 
-        mutate(`upper CI` = as.character(`upper CI`),
+        dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
+        dplyr::mutate(question = menu_text) %>% 
+        dplyr::select(1, question, response, count, percentage, `lower CI`, `upper CI`) %>% 
+        dplyr::distinct() %>% 
+        dplyr::mutate(`upper CI` = as.character(`upper CI`),
                `lower CI` = as.character(`lower CI`))
       
       
     } else {
       
       data1 <- data %>% 
-        left_join(q_coded, by = c("question" = "question_text")) %>% 
-        select(1, question=question_text.x, response, count, percentage, `lower CI`, `upper CI`) %>% 
-        distinct() %>% 
-        mutate(`upper CI` = as.character(`upper CI`),
+        dplyr::left_join(q_coded, by = c("question" = "question_text")) %>% 
+        dplyr::select(1, question=question_text.x, response, count, percentage, `lower CI`, `upper CI`) %>% 
+        dplyr::distinct() %>% 
+        dplyr::mutate(`upper CI` = as.character(`upper CI`),
                `lower CI` = as.character(`lower CI`))
       
     }
@@ -777,9 +778,9 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
   } else {
     
     data1 %>% 
-      distinct() %>% 
-      arrange(breakdown) %>% 
-      reactable(defaultPageSize = 10, groupBy = groupedby, striped = T,
+      dplyr::distinct() %>% 
+      dplyr::arrange(breakdown) %>% 
+      reactable::reactable(defaultPageSize = 10, groupBy = groupedby, striped = T,
                 columns = list(
                   percentage = colDef(format = colFormat(percent = T, digits = 1))
                 ))
@@ -795,8 +796,8 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
   keep_these <- q_coded$question_coded[!is.na(q_coded$reworded) & q_coded$reworded != "-"]
   
   df <- df %>%
-    filter(question %in% keep_these) %>%
-    left_join(select(q_coded, question_coded, question_theme), by = c("question" = "question_coded")) %>%
+    dplyr::filter(question %in% keep_these) %>%
+    dplyr::left_join(select(q_coded, question_coded, question_theme), by = c("question" = "question_coded")) %>%
     dplyr::rename(Theme = question_theme)
   
   df <- df[!is.na(df$diff), ]
@@ -844,10 +845,10 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
                  Question = question_text.x)
     
     prevent_dupes <- df %>%
-      group_by(question, response) %>%
+      dplyr::group_by(question, response) %>%
       dplyr::summarise(count = n()) %>%
-      filter(response %in% c("Yes", "No")) %>%
-      arrange(question)
+      dplyr::filter(response %in% c("Yes", "No")) %>%
+      dplyr::arrange(question)
     
     remove_q <- prevent_dupes$question[duplicated(prevent_dupes$question)]
     
@@ -859,7 +860,7 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
     groupedc <- c("Breakdown", "Theme")
     
     #make the table
-    l[["Table"]] <- reactable(select(df, Breakdown, Theme, Question, `Differences found`),
+    l[["Table"]] <- reactable::reactable(dplyr::select(df, Breakdown, Theme, Question, `Differences found`),
                               groupBy = groupedc, highlight = T, striped = T,
                               pagination = F,
                               columns = list(`Differences found` = colDef(minWidth = 200, html = T)  #minimum width 200
@@ -903,14 +904,14 @@ worry_list <- c("worry_school", "worry_bully", "worry_phys", "worry_mental", "wo
                 "worry_crime", "worry_gambling", "worry_friends", "worry_safety", "worry_lonely", "worry_covid")
 
 worries_ <- stats %>% # count of responses for each answer in descending order
-  filter(breakdown == custom_filter & question %in% worry_list & response == "Yes") %>%
-  group_by(question) %>%
-  arrange(desc(count))
+  dplyr::filter(breakdown == custom_filter & question %in% worry_list & response == "Yes") %>%
+  dplyr::group_by(question) %>%
+  dplyr::arrange(desc(count))
 
 
 worries_$question_text <- gsub("Whether they worried about", "", worries_$question_text)
 worries_ <- worries_ %>%
-  mutate(answer_text = case_when(
+  dplyr::mutate(answer_text = dplyr::case_when(
     question == "worry_school" ~ "school", question == "worry_look" ~ "their appearance", question == "worry_mental" ~ "their mental health",
     question == "worry_lonely" ~ "loneliness", question == "worry_friends" ~ "their friends", question == "worry_phys" ~ "their physical health",
     question == "worry_environment" ~ "the environment", question == "worry_family" ~ "their family", question == "worry_money" ~ "money",
@@ -925,14 +926,14 @@ worries_ <- worries_ %>%
 cope_list <- c("cope_nothing", "cope_think", "cope_internet", "cope_talkadult", "cope_talkfriend", "cope_counselling", "cope_exercise", "cope_creative", "cope_music", "cope_games", "cope_smoke", "cope_alcohol", "cope_selfharm", "cope_drugs", "cope_eat", "cope_talkfamily", "cope_other")
 
 cope_ <- stats %>% # count of responses for each answer in descending order
-  filter(breakdown == custom_filter & question %in% cope_list & response == "Yes") %>%
-  group_by(question) %>%
-  arrange(desc(count))
+  dplyr::filter(breakdown == custom_filter & question %in% cope_list & response == "Yes") %>%
+  dplyr::group_by(question) %>%
+  dplyr::arrange(desc(count))
 
 cope_$question_text <- gsub("Coping with their problems by", "", cope_$question_text)
 
 cope_ <- cope_ %>%
-  mutate(answer_text = case_when(
+  dplyr::mutate(answer_text = case_when(
     question == "cope_music" ~ "listening to music", question == "cope_talkfriend" ~ "talking to their friends", question == "cope_talkfamily" ~ "talking to their family",
     question == "cope_games" ~ "playing games", question == "cope_exercise" ~ "exercising", question == "cope_think" ~ "thinking",
     question == "cope_creative" ~ "being creative", question == "cope_nothing" ~ "doing nothing", question == "cope_eat" ~ "eating",
@@ -962,80 +963,80 @@ stats_all <- stats %>%
   filter(school == "All Schools" &  breakdown == "All Responses" & !is.na(question_text))
 
 mh1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              filter(stats_all, question == 'life_satisfied' & response == "low") %>% 
+                                              dplyr::filter(stats_all, question == 'life_satisfied' & response == "low") %>% 
                                                 .$value, " for all responses."), "")
 
 mh2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              filter(stats_all, question == 'life_satisfied_before_covid' & response == "low") %>% .$value, " for all responses."), "")
+                                              dplyr::filter(stats_all, question == 'life_satisfied_before_covid' & response == "low") %>% .$value, " for all responses."), "")
 
 mh3 <- ifelse(!is.na(cat_of_interest), paste0("From all respondents,  ", 
-                                              filter(stats_all, question =='weight' & response=='Overweight') %>% 
+                                              dplyr::filter(stats_all, question =='weight' & response=='Overweight') %>% 
                                                 .$value, " felt overweight, and ",
-                                              filter(stats_all, question =='weight' & response=='Underweight') %>% 
+                                              dplyr::filter(stats_all, question =='weight' & response=='Underweight') %>% 
                                                 .$value, " felt underweight."), "")
 
 mh4 <- ifelse(!is.na(cat_of_interest), paste0("From all responses, ", 
-                                              filter(stats_all, question == 'mental_howaccess' & response == 'Yes') %>% 
+                                              dplyr::filter(stats_all, question == 'mental_howaccess' & response == 'Yes') %>% 
                                                 .$value, " stated 'Yes'."), "")
 
 
 ls1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              filter(stats_all, question == 'pa_60' & response == "6-7") %>% 
+                                              dplyr::filter(stats_all, question == 'pa_60' & response == "6-7") %>% 
                                                 .$value, " for all responses."), "")
 
 ls2 <- ifelse(!is.na(cat_of_interest), paste0("For all responses, this was ", 
-                                              sum(filter(stats_all, question == 'smoke_ever' & 
+                                              sum(dplyr::filter(stats_all, question == 'smoke_ever' & 
                                                            response != 'I have never smoked') %>% .$value), " and ",
-                                              sum(filter(stats_all, question == 'smoke_ever' & 
+                                              sum(dplyr::filter(stats_all, question == 'smoke_ever' & 
                                                            response == 'I smoke regularly (once a week or more)') %>% .$value),
                                               " respectively."), "")
 
 ls3 <- ifelse(!is.na(cat_of_interest), paste0("For all responses, this was ", 
-                                              sum(filter(stats_all, question == 'vaping' & 
+                                              sum(dplyr::filter(stats_all, question == 'vaping' & 
                                                            response != 'I have never vaped') %>% .$value), " and ",
-                                              sum(filter(stats_all, question == 'vaping' & 
+                                              sum(dplyr::filter(stats_all, question == 'vaping' & 
                                                            response == 'I vape regularly (once a week or more)') %>% .$value),
                                               " respectively."), "")
 
 ls4 <- ifelse(!is.na(cat_of_interest), paste0("For all responses, this was ", 
-                                              sum(filter(stats_all, question == 'alcohol_ever' & 
+                                              sum(dplyr::filter(stats_all, question == 'alcohol_ever' & 
                                                            response != 'Never') %>% .$value), " and ",
-                                              sum(filter(stats_all, question == 'alcohol_ever' & 
+                                              sum(dplyr::filter(stats_all, question == 'alcohol_ever' & 
                                                            response == '4 or more times a week') %>% .$value),
                                               " respectively."), "")
 
 ls5 <- ifelse(!is.na(cat_of_interest), paste0("For all responses, this was ", 
-                                              sum(filter(stats_all, question == 'drug_ever' & 
+                                              sum(dplyr::filter(stats_all, question == 'drug_ever' & 
                                                            response != 'I have never taken drugs') %>% .$value), " and ",
-                                              sum(filter(stats_all, question == 'drug_ever' & 
+                                              sum(dplyr::filter(stats_all, question == 'drug_ever' & 
                                                            response == 'I take drugs regularly (once a week or more)') %>% .$value),
                                               " respectively."), "")
 
 safety <- ifelse(!is.na(cat_of_interest), paste0("For all responses, this was ", 
-                                              filter(stats_all, question == 'safety_day' & 
+                                              dplyr::filter(stats_all, question == 'safety_day' & 
                                                            response == 'Unsafe') %>% .$value, ", ",
-                                              filter(stats_all, question == 'safety_dark' & 
+                                              dplyr::filter(stats_all, question == 'safety_dark' & 
                                                            response == 'Unsafe') %>% .$value, ", ",
-                                              filter(stats_all, question == 'safety_school' & 
+                                              dplyr::filter(stats_all, question == 'safety_school' & 
                                                            response == 'Unsafe') %>% .$value, ", and ",
-                                              filter(stats_all, question == 'safety_journey' & 
+                                              dplyr::filter(stats_all, question == 'safety_journey' & 
                                                            response == 'Unsafe') %>% .$value, 
                                               " respectively."), "")
 
 sch1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              filter(stats_all, question == 'schoolsupp_academic' & response == "Yes") %>% 
+                                              dplyr::filter(stats_all, question == 'schoolsupp_academic' & response == "Yes") %>% 
                                                 .$value, " for all responses."), "")
 
 sch2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              filter(stats_all, question == 'schoolsupp_wellbeing' & response == "Yes") %>% 
+                                              dplyr::filter(stats_all, question == 'schoolsupp_wellbeing' & response == "Yes") %>% 
                                                 .$value, " for all responses."), "")
 
 cov1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              filter(stats_all, question == 'worry_covid19' & response == 'Yes') %>% 
+                                              dplyr::filter(stats_all, question == 'worry_covid19' & response == 'Yes') %>% 
                                                 .$value, " for all responses."), "")
 
 cov2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              filter(stats_all, question == 'any_vacc_taken' & response == 'Yes') %>% 
+                                              dplyr::filter(stats_all, question == 'any_vacc_taken' & response == 'Yes') %>% 
                                                 .$value, " for all responses."), "")
 ```
 
@@ -1114,8 +1115,8 @@ This section contains information about the characteristics of the students who 
 ``` {r age_summary}
 chk_var <- c('age')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title <- "Age"
 ```
@@ -1145,8 +1146,8 @@ create_tbl(chk_diff)
 
 ``` {r sex_summary}
 chk_var <- c('sex')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 plot_title <- "Sex"
 ```
 
@@ -1170,8 +1171,8 @@ create_tbl(chk_diff)
 
 ``` {r sexuality_summary}
 chk_var <- c('sexuality')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 plot_title <- "Sexuality"
 ```
 
@@ -1203,8 +1204,8 @@ create_tbl(chk_diff)
 
 ``` {r religion_summary}
 chk_var <- c('religion')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title = "Religion"
 ```
@@ -1240,8 +1241,8 @@ create_tbl(chk_diff)
 
 ``` {r ethnicity_summary}
 chk_var <- c('ethnicity')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title <- "Ethnicity"
@@ -1282,8 +1283,8 @@ This section contains information about the living conditions of the students wh
 ``` {r conditions_summary}
 chk_var <- c('condition_physical', 'condition_mental', 'condition_disability',
              'condition_send')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title <- "Long-standing conditions or disabilities"
 ```
@@ -1322,8 +1323,8 @@ create_tbl(chk_diff, multi_response = T)
 
 ``` {r school_supported_summary}
 chk_var <- c('school_supported')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1361,8 +1362,8 @@ create_tbl(chk_diff)
 
 ``` {r living_situation_summary}
 chk_var <- c('living_situation')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1400,8 +1401,8 @@ create_tbl(chk_diff)
 
 ``` {r caring_summary}
 chk_var <- c('caring')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1437,8 +1438,8 @@ create_tbl(chk_diff)
 
 ``` {r cla_summary}
 chk_var <- c('cla')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1474,8 +1475,8 @@ create_tbl(chk_diff)
 
 ``` {r adopted_summary}
 chk_var <- c('adopted')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1515,8 +1516,8 @@ This section contains information about the diet and lifestyle of the students i
 
 ``` {r diet_summary}
 chk_var <- c('diet_water','diet_fastfood','diet_fizzydrink','diet_energydrink','diet_sweets', 'diet_breakfast')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title = "Dietary intake"
 ```
@@ -1551,8 +1552,8 @@ create_tbl(chk_diff, multi_response = T)
 
 ``` {r portions_summary}
 chk_var <- c('portions')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1589,8 +1590,8 @@ create_tbl(chk_diff)
 
 ``` {r weight_summary}
 chk_var <- c('weight')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1627,8 +1628,8 @@ create_tbl(chk_diff)
 
 ``` {r brushteeth_summary}
 chk_var <- c('brushteeth')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1670,8 +1671,8 @@ if (params$rendered_by_shiny)
 
 ``` {r dentist_summary}
 chk_var <- c('dentist')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1708,14 +1709,14 @@ create_tbl(chk_diff)
 ``` {r pa_60_summary}
 chk_var <- c('pa_60')
 
-chk_stats <- filter(stats, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
 
 chk_stats$response <- ordered(chk_stats$response, levels = c("none", "1-3", "4-5", "6-7"))
 
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))%>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))%>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
 plot_title = "Physical activity for at least 1 hour"
 
 ```
@@ -1749,12 +1750,12 @@ create_tbl(chk_diff)
 ``` {r pa_30_summary}
 chk_var <- c('pa_30') #merge the 60 and 30 minute together?
 #***
-chk_stats <- filter(stats, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
+chk_stats <- dplyr::filter(stats, question %in% chk_var) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
 plot_title = "Physical activity for at least 30 minutes"
 ```
 
@@ -1790,8 +1791,8 @@ This section contains information about the smoking/vaping habits of students in
 
 ``` {r smoke_parents_summary}
 chk_var <- c('smoke_parents', 'smoke_home', 'smoke_car')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1833,8 +1834,8 @@ create_tbl(chk_diff, multi_response = T)
 
 ``` {r smoke_ever_summary}
 chk_var <- c('smoke_ever')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1880,8 +1881,8 @@ if (params$rendered_by_shiny)
 
 ``` {r vaping_summary}
 chk_var <- c('vaping')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1917,8 +1918,8 @@ create_tbl(chk_diff)
 
 ``` {r smoke_reduce_summary}
 chk_var <- c('smoke_reduce')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1954,8 +1955,8 @@ create_tbl(chk_diff)
 
 ``` {r buy_cigarettes_summary}
 chk_var <- c('buycig_pubbar', 'buycig_supermarker','buycig_smallshop','buycig_friend','buycig_internet') #**misspelled supermarket
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -1997,8 +1998,8 @@ create_tbl(chk_diff, multi_response = T)
 
 ``` {r vaping_reducesmoke_summary}
 chk_var <- c('vaping_reducesmoke')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2038,8 +2039,8 @@ This section contains information about the alcohol consumption of students incl
 
 ``` {r alcohol_ever_summary}
 chk_var <- c('alcohol_ever')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2077,8 +2078,8 @@ create_tbl(chk_diff)
 
 ``` {r alchol_reduce_summary}
 chk_var <- c('alcohol_reduce')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2115,12 +2116,12 @@ create_tbl(chk_diff)
 ``` {r alcohol_perday_summary}
 chk_var <- c('alcohol_perday')
 #***
-chk_stats <- filter(stats, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+")))
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>%
-  mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+")))
+chk_stats <- dplyr::filter(stats, question %in% chk_var) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+")))
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1-2", "3-4", "5-6", "7-9", "10+")))
 plot_title = "Daily alcohol consumption"
 ```
 
@@ -2152,8 +2153,8 @@ create_tbl(chk_diff)
 
 ``` {r alcohol_6more_summary}
 chk_var <- c('alcohol_6more')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2189,8 +2190,8 @@ create_tbl(chk_diff)
 
 ``` {r buy_alcohol_summary}
 chk_var <- c('buyalc_pubbar','buyalc_home', 'buyalc_supermarket', 'buyalc_smallshop','buyalc_friend','buyalc_internet')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2247,8 +2248,8 @@ This section contains information about the drug use of students including wheth
 
 ``` {r drug_ever_summary}
 chk_var <- c('drug_ever')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2286,8 +2287,8 @@ create_tbl(chk_diff)
 chk_var <- c('amphetamine_offered', 'cannabis_offered','khat_offered', 'ecstasy_offered','cocaine_offered','hallucinogen_offered','heroin_offered','ketamine_offered',
              'steroids_offered','poppers_offered','solvents_offered','mephedrone_offered',
              'nps_offered','nitrous_oxide_offered','xanex_offered')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Drugs offered"
@@ -2345,8 +2346,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r Drugs and alcohol support_summary}
 chk_var <- c('drugsupp_family','drugsupp_friends','drugsupp_doctor','drugsupp_teacher','drugsupp_yw',
              'drugsupp_internet', 'drugsupp_ypservice','drugsupp_other')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2396,8 +2397,8 @@ create_tbl(chk_diff, multi_response = T)
 
 ``` {r drug_reduce_summary}
 chk_var <- c('drug_reduce')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2435,8 +2436,8 @@ create_tbl(chk_diff)
 chk_var <- c('amphetamine_exp', 'cannabis_exp','khat_exp', 'ecstasy_exp','cocaine_exp','hallucinogen_natural_exp','heroin_exp','ketamine_exp',
              'steroids_exp','poppers_exp','solvents_exp','mephedrone_exp',
              'nps_exp','nitrous_oxide_exp','xanex_exp')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2504,8 +2505,8 @@ if (params$rendered_by_shiny)
 
 ``` {r drugs_alcohol_summary}
 chk_var <- c('drugs_alcohol')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2541,15 +2542,15 @@ create_tbl(chk_diff)
 
 ``` {r Buying drugs_summary}
 chk_var <- c('buydrug_bar','buydrug_school','buydrug_streets','buydrug_friend','buydrug_internet','buydrug_other')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
 
 plot_title = "Buying drugs"
 
-top_3 <- tail(sort(filter(chk_stats,
+top_3 <- tail(sort(dplyr::filter(chk_stats,
                           breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
@@ -2599,15 +2600,15 @@ This section contains information about the sexual health and knowledge of sexua
 
 ``` {r Information about sex_summary}
 chk_var <- c('shinfo_parents','shinfo_school','shinfo_friends','shinfo_relations','shinfo_clinic','shinfo_media','shinfo_poster','shinfo_porn','shinfo_doctor','shinfo_healthsite','shinfo_helpline','shinfo_yw','shinfo_other')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
 
 plot_title = "Information about relationships and sex"
 
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
+top_5 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
                                        chk_stats$breakdown == "All Responses"])
 ```
@@ -2649,8 +2650,8 @@ create_tbl(chk_diff, multi_response = T)
 
 ``` {r STD knowledge_summary}
 chk_var <- c("std_hiv", 'std_herpes','std_warts','std_gono','std_chlamydia','std_syphilis')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2691,8 +2692,8 @@ create_tbl(chk_diff, multi_response = T)
 
 ``` {r sh_support_summary}
 chk_var <- c('sh_support')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2730,8 +2731,8 @@ create_tbl(chk_diff)
 
 ``` {r sh_access_summary}
 chk_var <- c('sh_access')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2781,8 +2782,8 @@ create_tbl(chk_diff)
 
 ``` {r Sexual health beliefs_summary}
 chk_var <- c('sh_pressure','sh_wait','sh_serious','sh_condoms','sh_pregnancy','sh_16')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2817,8 +2818,8 @@ create_tbl(chk_diff, multi = T)
 
 ``` {r condoms_free_summary}
 chk_var <- c('condoms_free')
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -2859,12 +2860,12 @@ This section contains information about general and mental wellbeing of the stud
 ``` {r wellbeing_summary}
 chk_var <- c('life_satisfied', 'life_worthwhile', 'life_happyyesterday', 'life_satisfied_before_covid')
 #***
-chk_stats <- filter(stats, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high")))
-chk_diff <- filter(stats_diffs, question %in% chk_var) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>%
-  mutate(response = factor(response, levels = c("low", "medium", "high", "very high")))
+chk_stats <- dplyr::filter(stats, question %in% chk_var) %>%
+  dplyr::mutate(response = factor(response, levels = c("low", "medium", "high", "very high")))
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var) %>%
+  dplyr::mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("low", "medium", "high", "very high"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("low", "medium", "high", "very high")))
 plot_title = "Wellbeing and life satisfaction"
 ```
 
@@ -2907,13 +2908,13 @@ if (params$rendered_by_shiny)
 ``` {r Worries_summary}
 chk_var <- c('worry_school','worry_bully','worry_phys','worry_mental','worry_family','worry_money','worry_look','worry_socialmedia','worry_relationships','worry_drugsalcohol','worry_environment','worry_crime','worry_gambling','worry_friends','worry_safety','worry_lonely', 'worry_covid19')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Worries"
 
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
+top_5 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -2964,8 +2965,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r mental_talk_summary}
 chk_var <- c('mental_talk')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -3001,14 +3002,14 @@ create_tbl(chk_diff)
 ``` {r Coping_summary}
 chk_var <- c('cope_nothing','cope_think','cope_internet','cope_talkadult','cope_talkfriend','cope_counselling','cope_exercise','cope_creative','cope_music','cope_games','cope_smoke','cope_alcohol','cope_selfharm','cope_drugs','cope_eat','cope_talkfamily','cope_other')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "How they cope"
 
 
-top_5 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
+top_5 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -3052,13 +3053,13 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r Internet safety_summary}
 chk_var <- c('internet_message','internet_personalinfo','internet_pictures_pressure','internet_met','internet_pictures_upset','info_internet_safety')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Online experiences"
 
-top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 ```
@@ -3096,8 +3097,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r selfharm_ever_summary}
 chk_var <- c('selfharm_ever')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Self-harm"
@@ -3132,8 +3133,8 @@ create_tbl(chk_diff)
 ``` {r mental_howaccess_summary}
 chk_var <- c('mental_howaccess')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Mental health services"
@@ -3168,8 +3169,8 @@ create_tbl(chk_diff)
 ``` {r herts_talk_summary}
 chk_var <- c('herts_just_talk')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Awareness of Herts Just Talk"
@@ -3205,13 +3206,13 @@ create_tbl(chk_diff)
 ``` {r Mental health support_summary}
 chk_var <- c('mental_doctor','mental_school','mental_clinic','mental_youthservice','mental_internet','mental_activesupport','mental_121','mental_groupwork','mental_none','mental_parents','mental_nurse')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Finding support for mental health"
 
-top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -3249,8 +3250,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r mental_accessed_summary}
 chk_var <- c('mental_accessed') #**rephrase title or merge
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Experience with mental health services"
@@ -3285,8 +3286,8 @@ create_tbl(chk_diff)
 ``` {r mental_accessed_helpful_summary}
 chk_var <- c('mental_accessed_helpful') #**rephrase title or merge
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Helpfulness of Mental help support"
@@ -3326,8 +3327,8 @@ This section contains information about any experiences with bullying by the stu
 ``` {r Bullyothers_summary}
 chk_var <- c("bully_others", "bullied", "bullied_none", "bullied_prefer_not_say")
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -3364,8 +3365,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r bullied_currently_summary}
 chk_var <- "bullied_currently"
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -3400,8 +3401,8 @@ create_tbl(chk_diff)
 ``` {r Bullying_summary}
 chk_var <- c('bullied_school','bullied_outschool','bullied_internet')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 
@@ -3445,8 +3446,8 @@ This section contains information about safety, online safety, and any experienc
 ``` {r Safety_summary}
 chk_var <- c('safety_dark','safety_day','safety_school','safety_journey')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Feeling safe/unsafe"
@@ -3482,8 +3483,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r violence_involved_summary}
 chk_var <- c('violence_involved')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Violent incidents"
@@ -3518,8 +3519,8 @@ create_tbl(chk_diff)
 ``` {r violence_weapon_involved_summary}
 chk_var <- c('violence_weapon_involved')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Violent incidents with weapons"
@@ -3554,8 +3555,8 @@ create_tbl(chk_diff)
 ``` {r carry_protection_summary}
 chk_var <- c('carry_protection')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Carrying weapons for protection"
@@ -3590,8 +3591,8 @@ create_tbl(chk_diff)
 ``` {r carry_protection_other_summary}
 chk_var <- c('carry_protection_other')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Carrying weapons for protection"
@@ -3626,8 +3627,8 @@ create_tbl(chk_diff)
 ``` {r home_shouting_summary}
 chk_var <- c('home_shouting')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Shouting at home"
@@ -3662,8 +3663,8 @@ create_tbl(chk_diff)
 ``` {r home_violence_summary}
 chk_var <- c('home_violence')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Domestic violence"
@@ -3699,13 +3700,13 @@ create_tbl(chk_diff)
 ``` {r Reaction to scary adult_summary}
 chk_var <- c('appoached_walkaway','approached_argue','approached_toldadult','approached_toldfriend','approached_toldpolice','approached_toldself','approached_other') #TODO misspelled approached first var
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Reaction to being approached"
 
-top_3 <- tail(sort(filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -3744,13 +3745,13 @@ create_tbl(chk_diff, multi = T)
 ``` {r Missing school_summary}
 chk_var <- c('skipschool_illness','skipschool_care','skipschool_appointments','skipschool_trips','skipschool_worriesschool','skipschool_worriesbully', 'skipschool_COVID-19', 'skipschool_mentalhealth')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Have you taken time off from school for any of these reasons?"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -3787,8 +3788,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r Opinions and views_summary}
 chk_var <- c('listened_home','listened_school','listened_friends')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Feeling listened to"
@@ -3824,8 +3825,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r schoolsupp_academic_summary}
 chk_var <- c('schoolsupp_academic')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Academic development"
@@ -3860,8 +3861,8 @@ create_tbl(chk_diff)
 ``` {r schoolsupp_wellbeing_summary}
 chk_var <- c('schoolsupp_wellbeing')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Emotional development"
@@ -3896,13 +3897,13 @@ create_tbl(chk_diff)
 ``` {r Clubs and extracurriculars_summary}
 chk_var <- c('clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteer','clubs_ycherts','clubs_other')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Clubs and extracurriculars"
 
-top_3 <- tail(sort(filter(chk_stats,breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats,breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -3944,13 +3945,13 @@ if (params$rendered_by_shiny)
 ``` {r Prospects_summary}
 chk_var <- c('prospects_education','prospects_job','prospects_training', 'prospects_family','prospects_notsure','prospects_other')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Prospects"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 ```
@@ -3988,13 +3989,13 @@ create_tbl(chk_diff, multi_response = T)
 
 chk_var <- c('sustain_recycle', 'sustain_single_plastic', 'sustain_sus_products', 'sustain_leftoverfood', 'sustain_localfood', 'sustain_transport', 'sustain_electric_car', 'sustain_save_energy', 'sustain_save_water', 'sustain_solar', 'sustain_other', 'sustain_nthg')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Sustainability methods"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -4033,13 +4034,13 @@ create_tbl(chk_diff, multi_response = T)
 chk_var <- c('sus_barriers_finance',  'sus_barriers_time', 'sus_barriers_unsure', 'sus_barriers_no_consider',
              'sus_barriers_other')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Sustainability methods"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -4078,8 +4079,8 @@ create_tbl(chk_diff, multi_response = T)
 ``` {r vacc_uptake_summary}
 chk_var <- c('any_vacc_taken')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Vaccine uptake"
@@ -4120,13 +4121,13 @@ chk_var <- c('vacc_protect_self', 'vacc_protect_frdsfam',
 
              'vacc_miss_school', 'vacc_meet_frdsfam', 'vacc_other')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Reason for vaccine uptake"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
@@ -4166,13 +4167,13 @@ chk_var <- c('no_vacc_no_need', 'no_vacc_needles', 'no_vacc_side_effects',
 
              'no_vacc_safety', 'no_vacc_other', 'no_vacc_no_info', 'no_vacc_not_offered')
 
-chk_stats <- filter(stats, question %in% chk_var)
-chk_diff <- filter(stats_diffs, question %in% chk_var)
+chk_stats <- dplyr::filter(stats, question %in% chk_var)
+chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 
 plot_title = "Reason for vaccine uptake"
 
-top_3 <- tail(sort(filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
+top_3 <- tail(sort(dplyr::filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 3)
 chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
 
