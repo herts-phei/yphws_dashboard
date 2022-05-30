@@ -71,10 +71,7 @@ ui <- tablerDash::tablerDashPage(
                               tablerDash::tablerNavMenuItem(
                                 "About",
                                 tabName = "About"
-                              )#, 
-                              #tablerNavMenuItem(
-                              #  uiOutput("feedback_link")
-                              #)
+                              )
     )
   ),
   body = tablerDash::tablerDashBody(
@@ -99,12 +96,12 @@ ui <- tablerDash::tablerDashPage(
             )
           ),
           shiny::fluidRow(
-            tablerDash::tablerCard(title = "Export full report",
+            tablerDash::tablerCard(title = "Export full report(COMING SOON)",
                                    width = 12, 
-                                   closable = FALSE,
-                                   shiny::uiOutput("exp_report_comp"),
-                                   shiny::uiOutput("exp_report_cat"),
-                                   shiny::downloadButton("exp_report", "Export report")
+                                   closable = FALSE
+                                   # shiny::uiOutput("exp_report_comp"),
+                                   # shiny::uiOutput("exp_report_cat"),
+                                   # shiny::downloadButton("exp_report", "Export report")
             )
           )
         ),
