@@ -176,8 +176,8 @@ explore_mod_server <- function(id,
               current_plot <- current
             }
             
-              current_plot$response <- as_factor(current$response)
-              current_plot$response <- fct_relevel(current$response, levels = c("low", "medium", "high", "very high"))
+              current_plot$response <- forcats::as_factor(current$response)
+              current_plot$response <- forcats::fct_relevel(current$response, levels = c("low", "medium", "high", "very high"))
             
             # multicat style plot
             int_plot <- create_multi_plot(df = current_plot,
