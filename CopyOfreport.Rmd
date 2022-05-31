@@ -14,7 +14,7 @@ output:
 params:
   var: null
   cat: null
-  rendered_by_shiny: TRUE
+  rendered_by_shiny: FALSE
 ---
 
 ``` {r setup, include=F}
@@ -30,8 +30,8 @@ if (params$rendered_by_shiny)
 # Parameters --------------------------------------------------------------
 
 year <- 2021 # year of survey
-group <- params$var # Which variable to break down by. Usually ethnicity.
-cat_of_interest <- params$cat # Only applicable if group parameter is custom and you'd like to highlight a specific category within the group. Otherwise, state NA
+group <- "ethnicity"#params$var # Which variable to break down by. Usually ethnicity.
+cat_of_interest <- "White"#params$cat # Only applicable if group parameter is custom and you'd like to highlight a specific category within the group. Otherwise, state NA
 data_pin <- "ayu/YPHWS_2021"
 prev_data_pin <- "bkimpton/youth_survey_responses"
 districts <- c(
@@ -42,10 +42,25 @@ districts <- c(
 # Load data ---------------------------------------------------------------
 
 # questions coded
-q_coded <- pins::pin_read(board, "hau/YPHWS_question_lookup_2021") %>%
-  purrr::map_dfr(~ as.character(.))
-# 
+# q_coded <- pins::pin_read(board, "hau/YPHWS_question_lookup_2021") %>%
+#   purrr::map_dfr(~ as.character(.))
 
+# Replacing q_coded section with data from folders
+source("R/global_utils.R", local = TRUE)
+data <- get_data()
+q_coded <-data$q_coded
+
+# q_coded <- read.csv("data-raw/q_coded.csv") %>%
+#       purrr::map_dfr(~ as.character(.)) %>%
+#       dplyr::mutate(dplyr::across(where(is.character), ~na_if(., "NA")))
+# 
+q_coded <- q_coded %>%
+  select("question_raw", "question_theme", "question_coded", "question_text", "reworded", "survey_text", "menu_text", "multi_cat", "multi_binary", "question_coded_gen", "survey_text_gen") %>%
+  distinct()
+# q_coded2$response_of_interest
+# survey data
+ data2 <- data$data[[group]]
+# datasex <- data$data$sex
 data <- pins::pin_read(board, data_pin) %>%
   mutate(
     imd_quintile = dplyr::case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),

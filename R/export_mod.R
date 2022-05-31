@@ -24,10 +24,10 @@ export_mod <- function(id,
       fluidRow(
         tablerCard(title = "Export full report (COMING SOON)",
                    width = 12, 
-                   closable = FALSE
-                   # uiOutput("exp_report_comp"),
-                   # uiOutput("exp_report_cat"),
-                   #downloadButton("exp_report", "Export report")
+                   closable = FALSE#,
+                   # uiOutput(ns("exp_report_comp")),
+                   # uiOutput(ns("exp_report_cat")),
+                   # downloadButton(ns("exp_report"), "Export report")
         )
       )
     )
@@ -59,21 +59,23 @@ export_mod_server <- function(id,
       output$exp_report_comp <- renderUI({
       
       ns <- NS(id)
-      comp <-  comp()
+      comp <-  input$comp
       
-      pickerInput(ns("exp_report_comp"), label = "Select what to group by in your report",
-                  choices = list("Sex" = "sex",
-                                 "Year group" = "schyear",
-                                 "Ethnicity" = "ethnicity",
-                                 "IMD Quintile" = "imd_quintile",
-                                 "Sexuality" = "sexuality",
-                                 "Young carer" = "caring",
-                                 # "Smoker" = "smoke_ever",
-                                 "Self-harm" = "selfharm_ever",
-                                 "Bullied" = "bullied",
-                                 "District" = "District"),
-                  selected = comp,
-                  multiple = FALSE)
+      pickerInput(
+        inputId = ns("exp_report_comp"), 
+        label = "Select what to group by in your report",
+        choices = list("Sex" = "sex",
+                       "Year group" = "schyear",
+                       "Ethnicity" = "ethnicity",
+                       "IMD Quintile" = "imd_quintile",
+                       "Sexuality" = "sexuality",
+                       "Young carer" = "caring",
+                       # "Smoker" = "smoke_ever",
+                       "Self-harm" = "selfharm_ever",
+                       "Bullied" = "bullied",
+                       "District" = "District"),
+        selected = comp,
+        multiple = FALSE)
       
     })
       
@@ -81,12 +83,14 @@ export_mod_server <- function(id,
         
         data <- data()
         
+        ns <- NS(id)
+        
         choices <- unique(data[[input$exp_report_comp]]$breakdown) 
         
         choices <- choices[choices != "All Responses" & choices != "Non-white"]
         
         
-        shinyWidgets::pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
+        shinyWidgets::pickerInput(ns("exp_report_cat"), "Select the category from the selected group you are most interested in:",
                                   choices = as.character(na.omit(choices)), multiple = FALSE,
                                   selected = as.character(na.omit(choices)[1]))
         
@@ -94,68 +98,44 @@ export_mod_server <- function(id,
     
     
     output$exp_report <- downloadHandler(
-      # filename = "report.html",
-      # content = function(file) {
-      #   withProgress(message = "Rendering, please wait!", {
-      #     tempReport <- file.path(tempdir(), "test.Rmd")
-      #     file.copy("test.Rmd", tempReport, overwrite = TRUE)
-      #     
-      #     # Set up parameters to pass to Rmd document
-      #     # params <- list(var = input$exp_report_comp,
-      #     #                cat = input$exp_report_cat)
-      #     params <- list(rendered_by_shiny = TRUE)
-      #     
-      #     # Knit the document, passing in the `params` list, and eval it in a
-      #     # child of the global environment (this isolates the code in the document
-      #     # from the code in this app).
-      #     # show_modal_spinner(text = "Rendering report. Please wait, this should take 1-2 minutes.")
-      #     rmarkdown::render(tempReport, output_file = file,
-      #                       params = params,
-      #                       envir = new.env(parent = globalenv())
-      #     )
-      #     # remove_modal_spinner() # remove it when done
-      #     
-      #   })
-      #   
-      # }
-      
-      
-      
+
+
       filename = function() {
         paste0("Hertfordshire YPHWS Report - ", input$exp_report_comp, " focusing on ", input$exp_report_cat, ".html")
       },
-      
+
       content = function(file) {
-        
+
         shiny::withProgress(message = "Producing the report. This can take some time...", {
-          
+
           src <- normalizePath('report.Rmd')
-          
+
           # temporarily switch to the temp dir, in case you do not have write permission to the current working directory
           owd <- setwd(tempdir())
           on.exit(setwd(owd))
           file.copy(src, 'report.Rmd', overwrite = TRUE)
-          
+
           # Set up parameters to pass to Rmd document
           params <- list(var = input$exp_report_comp,
                          cat = input$exp_report_cat,
                          rendered_by_shiny = TRUE)
-          
-          
+
+
           out <- rmarkdown::render('report.Rmd', params = params, envir = new.env())
-          
+
           file.rename(out, file)
-          
+
         })
       }
     )
     
     output$exp_year <- renderUI({
       
+      ns <- NS(id)
       stats_combined <- stats_combined()
       
       shinyWidgets::awesomeCheckboxGroup(
-        inputId = "exp_year",
+        inputId = ns("exp_year"),
         label = "Year:", 
         choices = unique(stats_combined$year),
         selected = unique(stats_combined$year),
@@ -168,9 +148,10 @@ export_mod_server <- function(id,
     output$exp_breakdown <- renderUI({
       
       stats_combined <- stats_combined()
+      ns <- NS(id)
       
       shinyWidgets::awesomeCheckboxGroup(
-        inputId = "exp_breakdown",
+        inputId = ns("exp_breakdown"),
         label = "Breakdown:", 
         choices = unique(stats_combined$breakdown),
         selected = unique(stats_combined$breakdown),
@@ -183,9 +164,10 @@ export_mod_server <- function(id,
     output$exp_theme <- renderUI({
       
       q_coded <- q_coded()
+      ns <- NS(id)
       
       pickerInput(
-        inputId = "exp_theme",
+        inputId = ns("exp_theme"),
         label = "Health topic:", 
         choices = na.omit(unique(q_coded$question_theme)),
         selected = na.omit(unique(q_coded$question_theme)),
@@ -197,7 +179,8 @@ export_mod_server <- function(id,
     output$exp_question <- renderUI({
       
       q_coded <- q_coded()
-      exp_theme <- exp_theme()
+      exp_theme <- input$exp_theme
+      ns <- NS(id)
       
       filtered <- q_coded %>% 
         mutate(across(where(is.character), ~na_if(., "NA"))) %>% 
@@ -206,7 +189,7 @@ export_mod_server <- function(id,
         pull(survey_text)
       
       pickerInput(
-        inputId = "exp_question",
+        inputId = ns("exp_question"),
         label = "Question:", 
         choices = unique(filtered),
         selected = unique(filtered), 
@@ -223,10 +206,10 @@ export_mod_server <- function(id,
       data <- data()
       comp <- comp()
       q_coded <- q_coded()
-      exp_year <- exp_year()
-      exp_breakdown <- exp_breakdown()
-      exp_theme <- exp_theme()
-      exp_question <- exp_question()
+      exp_year <- input$exp_year
+      exp_breakdown <- input$exp_breakdown
+      exp_theme <- input$exp_theme
+      exp_question <- input$exp_question
       
       data[[comp]]  %>%
         left_join(select(q_coded, question_coded, question_theme, survey_text), q_coded, 
@@ -238,7 +221,7 @@ export_mod_server <- function(id,
         filter(year %in% exp_year,
                breakdown %in% exp_breakdown,
                topic %in% exp_theme,
-               question %in% exp_question)
+               question %in% exp_question) 
       
     })
     
@@ -274,10 +257,10 @@ export_mod_server <- function(id,
       data <- data()
       comp <- comp()
       q_coded <- q_coded()
-      exp_year <- exp_year()
-      exp_breakdown <- exp_breakdown()
-      exp_theme <- exp_theme()
-      exp_question <- exp_question()
+      exp_year <- input$exp_year
+      exp_breakdown <- input$exp_breakdown
+      exp_theme <- input$exp_theme
+      exp_question <- input$exp_question
       
       table_data <- data[[comp]]  %>%
         dplyr::left_join(dplyr::select(q_coded, question_coded, question_theme, survey_text), q_coded,
@@ -291,7 +274,10 @@ export_mod_server <- function(id,
                       topic %in% exp_theme,
                       question %in% exp_question)
       
-    })
+      
+      
+      
+    }) 
 
         output$data_table <- renderReactable({
       
@@ -309,8 +295,9 @@ export_mod_server <- function(id,
       
       filename = "data.csv",
       content = function(con) {
-        # rv$
-        data <- reactive({data_table()})
+
+        # data <- output$data_table
+        data <- table_data()
         write.csv(data, con)
         
       }
