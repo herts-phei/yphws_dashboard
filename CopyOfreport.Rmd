@@ -29,7 +29,7 @@ if (params$rendered_by_shiny)
 # board <- pins::board_rsconnect(server = "https://hertscc.managed.mango-solutions.com/connect",                         key = Sys.getenv("CONNECT_API_KEY"))
 # Parameters --------------------------------------------------------------
 
-year <- 2021 # year of survey
+year_report <- 2021 # year of survey
 group <- "ethnicity"#params$var # Which variable to break down by. Usually ethnicity.
 cat_of_interest <- "White"#params$cat # Only applicable if group parameter is custom and you'd like to highlight a specific category within the group. Otherwise, state NA
 data_pin <- "ayu/YPHWS_2021"
@@ -59,17 +59,10 @@ q_coded <- q_coded %>%
   distinct()
 # q_coded2$response_of_interest
 # survey data
- data2 <- data$data[[group]]
-# datasex <- data$data$sex
-data <- pins::pin_read(board, data_pin) %>%
-  mutate(
-    imd_quintile = dplyr::case_when(imd_quintile %in% "1" ~ "Quintile 1 - Most Deprived", TRUE ~ imd_quintile),
-    imd_quintile = dplyr::case_when(imd_quintile %in% "2" ~ "Quintile 2", TRUE ~ imd_quintile),
-    imd_quintile = dplyr::case_when(imd_quintile %in% "3" ~ "Quintile 3", TRUE ~ imd_quintile),
-    imd_quintile = dplyr::case_when(imd_quintile %in% "4" ~ "Quintile 4", TRUE ~ imd_quintile),
-    imd_quintile = dplyr::case_when(imd_quintile %in% "5" ~ "Quintile 5 - Least Deprived", TRUE ~ imd_quintile)
-  ) %>%
-  select(-lsoa_code)
+ data <- data$data[[group]]
+ 
+ data <- data %>% filter(question != "lsoa_code")
+
 
 if(group == "caring"){
 data <- data %>%
@@ -98,28 +91,7 @@ if(group == "selfharm_ever"){
   
 }
 
-# get list of schools with more than 50 responses
-school_vec <- data %>%
-  dplyr::group_by(school) %>%
-  dplyr::summarise(count = n()) %>%
-  dplyr::arrange(desc(count)) %>%
-  dplyr::filter(count >= 60) %>%
-  dplyr::pull(school)
 
-# districts with enough responses for comparisons
-responses_per_district <- data %>%
-  dplyr::select(school, District) %>%
-  dplyr::filter(school %in% school_vec) %>%
-  dplyr::group_by(District) %>%
-  dplyr::mutate(school_count = n()) %>%
-  dplyr::distinct() %>%
-  dplyr::summarise(District, school_count, schools_per_district = n()) %>%
-  dplyr::distinct() %>%
-  dplyr::mutate(comparison = case_when(
-    school_count >= 250 & schools_per_district > 1 ~ TRUE,
-    TRUE ~ FALSE
-  )) %>%
-  dplyr::filter(comparison == T)
 ```
 
 
@@ -743,10 +715,14 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
     groupedby <- "breakdown"
     
     data1 <- stats_diff %>% 
-      dplyr::rename(breakdown = breakdown.x, count = count.x, percentage = value.x, 
-                    `lower CI` = lowercl.x,
-                    `upper CI` = uppercl.x) %>% 
-      dplyr::left_join(q_coded, by = c("question_text.x" = "question_text")) %>% 
+      dplyr::rename(percentage = value,
+                    `lower CI` = lowercl,
+                    `upper CI` = uppercl) %>%
+      #dplyr::rename(breakdown = breakdown.x, count = count.x, percentage = value.x, 
+                    #`lower CI` = lowercl.x,
+                    #`upper CI` = uppercl.x) %>% 
+      
+      dplyr::left_join(q_coded, by = c("question_text" = "question_text")) %>% 
       dplyr::select(breakdown, response, count, percentage, `lower CI`, `upper CI`) %>% 
       dplyr::mutate(`upper CI` = as.character(`upper CI`),
              `lower CI` = as.character(`lower CI`))
@@ -778,7 +754,7 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
       
       data1 <- data %>% 
         dplyr::left_join(q_coded, by = c("question" = "question_text")) %>% 
-        dplyr::select(1, question=question_text.x, response, count, percentage, `lower CI`, `upper CI`) %>% 
+        dplyr::select(1, question=question_text, response, count, percentage, `lower CI`, `upper CI`) %>% 
         dplyr::distinct() %>% 
         dplyr::mutate(`upper CI` = as.character(`upper CI`),
                `lower CI` = as.character(`lower CI`))
@@ -910,6 +886,16 @@ stats_diffs <- get_stats_diffs(
   levels = c("All Responses", na.omit(unique(data[[group]])))
 )
 
+stats_diffs <- data %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(year == year_report)
+
+stats <- data %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(year == year_report) %>%
+  dplyr::select(- value.y, -breakdown.y, -question_text.y, -year.y, -diff,- image) %>%
+  distinct()
+
 # Report processing --------------------------------------------------------
 custom_filter <- ifelse(!is.na(cat_of_interest), cat_of_interest, "All Responses")
 
@@ -962,8 +948,9 @@ cope_ <- cope_ %>%
 options <- c("Yes", "Somewhat")
 
 # General groups for plotting function
-plot_custom_grp <- as.character(na.omit(unique(data[[group]])))
 
+plot_custom_grp <- as.character(na.omit(unique(data$breakdown)))
+plot_custom_grp <- plot_custom_grp[plot_custom_grp != "All Responses"]
 ```
 
 ``` {r style, include=F}
@@ -975,7 +962,7 @@ group_name <- ifelse(!is.na(cat_of_interest), cat_of_interest, "respondents")
 group_breakdown <- ifelse(!is.na(cat_of_interest), cat_of_interest, "All Responses")
 
 stats_all <- stats %>% 
-  filter(school == "All Schools" &  breakdown == "All Responses" & !is.na(question_text))
+  filter(breakdown == "All Responses" & !is.na(question_text))
 
 mh1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
                                               dplyr::filter(stats_all, question == 'life_satisfied' & response == "low") %>% 
@@ -1079,39 +1066,39 @@ Further reports on health & wellbeing can be found at [www.hertshealthevidence.o
 
 **Mental health and wellbeing**<br>
 
-- **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value`** of `r group_name` rated their life satisfaction as low. `r mh1`
+- **`r filter(stats, breakdown == group_breakdown & question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value`** of `r group_name` rated their life satisfaction as low. `r mh1`
 
-- **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value`** of `r group_name` rated  their satisfaction now compared to before COVID-19 as low. `r mh2`
+- **`r filter(stats, breakdown == group_breakdown & question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value`** of `r group_name` rated  their satisfaction now compared to before COVID-19 as low. `r mh2`
 
--  **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question =='weight' & response=='Overweight' & !is.na(question_text)) %>% .$value`** `r group_name` felt they were overweight while **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value`** felt they were underweight. `r mh3`
+-  **`r filter(stats, breakdown == group_breakdown & question =='weight' & response=='Overweight' & !is.na(question_text)) %>% .$value`** `r group_name` felt they were overweight while **`r filter(stats,  breakdown == group_breakdown & question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value`** felt they were underweight. `r mh3`
 
 - The top **5 issues** `r group_name` were worried about were: `r paste0(worries_$question_text[1], " (", worries_$count[1], ")", ", ", worries_$question_text[2], " (", worries_$count[2], ")", ", ",  worries_$question_text[3], " (", worries_$count[3], ")", ", ",worries_$question_text[4], " (", worries_$count[4], ")", ", and ", worries_$question_text[5], " (", worries_$count[5], ").")`
 
 - The top **5 ways of coping** with a problem that `r group_name` were worried about were: `r paste0(cope_$question_text[1], " (", cope_$count[1], ")", ", ", cope_$question_text[2], " (", cope_$count[2], ")", ", ",  cope_$question_text[3], " (", cope_$count[3], ")", ", ",cope_$question_text[4], " (", cope_$count[4], ")", ", and ", cope_$question_text[5], " (", cope_$count[5], ").")`
 
-- **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'mental_howaccess' & response != 'Yes') %>% .$value)`** of `r group_name` answered "Not sure" or "No" when asked if they knew how to access support and services for mental health. **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'mental_howaccess' & response == 'Yes') %>% .$value)`** answered "Yes". `r mh4`
+- **`r sum(filter(stats, breakdown == group_breakdown & question == 'mental_howaccess' & response != 'Yes') %>% .$value)`** of `r group_name` answered "Not sure" or "No" when asked if they knew how to access support and services for mental health. **`r sum(filter(stats, &  breakdown == group_breakdown & question == 'mental_howaccess' & response == 'Yes') %>% .$value)`** answered "Yes". `r mh4`
 
 **Lifestyle** <br>
 
--  Out of responses from `r group_name`, **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'pa_60' & response == "6-7") %>% .$value`** had done a total of 60 minutes or more of physical activity 6-7 days of the week  (in line with recommended daily physical activity guidance). `r ls1` The most common response when asked how many days `r group_name` have done a total of 60 minutes physical activity was **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question =='pa_60') %>% filter(count == max(count)) %>% .$response`** days. 
+-  Out of responses from `r group_name`, **`r filter(stats,  breakdown == group_breakdown & question == 'pa_60' & response == "6-7") %>% .$value`** had done a total of 60 minutes or more of physical activity 6-7 days of the week  (in line with recommended daily physical activity guidance). `r ls1` The most common response when asked how many days `r group_name` have done a total of 60 minutes physical activity was **`r filter(stats, breakdown == group_breakdown & question =='pa_60') %>% filter(count == max(count)) %>% .$response`** days. 
 
--  **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'smoke_ever' & response != 'I have never smoked') %>% .$value)`** of `r group_name` reported having ever smoked and **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value)`** reported smoking regularly (once a week or more). `r ls2`
+-  **`r sum(filter(stats,  breakdown == group_breakdown & question == 'smoke_ever' & response != 'I have never smoked') %>% .$value)`** of `r group_name` reported having ever smoked and **`r sum(filter(stats,  breakdown == group_breakdown & question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value)`** reported smoking regularly (once a week or more). `r ls2`
 
--  **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'vaping' & response != 'I have never vaped') %>% .$value)`** of `r group_name` reported having ever vaped and **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'vaping' & response == 'I vape regularly (once a week or more)') %>% .$value)`** reported vaping regularly (once a week or more). `r ls3`
+-  **`r sum(filter(stats, breakdown == group_breakdown & question == 'vaping' & response != 'I have never vaped') %>% .$value)`** of `r group_name` reported having ever vaped and **`r sum(filter(stats,  breakdown == group_breakdown & question == 'vaping' & response == 'I vape regularly (once a week or more)') %>% .$value)`** reported vaping regularly (once a week or more). `r ls3`
 
--  **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'alcohol_ever' & response != 'Never') %>% .$value)`** of `r group_name` reported having had an alcoholic drink in the past 3 months and **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value)`** reported drinking 4 or more times a week. `r ls4`
+-  **`r sum(filter(stats, breakdown == group_breakdown & question == 'alcohol_ever' & response != 'Never') %>% .$value)`** of `r group_name` reported having had an alcoholic drink in the past 3 months and **`r sum(filter(stats, breakdown == group_breakdown & question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value)`** reported drinking 4 or more times a week. `r ls4`
 
--  **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value)`** of `r group_name` reported having ever taken drugs and **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value)`** reported taking drugs regularly (once a week more). `r ls5`
+-  **`r sum(filter(stats, breakdown == group_breakdown & question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value)`** of `r group_name` reported having ever taken drugs and **`r sum(filter(stats, &  breakdown == group_breakdown & question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value)`** reported taking drugs regularly (once a week more). `r ls5`
 
 **Safety** <br>
 
--  Regarding safety, **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'safety_day' & response == 'Unsafe') %>% .$value)`** of `r group_name` felt unsafe going out during the day, **`r sum(filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'safety_dark' & response == 'Unsafe') %>% .$value)`** of `r group_name` felt unsafe going out after dark, **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'safety_school' & response == 'Unsafe' & !is.na(question_text)) %>% .$value`** of `r group_name` felt unsafe at school, and **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'safety_journey' & response == 'Unsafe' & !is.na(question_text)) %>% .$value`** of `r group_name` felt unsafe going to and from school. `r safety`
+-  Regarding safety, **`r sum(filter(stats,  breakdown == group_breakdown & question == 'safety_day' & response == 'Unsafe') %>% .$value)`** of `r group_name` felt unsafe going out during the day, **`r sum(filter(stats,  breakdown == group_breakdown & question == 'safety_dark' & response == 'Unsafe') %>% .$value)`** of `r group_name` felt unsafe going out after dark, **`r filter(stats, breakdown == group_breakdown & question == 'safety_school' & response == 'Unsafe' & !is.na(question_text)) %>% .$value`** of `r group_name` felt unsafe at school, and **`r filter(stats,  breakdown == group_breakdown & question == 'safety_journey' & response == 'Unsafe' & !is.na(question_text)) %>% .$value`** of `r group_name` felt unsafe going to and from school. `r safety`
 
 **School support**<br>
 
--  **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'schoolsupp_academic' & response == "Yes" & !is.na(question_text)) %>% .$value`** of `r group_name` felt that their school is supportive of their academic development. `r sch1`
+-  **`r filter(stats,  breakdown == group_breakdown & question == 'schoolsupp_academic' & response == "Yes" & !is.na(question_text)) %>% .$value`** of `r group_name` felt that their school is supportive of their academic development. `r sch1`
 
--  **`r filter(stats, school == "All Schools" &  breakdown == group_breakdown & question == 'schoolsupp_wellbeing' & response == "Yes") %>% .$value`** of `r group_name` felt that their school is supportive of their emotional health and wellbeing. `r sch2`
+-  **`r filter(stats, breakdown == group_breakdown & question == 'schoolsupp_wellbeing' & response == "Yes") %>% .$value`** of `r group_name` felt that their school is supportive of their emotional health and wellbeing. `r sch2`
 
 **COVID-19**<br>
 
