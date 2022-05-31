@@ -82,34 +82,7 @@ ui <- tablerDash::tablerDashPage(
       key_mod("key"),
       explore_mod("explore"),
       inequalities_mod("ineq"),
-      tablerDash::tablerTabItem(
-        tabName = "Export",
-        shiny::tagList(
-          shiny::fluidRow(
-            tablerDash::tablerCard(width = 12, title = "Data table", 
-                                   closable = FALSE,
-                                   shiny::uiOutput("exp_year"), 
-                                   shiny::uiOutput("exp_breakdown"),
-                                   shiny::uiOutput("exp_theme"),
-                                   shiny::uiOutput("exp_question"),
-                                   shiny::br(),
-                                   downloadButton("exp_table", "Export table"),
-                                   shiny::br(),
-                                   reactableOutput("data_table")
-            )
-          ),
-          shiny::fluidRow(
-            tablerDash::tablerCard(title = "Export full report",
-                                   width = 12, 
-                                   closable = FALSE,
-                                   shiny::uiOutput("exp_report_comp"),
-                                   shiny::uiOutput("exp_report_cat"),
-                                   shiny::downloadButton("exp_report", "Export report")
-            )
-          )
-        ),
-        
-      ),
+      export_mod("export"),
       about_mod("about")
     )
   )
