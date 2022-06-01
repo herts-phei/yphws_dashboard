@@ -24,10 +24,10 @@ export_mod <- function(id,
       shiny::fluidRow(
         tablerDash::tablerCard(title = "Export full report(COMING SOON)",
                                width = 12, 
-                               closable = FALSE,
-                               shiny::uiOutput(ns("exp_report_comp")),
-                               shiny::uiOutput(ns("exp_report_cat")),
-                               shiny::downloadButton(ns("exp_report"), "Export report")
+                               closable = FALSE#,
+                               # shiny::uiOutput(ns("exp_report_comp")),
+                               # shiny::uiOutput(ns("exp_report_cat")),
+                               # shiny::downloadButton(ns("exp_report"), "Export report")
         )
     )
   )
