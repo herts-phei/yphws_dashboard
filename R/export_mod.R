@@ -38,7 +38,7 @@ export_mod <- function(id,
 # Server ------------------------------------------------------------------
 
 export_mod_server <- function(id,
-                              year,
+                              params,
                               data, 
                               stats_combined,
                               q_coded, 
