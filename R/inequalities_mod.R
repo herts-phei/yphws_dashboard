@@ -39,6 +39,7 @@ inequalities_mod <- function(id,
 
 inequalities_mod_server <- function(id,
                                     params,
+                                    year,
                                     comp, 
                                     q_coded,
                                     stats,
@@ -137,7 +138,7 @@ inequalities_mod_server <- function(id,
         diffs <- diffs()
         
         df <- diffs %>% 
-          dplyr::filter(year == params$year) %>% 
+          dplyr::filter(year == year()) %>% 
           dplyr::left_join(dplyr::select(q_coded, -question_text), by = c("question" = "question_coded", 
                                                                           "response" = "response")) %>% 
           dplyr::filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 
@@ -155,8 +156,8 @@ inequalities_mod_server <- function(id,
         
         rug_df <- df %>% 
           #filter(response %in% resp_interest) %>% 
-          dplyr::mutate(Timeperiod = as.character(params$year),
-                        TimeperiodSortable = as.character(params$year),
+          dplyr::mutate(Timeperiod = as.character(year()),
+                        TimeperiodSortable = as.character(year()),
                         value = as.numeric(gsub("%", "", as.character(value))),
                         diff = ifelse(is.na(diff), "statistically similar", diff)) 
         

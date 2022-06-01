@@ -24,7 +24,7 @@ infobox_mod_server <- function(id,
       output$infobox <- shiny::renderUI({
         
         tablerDash::tablerStatCard(
-          value = value,
+          value = value(),
           title = title,
           width = 12
         )

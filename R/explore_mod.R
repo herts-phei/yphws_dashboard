@@ -23,14 +23,6 @@ explore_mod <- function(id,
                       ))
       ),
       shiny::column(offset = 3, 10, 
-                    # shinyWidgets::prettyRadioButtons(
-                    #   inputId = ns("explore_year"),
-                    #   label = "Survey year:", 
-                    #   choices = c("2021"),
-                    #   inline = TRUE, 
-                    #   status = "danger",
-                    #   fill = TRUE
-                    # ),
                     shinyWidgets::prettyRadioButtons(
                       inputId = ns("domains"),
                       label = "Choose a topic:", 
@@ -53,6 +45,7 @@ explore_mod <- function(id,
 
 explore_mod_server <- function(id,
                                params,
+                               year,
                                stats,
                                stats_old,
                                diffs,
@@ -66,17 +59,16 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      # Reactive UIs ------------------------------------------------------------
-      
       # observe({
       #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
       # })
-      
+
       # Data --------------------------------------------------------------------
       
       chk_var <- shiny::reactive({
         
         q_coded <- q_coded()
+        
         # vector of selected vars
         single <- q_coded %>% 
           dplyr::arrange(question_raw) %>% 
@@ -98,7 +90,7 @@ explore_mod_server <- function(id,
           dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
                                                                             "response" = "response")) %>% 
           dplyr::filter(question_coded_gen %in% chk_var(),
-                        year == params()$year)
+                        year == year())
         
       })
       
@@ -108,7 +100,7 @@ explore_mod_server <- function(id,
           dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
                                                                             "response" = "response")) %>%
           dplyr::filter(question_coded_gen %in% chk_var(),
-                        year == as.character(as.numeric(params()$year) - 1))
+                        year == as.character(as.numeric(year()) - 1))
       })
       
       chk_diff <- shiny::reactive({
@@ -117,7 +109,7 @@ explore_mod_server <- function(id,
           dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
                                                                             "response" = "response")) %>% 
           dplyr::filter(question_coded_gen %in% chk_var(),
-                        year == params()$year)
+                        year == year())
       })
       
       
@@ -131,16 +123,17 @@ explore_mod_server <- function(id,
         comp <- comp()
         q_coded <- q_coded()
         grp_lookup <- grp_lookup()
+        year <- input$explore_year
         
         l <- list()
         for (i in 1:length(chk_var())){
           
           # Current question
           current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
-            dplyr::mutate(year = as.character(as.numeric(params()$year)))
+            dplyr::mutate(year = as.character(as.numeric(year())))
           
           current_old <- dplyr::filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
-            dplyr::mutate(year = as.character(as.numeric(params()$year) - 1))
+            dplyr::mutate(year = as.character(as.numeric(year()) - 1))
           
           multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
           multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
