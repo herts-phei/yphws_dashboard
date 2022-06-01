@@ -60,7 +60,7 @@ explore_mod_server <- function(id,
       ns <- shiny::NS(id)
       
       # observe({
-      #   if ("Mental Health and Wellbeing" %in% input$domains ) {browser()}
+      #   if ("Sustainability" %in% input$domains ) {browser()}
       # })
 
       # Data --------------------------------------------------------------------
@@ -76,7 +76,8 @@ explore_mod_server <- function(id,
         
         chk_var <- q_coded %>%
           dplyr::filter(question_coded %in% single$question_coded,
-                        !is.na(response)) %>%
+                        !is.na(response),
+                        question_coded %in% unique(stats()$question)) %>%
           dplyr::pull(question_coded_gen)
         
         return(unique(chk_var))
@@ -116,99 +117,133 @@ explore_mod_server <- function(id,
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
         
-        params <- params()
-        stats <- stats()
-        stats_old <- stats_old()
-        diffs <- diffs()
-        comp <- comp()
-        q_coded <- q_coded()
-        grp_lookup <- grp_lookup()
-        year <- input$explore_year
-        
         l <- list()
-        for (i in 1:length(chk_var())){
+        
+        if (length(chk_var()) > 0) {
           
-          # Current question
-          current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
-            dplyr::mutate(year = as.character(as.numeric(year())))
+          params <- params()
+          stats <- stats()
+          stats_old <- stats_old()
+          diffs <- diffs()
+          comp <- comp()
+          q_coded <- q_coded()
+          grp_lookup <- grp_lookup()
           
-          current_old <- dplyr::filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
-            dplyr::mutate(year = as.character(as.numeric(year()) - 1))
-          
-          multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
-          multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
-          
-          # find group of interest 
-          #TODO clean
-          grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
-                                                 unique(current$breakdown))]
-          grp <- ifelse(length(grp) == 0, NA, grp)
-          
-          # --Create text and plots based on type of question--
-          # --Multicat questions
-          if (multi) { 
+          for (i in 1:length(chk_var())){
             
-            # response of interest (usually Yes)
-            if(multi_bin) { resp_interest = "Yes" } else {
-              
-              resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
-                                     collapse = "|")
-              resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
-              
-            }
+            # Current question
+            current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
+              dplyr::mutate(year = as.character(as.numeric(year())))
             
-            if(comp == "schyear"){
-              order <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")
-              
-              current_plot <- current 
-              
-              current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
-              
-            }else{
-              
-              current_plot <- current
-            }
+            current_old <- dplyr::filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
+              dplyr::mutate(year = as.character(as.numeric(year()) - 1))
             
+            multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
+            multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
+            
+            # find group of interest 
+            #TODO clean
+            grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
+                                                   unique(current$breakdown))]
+            grp <- ifelse(length(grp) == 0, NA, grp)
+            
+            # --Create text and plots based on type of question--
+            # --Multicat questions
+            if (multi) { 
+              
+              # response of interest (usually Yes)
+              if(multi_bin) { resp_interest = "Yes" } else {
+                
+                resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
+                                       collapse = "|")
+                resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
+                
+              }
+              
+              if(comp == "schyear"){
+                order <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")
+                
+                current_plot <- current 
+                
+                current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
+                
+              }else{
+                
+                current_plot <- current
+              }
+              
               current_plot$response <- forcats::as_factor(current$response)
               current_plot$response <- forcats::fct_relevel(current$response, levels = c("low", "medium", "high", "very high", "I have never heard of it", "I have heard of it but know nothing about it", "It can be both treated and cured", "It can be treated but not cured"))
-            
-            # multicat style plot
-            int_plot <- create_multi_plot(df = current_plot,
-                                          plot_title = "",
-                                          binary = multi_bin)
-            
-            # trend table
-            if (nrow(current_old) > 0) {
               
-              current_old_trend <- current_old %>% 
-                dplyr::mutate(year = as.character(as.numeric(params$year) - 1),
-                              `2020` = value) %>% 
-                dplyr::filter(response_of_interest == "TRUE")
+              # multicat style plot
+              int_plot <- create_multi_plot(df = current_plot,
+                                            plot_title = "",
+                                            binary = multi_bin)
               
-              names(current_old_trend) <- paste0("prev_", names(current_old_trend))
+              # trend table
+              if (nrow(current_old) > 0) {
+                
+                current_old_trend <- current_old %>% 
+                  dplyr::mutate(year = as.character(as.numeric(params$year) - 1),
+                                `2020` = value) %>% 
+                  dplyr::filter(response_of_interest == "TRUE")
+                
+                names(current_old_trend) <- paste0("prev_", names(current_old_trend))
+                
+                stats_ <- current %>% 
+                  dplyr::filter(response_of_interest == "TRUE")
+                
+                trend_plot <- create_trend_table(stats = stats_,
+                                                 stats_old = current_old_trend,
+                                                 params = params)
+                
+                
+              } else {
+                
+                trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+                trend_text <- ""
+                
+              }
               
-              stats_ <- current %>% 
-                dplyr::filter(response_of_interest == "TRUE")
+              # text differs depending on type of question
+              if(!multi_bin) {
+                
+                text <- create_sum_sentence(dataset = current,
+                                            dataset_old = current_old, 
+                                            multi = T,
+                                            value_of_interest = resp_interest,
+                                            full_data = chk_stats(),
+                                            diffs = chk_diff(),
+                                            custom_grp = unique(current$breakdown),
+                                            group_of_interest = grp,
+                                            q_coded = q_coded,
+                                            top = NA)
+                
+              } else {
+                
+                if (any(grepl("internet_", current$question))) { top <- NA } else { top <- 5 }
+                
+                text <- create_sum_sentence(dataset = current,
+                                            dataset_old = current_old, 
+                                            multi = T,
+                                            value_of_interest = "Yes",
+                                            full_data = chk_stats(),
+                                            diffs = chk_diff(),
+                                            custom_grp = unique(current$breakdown),
+                                            group_of_interest = grp,
+                                            q_coded = q_coded,
+                                            top = top)
+                
+              }
               
-              trend_plot <- create_trend_table(stats = stats_,
-                                               stats_old = current_old_trend,
-                                               params = params)
+              # --Single cat questions
+            } else { 
               
-              
-            } else {
-              
-              trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
-              trend_text <- ""
-              
-            }
-            
-            # text differs depending on type of question
-            if(!multi_bin) {
-              
+              # text summary
               text <- create_sum_sentence(dataset = current,
-                                          dataset_old = current_old, 
-                                          multi = T,
-                                          value_of_interest = resp_interest,
+                                          dataset_old = current_old,
+                                          multi = multi,
+                                          value_of_interest = NA,
                                           full_data = chk_stats(),
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
@@ -216,111 +251,89 @@ explore_mod_server <- function(id,
                                           q_coded = q_coded,
                                           top = NA)
               
-            } else {
+              if(comp == "schyear"){
+                
+                order <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")
+                
+                current_plot <- current 
+                
+                current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
+                
+              }else{
+                current_plot <- current
+                
+                order <- unique(current_plot$breakdown)
+              }
               
-              if (any(grepl("internet_", current$question))) { top <- NA } else { top <- 5 }
+              # interactive plot
+              int_plot <- create_basic_plot(df = current_plot,
+                                            plot_custom_grp = order,
+                                            plot_title = "")
               
-              text <- create_sum_sentence(dataset = current,
-                                          dataset_old = current_old, 
-                                          multi = T,
-                                          value_of_interest = "Yes",
-                                          full_data = chk_stats(),
-                                          diffs = chk_diff(),
-                                          custom_grp = unique(current$breakdown),
-                                          group_of_interest = grp,
-                                          q_coded = q_coded,
-                                          top = top)
-              
+              # trend table
+              if (nrow(current_old) > 0) {
+                
+                current_old_trend <- dplyr::mutate(current_old, `2020` = value) 
+                names(current_old_trend) <- paste0("prev_", names(current_old_trend))
+                
+                trend_plot <- create_trend_table(stats = current,
+                                                 stats_old = current_old_trend,
+                                                 params = params)
+                
+              } else {
+                
+                trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+                
+              }
             }
             
-            # --Single cat questions
-          } else { 
-            
-            # text summary
-            text <- create_sum_sentence(dataset = current,
-                                        dataset_old = current_old,
-                                        multi = multi,
-                                        value_of_interest = NA,
-                                        full_data = chk_stats(),
-                                        diffs = chk_diff(),
-                                        custom_grp = unique(current$breakdown),
-                                        group_of_interest = grp,
-                                        q_coded = q_coded,
-                                        top = NA)
-            
-            if(comp == "schyear"){
-              
-              order <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")
-              
-              current_plot <- current 
-              
-              current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
-              
-            }else{
-              current_plot <- current
-              
-              order <- unique(current_plot$breakdown)
-            }
-            
-            # interactive plot
-            int_plot <- create_basic_plot(df = current_plot,
-                                          plot_custom_grp = order,
-                                          plot_title = "")
-            
-            # trend table
-            if (nrow(current_old) > 0) {
-              
-              current_old_trend <- dplyr::mutate(current_old, `2020` = value) 
-              names(current_old_trend) <- paste0("prev_", names(current_old_trend))
-              
-              trend_plot <- create_trend_table(stats = current,
-                                               stats_old = current_old_trend,
-                                               params = params)
-              
-            } else {
-              
-              trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
-              
-            }
+            # --Create boxes --
+            l[[i]] <- bs4Dash::tabItem("name", 
+                                       bs4Dash::bs4TabCard(width = 12, side = "right", status = "success",
+                                                           collapsible = FALSE, 
+                                                           title = shiny::HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", current$heading[1],"<br>")),
+                                                           shiny::tabPanel("Summary", 
+                                                                           shiny::HTML(
+                                                                             text
+                                                                           ),
+                                                                           shiny::br(),
+                                                                           int_plot
+                                                           ),
+                                                           shiny::tabPanel(
+                                                             "Trend",
+                                                             shiny::br(),
+                                                             trend_plot
+                                                           ),
+                                                           shiny::tabPanel(
+                                                             "Table", 
+                                                             chk_stats() %>% 
+                                                               dplyr::mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
+                                                                             lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
+                                                                             uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
+                                                               ) %>% 
+                                                               dplyr::filter(question_coded_gen %in% chk_var()[i]) %>% 
+                                                               dplyr::select(breakdown, question = question_text, response, value, count, denominator,
+                                                                             lowercl, uppercl) %>% 
+                                                               reactable::reactable(groupBy = c("breakdown", "question"),
+                                                                                    columns = list(
+                                                                                      value = reactable::colDef(maxWidth = 70),
+                                                                                      count = reactable::colDef(maxWidth = 65),
+                                                                                      denominator = reactable::colDef(maxWidth = 70),
+                                                                                      lowercl = reactable::colDef(maxWidth = 70),
+                                                                                      uppercl = reactable::colDef(maxWidth = 70)
+                                                                                    ))
+                                                           )) )
           }
           
-          # --Create boxes --
-          l[[i]] <- bs4Dash::tabItem("name", 
+        } else {
+          
+          l[[1]] <- bs4Dash::tabItem("name", 
                                      bs4Dash::bs4TabCard(width = 12, side = "right", status = "success",
                                                          collapsible = FALSE, 
-                                                         title = shiny::HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", current$heading[1],"<br>")),
-                                                         shiny::tabPanel("Summary", 
-                                                                         shiny::HTML(
-                                                                           text
-                                                                         ),
-                                                                         shiny::br(),
-                                                                         int_plot
-                                                         ),
-                                                         shiny::tabPanel(
-                                                           "Trend",
-                                                           shiny::br(),
-                                                           trend_plot
-                                                         ),
-                                                         shiny::tabPanel(
-                                                           "Table", 
-                                                           chk_stats() %>% 
-                                                             dplyr::mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
-                                                                           lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
-                                                                           uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
-                                                             ) %>% 
-                                                             dplyr::filter(question_coded_gen %in% chk_var()[i]) %>% 
-                                                             dplyr::select(breakdown, question = question_text, response, value, count, denominator,
-                                                                           lowercl, uppercl) %>% 
-                                                             reactable::reactable(groupBy = c("breakdown", "question"),
-                                                                                  columns = list(
-                                                                                    value = reactable::colDef(maxWidth = 70),
-                                                                                    count = reactable::colDef(maxWidth = 65),
-                                                                                    denominator = reactable::colDef(maxWidth = 70),
-                                                                                    lowercl = reactable::colDef(maxWidth = 70),
-                                                                                    uppercl = reactable::colDef(maxWidth = 70)
-                                                                                  ))
-                                                         )) )
+                                                         shiny::htmlOutput("No data available for the selected year.")))
+          
         }
+
         
         return(l)
         
@@ -337,19 +350,27 @@ explore_mod_server <- function(id,
         q_coded <- q_coded()
         
         l <- list()
-        for (i in 1:length(chk_var())){
+        
+        if(length(chk_var() > 0)) {
           
-          # Current question
-          current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+          for (i in 1:length(chk_var())){
+            
+            # Current question
+            current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i])
+            
+            text <- q_coded$heading[q_coded$question_coded_gen %in% current$question_coded_gen][1] # for TOC
+            
+            l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[1], "'>", text, "</a><br><br>")
+            
+          }
           
-          text <- q_coded$heading[q_coded$question_coded_gen %in% current$question_coded_gen][1] # for TOC
+        } else {
           
-          l[[i]] <- paste0("<a href='#anchor-", current$question_coded_gen[1], "'>", text, "</a><br><br>")
+          l[[1]] <- paste0("")
           
         }
         
         output <- paste(unlist(l), collapse = "")
-        
         return(output)
         
       })

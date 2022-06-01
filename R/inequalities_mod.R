@@ -51,7 +51,20 @@ inequalities_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe({if("Safety" %in% input$ineq_domains) {browser()}})
+      observe({if("Safety" %in% input$ineq_domains) {browser()}})
+      
+      # Intro text --------------------------------------------------------------------
+      
+      output$ineq_text <- shiny::renderText({
+        paste0("This tab can be used to view significant differences between groups across different questions/indicators. ",
+               "A tartan rug plot will be created based of the selected health topic/s. You can select which indicators (questions) ",
+               "under the selected health topic/s you'd like to be added to the tartan rug. Please allow a few seconds after selection ", 
+               "for the plot to update. <br><br> As shown in the legend, values coloured yellow are statistically similar to ", 
+               "All Responses, while values that are dark blue or light blue were found to be statistically lower or statistically ",
+               "higher compared to All Responses respectively. The statistical significance is determined by comparing the 95% ",
+               "confidence intervals (CI) between groups and All Responses, as calculated using methods used by Public Health England. ",
+               "All values are presented in percentages. To view the values of 95% CIs, see the Explore Data tab or Export tab.")
+      })
       
       # UIs ---------------------------------------------------------------------
       
@@ -147,7 +160,7 @@ inequalities_mod_server <- function(id,
           
           categories <- unique(c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "Not at school/other"))
           
-        }else{
+        } else {
           
           categories <- as.character(unique(df$breakdown))
           categories <- categories[which(!grepl("All Responses", categories))]
@@ -161,35 +174,26 @@ inequalities_mod_server <- function(id,
                         value = as.numeric(gsub("%", "", as.character(value))),
                         diff = ifelse(is.na(diff), "statistically similar", diff)) 
         
-        tartan(df = rug_df,
-               indicators = unique(rug_df$question_response),
-               comparator_area = "All Responses",
-               areas = categories,
-               palette = "blues",
-               area_col = "breakdown",
-               period_col = "Timeperiod",
-               period_sort_col = "TimeperiodSortable",
-               indicator_col = "question_response",
-               value_col = "value",
-               upper_ci = "uppercl",
-               lower_ci = "lowercl")
+        if (nrow(rug_df) > 0) {
+          
+          tartan(df = rug_df,
+                 indicators = unique(rug_df$question_response),
+                 comparator_area = "All Responses",
+                 areas = categories,
+                 palette = "blues",
+                 area_col = "breakdown",
+                 period_col = "Timeperiod",
+                 period_sort_col = "TimeperiodSortable",
+                 indicator_col = "question_response",
+                 value_col = "value",
+                 upper_ci = "uppercl",
+                 lower_ci = "lowercl")
+          
+        } else { return(NULL) }
+        
         
         
       }, height = function() {60 * (max(1, length(for_height())))}, res = 96)
-      
-      # Intro text --------------------------------------------------------------------
-      
-      output$ineq_text <- shiny::renderText({
-        paste0("This tab can be used to view significant differences between groups across different questions/indicators. ",
-               "A tartan rug plot will be created based of the selected health topic/s. You can select which indicators (questions) ",
-               "under the selected health topic/s you'd like to be added to the tartan rug. Please allow a few seconds after selection ", 
-               "for the plot to update. <br><br> As shown in the legend, values coloured yellow are statistically similar to ", 
-               "All Responses, while values that are dark blue or light blue were found to be statistically lower or statistically ",
-               "higher compared to All Responses respectively. The statistical significance is determined by comparing the 95% ",
-               "confidence intervals (CI) between groups and All Responses, as calculated using methods used by Public Health England. ",
-               "All values are presented in percentages. To view the values of 95% CIs, see the Explore Data tab or Export tab.")
-      })
-      
     }
   )
 }
