@@ -71,10 +71,7 @@ ui <- tablerDash::tablerDashPage(
                               tablerDash::tablerNavMenuItem(
                                 "About",
                                 tabName = "About"
-                              )#, 
-                              #tablerNavMenuItem(
-                              #  uiOutput("feedback_link")
-                              #)
+                              )
     )
   ),
   body = tablerDash::tablerDashBody(
@@ -82,34 +79,7 @@ ui <- tablerDash::tablerDashPage(
       key_mod("key"),
       explore_mod("explore"),
       inequalities_mod("ineq"),
-      tablerDash::tablerTabItem(
-        tabName = "Export",
-        shiny::tagList(
-          shiny::fluidRow(
-            tablerDash::tablerCard(width = 12, title = "Data table", 
-                                   closable = FALSE,
-                                   shiny::uiOutput("exp_year"), 
-                                   shiny::uiOutput("exp_breakdown"),
-                                   shiny::uiOutput("exp_theme"),
-                                   shiny::uiOutput("exp_question"),
-                                   shiny::br(),
-                                   downloadButton("exp_table", "Export table"),
-                                   shiny::br(),
-                                   reactableOutput("data_table")
-            )
-          ),
-          shiny::fluidRow(
-            tablerDash::tablerCard(title = "Export full report",
-                                   width = 12, 
-                                   closable = FALSE,
-                                   shiny::uiOutput("exp_report_comp"),
-                                   shiny::uiOutput("exp_report_cat"),
-                                   shiny::downloadButton("exp_report", "Export report")
-            )
-          )
-        ),
-        
-      ),
+      export_mod("export"),
       about_mod("about")
     )
   )
@@ -187,185 +157,11 @@ server <- function(input, output) {
   
   # Export ------------------------------------------------------------------
   
-  output$exp_report_comp <- shiny::renderUI({
-    
-    shinyWidgets::pickerInput("exp_report_comp", label = "Select what to group by in your report",
-                              choices = list("Sex" = "sex",
-                                             "Year group" = "schyear",
-                                             "Ethnicity" = "ethnicity",
-                                             "IMD Quintile" = "imd_quintile",
-                                             "Sexuality" = "sexuality",
-                                             "Young carer" = "caring",
-                                             #"Smoker" = "smoke_ever",
-                                             "Self-harm" = "selfharm_ever",
-                                             "Bullied" = "bullied",
-                                             "District" = "District"),
-                              selected = input$comp,
-                              multiple = FALSE)
-    
-  })
-  
-  output$exp_report_cat <- shiny::renderUI({
-    
-    
-    choices <- unique(rv$data$data[[input$exp_report_comp]]$breakdown) 
-    
-    choices <- choices[choices != "All Responses" & choices != "Non-white"]
-    
-    
-    shinyWidgets::pickerInput("exp_report_cat", "Select the category from the selected group you are most interested in:",
-                              choices = as.character(na.omit(choices)), multiple = FALSE,
-                              selected = as.character(na.omit(choices)[1]))
-    
-  })
-  
-  
-  output$exp_report <- shiny::downloadHandler(
-    
-    filename = function() {
-      paste0("Hertfordshire YPHWS Report - ", input$exp_report_comp, " focusing on ", input$exp_report_cat, ".html")
-    },
-    
-    content = function(file) {
-      
-      shiny::withProgress(message = "Producing the report. This can take some time...", {
-        
-        src <- normalizePath('report.Rmd')
-        
-        # temporarily switch to the temp dir, in case you do not have write permission to the current working directory
-        owd <- setwd(tempdir())
-        on.exit(setwd(owd))
-        file.copy(src, 'report.Rmd', overwrite = TRUE)
-        
-        # Set up parameters to pass to Rmd document
-        params <- list(var = input$exp_report_comp,
-                       cat = input$exp_report_cat,
-                       rendered_by_shiny = TRUE)
-        
-        
-        out <- rmarkdown::render('report.Rmd', params = params, envir = new.env())
-        
-        file.rename(out, file)
-        
-      })
-    }
-  )
-  
-  output$exp_year <- shiny::renderUI({
-    
-    shinyWidgets::awesomeCheckboxGroup(
-      inputId = "exp_year",
-      label = "Year:", 
-      choices = unique(rv$stats_combined$year),
-      selected = unique(rv$stats_combined$year),
-      inline = TRUE, 
-      status = "info"
-    )
-    
-  })
-  
-  output$exp_breakdown <- shiny::renderUI({
-    
-    shinyWidgets::awesomeCheckboxGroup(
-      inputId = "exp_breakdown",
-      label = "Breakdown:", 
-      choices = unique(rv$stats_combined$breakdown),
-      selected = unique(rv$stats_combined$breakdown),
-      inline = TRUE, 
-      status = "info"
-    )
-    
-  })
-  
-  output$exp_theme <- shiny::renderUI({
-    
-    shinyWidgets::pickerInput(
-      inputId = "exp_theme",
-      label = "Health topic:", 
-      choices = na.omit(unique(rv$data$q_coded$question_theme)),
-      selected = na.omit(unique(rv$data$q_coded$question_theme)),
-      multiple = TRUE
-    )
-    
-  })
-  
-  output$exp_question <- shiny::renderUI({
-    
-    filtered <- rv$data$q_coded %>% 
-      dplyr::mutate(dplyr::across(where(is.character), ~dplyr::na_if(., "NA"))) %>% 
-      dplyr::filter(question_theme %in% input$exp_theme, !is.na(survey_text)) %>% 
-      dplyr::distinct() %>% 
-      dplyr::pull(survey_text)
-    
-    shinyWidgets::pickerInput(
-      inputId = "exp_question",
-      label = "Question:", 
-      choices = unique(filtered),
-      selected = unique(filtered), 
-      multiple = TRUE,
-      options = list(`actions-box` = TRUE)
-      
-    )
-    
-  })
-  
-  # Initial table data
-  shiny::observe({
-    
-    rv$table_data <- rv$data$data[[input$comp]]  %>%
-      dplyr::left_join(dplyr::select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded, 
-                       by = c("question" = "question_coded")) %>% 
-      dplyr::select(year, breakdown, topic = question_theme, question = survey_text, 
-                    `question option` = question_text, response, 
-                    count, denominator, value, lowercl, uppercl) %>% 
-      dplyr::distinct() %>% 
-      dplyr::filter(year %in% input$exp_year,
-                    breakdown %in% input$exp_breakdown,
-                    topic %in% input$exp_theme,
-                    question %in% input$exp_question)
-    
-  })
-  
-  #event reactive table
-  shiny::observeEvent(input$export_button, {
-    
-    rv$table_data <- rv$data$data[[input$comp]]  %>%
-      dplyr::left_join(dplyr::select(rv$data$q_coded, question_coded, question_theme, survey_text), rv$data$q_coded,
-                       by = c("question" = "question_coded")) %>%
-      dplyr::select(year, breakdown, topic = question_theme, question = survey_text,
-                    `question option` = question_text, response,
-                    count, denominator, value, lowercl, uppercl) %>%
-      dplyr::distinct() %>%
-      dplyr::filter(year %in% input$exp_year,
-                    breakdown %in% input$exp_breakdown,
-                    topic %in% input$exp_theme,
-                    question %in% input$exp_question)
-    
-  })
-  
-  output$data_table <- reactable::renderReactable({
-    
-    rv$table_data %>% 
-      reactable::reactable(filterable = TRUE, defaultPageSize = 10, 
-                           columns = list(
-                             value = reactable::colDef(format = reactable::colFormat(percent = TRUE, digits = 1)),
-                             lowercl = reactable::colDef(format = reactable::colFormat(percent = TRUE, digits = 1)),
-                             uppercl = reactable::colDef(format = reactable::colFormat(percent = TRUE, digits = 1))
-                           ))
-    
-  })
-  
-  output$exp_table <- shiny::downloadHandler(
-    
-    filename = "data.csv",
-    content = function(con) {
-      
-      data <- rv$table_data
-      write.csv(data, con)
-      
-    }
-    
-  )
+  export_mod_server(id = "export",
+                    data = shiny::reactive(rv$data$data),
+                    stats_combined = shiny::reactive(rv$stats_combined),
+                    q_coded = shiny::reactive(rv$data$q_coded),
+                    comp = shiny::reactive(input$comp))
   
   # About -------------------------------------------------------------------
   

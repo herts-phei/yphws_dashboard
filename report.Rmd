@@ -26,7 +26,7 @@ knitr::opts_chunk$set(results = 'asis', comment = NA, prompt = F, cache = F, ech
 if (params$rendered_by_shiny)
   shiny::setProgress(0.1)  # set progress to 10%
 
-# board <- pins::board_rsconnect(server = "https://hertscc.managed.mango-solutions.com/connect",                         key = Sys.getenv("CONNECT_API_KEY"))
+board <- pins::board_rsconnect(server = "https://hertscc.managed.mango-solutions.com/connect",                         key = Sys.getenv("CONNECT_API_KEY"))
 # Parameters --------------------------------------------------------------
 
 year <- 2021 # year of survey
