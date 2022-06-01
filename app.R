@@ -1,4 +1,6 @@
-library(bs4Dash)
+library(shiny)
+library(shinyWidgets)
+library(tablerDash)
 library(dplyr)
 library(echarts4r)
 library(formattable)
@@ -6,20 +8,14 @@ library(ggplot2)
 library(glue)
 library(htmlwidgets)
 library(knitr)
-library(PHEindicatormethods)
 library(plotly)
 library(purrr)
 library(reactable)
 library(rmarkdown)
 library(rmdformats)
-library(shiny)
-library(shinyWidgets)
 library(stringr)
 library(sparkline)
-library(tablerDash)
-library(tinytex)
 library(viridis)
-library(formattable)
 
 year <- "2021"
 
@@ -40,7 +36,12 @@ ui <- tablerDash::tablerDashPage(
     tablerDash::tablerNavMenu(id = "tabs",
                               tags$head(shiny::includeScript("navAppend.js")),
                               tags$head(shiny::includeHTML("google-analytics.html")),
-                              shinyWidgets::pickerInput("comp", label = "Select what to group by:", width = "180px", 
+                              shinyWidgets::pickerInput("year", label = "Year:", width = "100px", 
+                                                        choices = list("2020" = "2020", 
+                                                                       "2021" = "2021"), 
+                                                        selected = "2021", multiple = FALSE),
+                              HTML('&nbsp;'),
+                              shinyWidgets::pickerInput("comp", label = "Select what to group by:", width = "170px", 
                                                         choices = list("Sex" = "sex", 
                                                                        "Year group" = "schyear", 
                                                                        "Ethnicity" = "ethnicity",
@@ -115,11 +116,11 @@ server <- function(input, output) {
     
     # Stats
     rv$stats_combined <- dplyr::select(df_selected, year, 1:12) %>% dplyr::distinct() # distinct because of repeated diffs that are now removed. 
-    rv$stats <- dplyr::filter(rv$stats_combined, year == rv$params$year)
-    rv$stats_old <- dplyr::filter(rv$stats_combined, year == as.character(as.numeric(rv$params$year) - 1))
+    rv$stats <- dplyr::filter(rv$stats_combined, year == input$year)
+    rv$stats_old <- dplyr::filter(rv$stats_combined, year == as.character(as.numeric(input$year) - 1))
     
     # Differences
-    rv$diffs <- dplyr::filter(df_selected, year == rv$params$year)
+    rv$diffs <- dplyr::filter(df_selected, year == input$year)
     
   })
   
@@ -139,6 +140,7 @@ server <- function(input, output) {
   
   explore_mod_server("explore",
                      params = shiny::reactive(rv$params),
+                     year = shiny::reactive(input$year), 
                      stats = shiny::reactive(rv$stats),
                      stats_old = shiny::reactive(rv$stats_old),
                      diffs = shiny::reactive(rv$diffs),
@@ -150,6 +152,7 @@ server <- function(input, output) {
   
   inequalities_mod_server("ineq",
                           params = shiny::reactive(rv$params),
+                          year = shiny::reactive(input$year),
                           comp = shiny::reactive(input$comp), 
                           q_coded = shiny::reactive(rv$data$q_coded),
                           stats = shiny::reactive(rv$stats),
@@ -158,6 +161,7 @@ server <- function(input, output) {
   # Export ------------------------------------------------------------------
   
   export_mod_server(id = "export",
+                    params = shiny::reactive(rv$params),
                     data = shiny::reactive(rv$data$data),
                     stats_combined = shiny::reactive(rv$stats_combined),
                     q_coded = shiny::reactive(rv$data$q_coded),
