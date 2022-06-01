@@ -24,10 +24,10 @@ export_mod <- function(id,
       shiny::fluidRow(
         tablerDash::tablerCard(title = "Export full report(COMING SOON)",
                                width = 12, 
-                               closable = FALSE#,
-                               # shiny::uiOutput(ns("exp_report_comp")),
-                               # shiny::uiOutput(ns("exp_report_cat")),
-                               # shiny::downloadButton(ns("exp_report"), "Export report")
+                               closable = FALSE,
+                               shiny::uiOutput(ns("exp_report_comp")),
+                               shiny::uiOutput(ns("exp_report_cat")),
+                               shiny::downloadButton(ns("exp_report"), "Export report")
         )
     )
   )
@@ -220,20 +220,22 @@ export_mod_server <- function(id,
         
         shiny::withProgress(message = "Producing the report. This can take some time...", {
           
-          src <- normalizePath('report.Rmd')
+          src <- normalizePath('CopyOfreport.Rmd')
           
           # temporarily switch to the temp dir, in case you do not have write permission to the current working directory
           owd <- setwd(tempdir())
           on.exit(setwd(owd))
-          file.copy(src, 'report.Rmd', overwrite = TRUE)
+          file.copy(src, 'CopyOfreport.Rmd', overwrite = TRUE)
           
           # Set up parameters to pass to Rmd document
           params <- list(var = input$exp_report_comp,
                          cat = input$exp_report_cat,
-                         rendered_by_shiny = TRUE)
+                         rendered_by_shiny = TRUE,
+                         q_coded = q_coded(),
+                         data = data())
           
           
-          out <- rmarkdown::render('report.Rmd', params = params, envir = new.env())
+          out <- rmarkdown::render('CopyOfreport.Rmd', params = params, envir = new.env())
           
           file.rename(out, file)
           
