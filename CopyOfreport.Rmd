@@ -49,11 +49,11 @@ districts <- c(
 source("R/global_utils.R", local = TRUE)
 data <- get_data()
 q_coded <-data$q_coded
+#TODO here package look up 
+#TODO make sure the facet and breakdown is in the report at the begining
+#TODO link to dashboard in rmd
 
-# q_coded <- read.csv("data-raw/q_coded.csv") %>%
-#       purrr::map_dfr(~ as.character(.)) %>%
-#       dplyr::mutate(dplyr::across(where(is.character), ~na_if(., "NA")))
-# 
+
 q_coded <- q_coded %>%
   select("question_raw", "question_theme", "question_coded", "question_text", "reworded", "survey_text", "menu_text", "multi_cat", "multi_binary", "question_coded_gen", "survey_text_gen") %>%
   distinct()
