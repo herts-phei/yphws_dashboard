@@ -232,7 +232,8 @@ export_mod_server <- function(id,
                          cat = input$exp_report_cat,
                          rendered_by_shiny = TRUE,
                          q_coded = q_coded(),
-                         data = data())
+                         data = data(),
+                         meta = params()$meta)
           
           
           out <- rmarkdown::render('CopyOfreport.Rmd', params = params, envir = new.env())

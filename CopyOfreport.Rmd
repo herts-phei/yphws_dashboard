@@ -17,6 +17,7 @@ params:
   rendered_by_shiny: FALSE
   q_coded: NA
   data: NA
+  meta: NA
 ---
 
 ``` {r setup, include=F}
@@ -31,10 +32,14 @@ if (params$rendered_by_shiny)
 # Parameters --------------------------------------------------------------
 
 year_report <- 2021 # year of survey
+school_number <- params$meta
+school_number <- school_number %>%
+dplyr::filter(year %in% year_report)
+school_number <- school_number$unique_schools
+#school_number <- 40
 group <- params$var # Which variable to break down by. Usually ethnicity.
 cat_of_interest <- params$cat # Only applicable if group parameter is custom and you'd like to highlight a specific category within the group. Otherwise, state NA
-data_pin <- "ayu/YPHWS_2021"
-prev_data_pin <- "bkimpton/youth_survey_responses"
+
 districts <- c(
   "Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire",
   "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield"
@@ -42,50 +47,49 @@ districts <- c(
 
 # Load data ---------------------------------------------------------------
 
+# Code to run rmd indepenently of app for testing purposes
 # Replacing q_coded section with data from folders
-# source("R/global_utils.R", local = TRUE)
-# data <- get_data()
-# q_coded <-data$q_coded
-group <- "ethnicity" # Which variable to break down by. Usually ethnicity.
-cat_of_interest <- "White" 
-
-#TODO make sure the facet and breakdown is in the report at the begining
-#TODO link to dashboard in rmd
+#  source("R/global_utils.R", local = TRUE)
+#  data <- get_data()
+#  q_coded <-data$q_coded
+# group <- "caring" # Which variable to break down by. Usually ethnicity.
+# cat_of_interest <- "Young carer" 
+# school_number <- 40
+# #data <- data$data$caring
 
 q_coded <- params$q_coded
 q_coded <- q_coded %>%
-  select("question_raw", "question_theme", "question_coded", "question_text", "reworded", "survey_text", "menu_text", "multi_cat", "multi_binary", "question_coded_gen", "survey_text_gen") %>%
+  dplyr::select("question_raw", "question_theme", "question_coded", "question_text", "reworded", "survey_text", "menu_text", "multi_cat", "multi_binary", "question_coded_gen", "survey_text_gen") %>%
   distinct()
 
 data <- params$data
 data <- data[[group]]
-
-data <- data %>% filter(question != "lsoa_code")
+data <- data %>% dplyr::filter(question != "lsoa_code")
 
 if(group == "caring"){
 data <- data %>%
-  dplyr::mutate(caring = dplyr::case_when(caring == "Yes" ~ "Young carer",
-                            caring == "No" ~ "Non-carer",
-                            caring == "Prefer not to say" ~ "Prefer not to say",
-                            TRUE ~ NA_character_))
+  dplyr::mutate(response = dplyr::case_when(question == "caring" & response == "Yes" ~ "Young carer",
+                            question == "caring" & response == "No" ~ "Non-carer",
+                            question == "caring" & response == "Prefer not to say" ~ "Prefer not to say",
+                            TRUE ~ response))
 
 }
 
 if(group == "bullied"){
   data <- data %>%
-  dplyr::mutate(bullied = dplyr::case_when(bullied == "Yes" ~ "Bullied",
-                            bullied == "No" ~ "Not bullied",
-                            bullied == "Prefer not to say" ~ "Prefer not to say",
-                            TRUE ~ NA_character_))
+  dplyr::mutate(response = dplyr::case_when(question == "bullied" & response == "Yes" ~ "Bullied",
+                            question == "bullied" & response == "No" ~ "Not bullied",
+                            question == "bullied" & response == "Prefer not to say" ~ "Prefer not to say",
+                            TRUE ~ response))
   
 }
 
 if(group == "selfharm_ever"){
   data <- data %>%
-  dplyr::mutate(selfharm_ever = dplyr::case_when(selfharm_ever == "Yes" ~ "Self-harmed",
-                            selfharm_ever == "No" ~ "Not self-harmed",
-                            selfharm_ever == "Prefer not to say" ~ "Prefer not to say",
-                            TRUE ~ NA_character_))
+  dplyr::mutate(response = dplyr::case_when(question == "selfharm_ever" & response == "Yes" ~ "Self-harmed",
+                            question == "selfharm_ever" & response == "No" ~ "Self-harmed",
+                            question == "selfharm_ever" & response == "Prefer not to say" ~ "Prefer not to say",
+                            TRUE ~ response))
   
 }
 
@@ -241,8 +245,6 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
           # generate the values used for the sentences. 
           df <- grp_df %>% 
             dplyr::filter(question %in% reps, response == value_of_interest) %>% 
-            dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
-            tidyr::drop_na(reworded) %>% 
             dplyr::arrange(desc(count))
           
           if (binary) {
@@ -630,15 +632,20 @@ create_bullets_herts <- function(df, grouped_by_question = F) {
 
 # DIFFERENCES
 stats_diffs <- data %>%
-  mutate(year = as.numeric(year)) %>%
-  filter(year == year_report)
+  dplyr::mutate(year = as.numeric(year)) %>%
+  dplyr::filter(year == year_report)
 
 # get main stats df
 stats <- data %>%
-  mutate(year = as.numeric(year)) %>%
-  filter(year == year_report) %>%
+  dplyr:: mutate(year = as.numeric(year)) %>%
+  dplyr::filter(year == year_report) %>%
   dplyr::select(- value.y, -breakdown.y, -question_text.y, -year.y, -diff,- image) %>%
-  distinct()
+  dplyr::distinct() %>%
+  dplyr::mutate(value = formattable::percent(value, digits = 1),
+                  lowercl = formattable::percent(lowercl, digits = 1),
+                  uppercl = formattable::percent(uppercl, digits = 1),
+                  lowereb = value - lowercl,
+                  uppereb = uppercl - value)
 
 # Report processing --------------------------------------------------------
 custom_filter <- ifelse(!is.na(cat_of_interest), cat_of_interest, "All Responses")
@@ -727,7 +734,7 @@ mh4 <- ifelse(!is.na(cat_of_interest), paste0("From all responses, ",
 
 
 ls1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-                                              dplyr::filter(stats_all, question == 'pa_60' & response == "6-7") %>% 
+                                              dplyr::filter(stats_all, question == 'pa_60' & response == "6 to 7") %>% 
                                                 .$value, " for all responses."), "")
 
 ls2 <- ifelse(!is.na(cat_of_interest), paste0("For all responses, this was ", 
@@ -788,9 +795,9 @@ cov2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ",
 
 >Hertfordshire's Young People's Health & Wellbeing Survey is jointly funded by Hertfordshire County Council's Public Health and Children's Services departments. Analysis is conducted by Public Health Evidence & Intelligence. Further information can be found at https://www.hertshealthevidence.org/surveys.aspx
 
-This version of the report is grouped by `r group` the catergory of interest is `r cat_of_interest`
+**This version of the report is grouped by `r group` the category of interest for the selected group is "`r cat_of_interest`". The yphws dashboard can be accessed <a href="https://hcc-phei.shinyapps.io/yphws_dashboard/_w_fb79eb83/_w_79088773/">here</a>**
 
-This report summarises the results of `r as.character(max(filter(stats) %>% select(denominator)))` pupils from `r length(unique(data$school))` schools who responded to the `r year_report` Young People's Health & Wellbeing Survey (YPHWS).
+This report summarises the results of `r as.character(max(filter(stats) %>% select(denominator)))` pupils from `r school_number` schools who responded to the `r year_report` Young People's Health & Wellbeing Survey (YPHWS).
 
 
 Each section is comprised of summary text followed by graphs and tables accessible through switching through the tabs.
@@ -812,7 +819,7 @@ Further reports on health & wellbeing can be found at [www.hertshealthevidence.o
 
 **Mental health and wellbeing**<br>
 
-- **`r filter(stats, breakdown == group_breakdown & question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value`** of `r group_name` rated their life satisfaction as low. `r mh1`
+- **`r filter(stats, breakdown == group_breakdown & question == 'life_satisfied' & response == "low" & !is.na(question_text))  %>% .$value`** of `r group_name` rated their life satisfaction as low. `r mh1`
 
 - **`r filter(stats, breakdown == group_breakdown & question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value`** of `r group_name` rated  their satisfaction now compared to before COVID-19 as low. `r mh2`
 
@@ -826,7 +833,7 @@ Further reports on health & wellbeing can be found at [www.hertshealthevidence.o
 
 **Lifestyle** <br>
 
--  Out of responses from `r group_name`, **`r filter(stats,  breakdown == group_breakdown & question == 'pa_60' & response == "6-7") %>% .$value`** had done a total of 60 minutes or more of physical activity 6-7 days of the week  (in line with recommended daily physical activity guidance). `r ls1` The most common response when asked how many days `r group_name` have done a total of 60 minutes physical activity was **`r filter(stats, breakdown == group_breakdown & question =='pa_60') %>% filter(count == max(count)) %>% .$response`** days. 
+-  Out of responses from `r group_name`, **`r filter(stats,  breakdown == group_breakdown & question == 'pa_60' & response == "6 to 7") %>% .$value`** had done a total of 60 minutes or more of physical activity 6-7 days of the week  (in line with recommended daily physical activity guidance). `r ls1` The most common response when asked how many days `r group_name` have done a total of 60 minutes physical activity was **`r filter(stats, breakdown == group_breakdown & question =='pa_60') %>% filter(count == max(count)) %>% .$response`** days. 
 
 -  **`r sum(filter(stats,  breakdown == group_breakdown & question == 'smoke_ever' & response != 'I have never smoked') %>% .$value)`** of `r group_name` reported having ever smoked and **`r sum(filter(stats,  breakdown == group_breakdown & question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value)`** reported smoking regularly (once a week or more). `r ls2`
 
@@ -1457,12 +1464,12 @@ chk_var <- c('pa_60')
 
 chk_stats <- dplyr::filter(stats, question %in% chk_var)
 
-chk_stats$response <- ordered(chk_stats$response, levels = c("none", "1-3", "4-5", "6-7"))
+chk_stats$response <- ordered(chk_stats$response, levels = c("none", "1 to 3", "4 to 5", "6 to 7"))
 
 chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var) %>%
-  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))%>%
-  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
+  dplyr::mutate(response = factor(response, levels = c("none", "1 to 3", "4 to 5", "6 to 7")))%>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1 to 3", "4 to 5", "6 to 7"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1 to 3", "4 to 5", "6 to 7")))
 plot_title = "Physical activity for at least 1 hour"
 
 ```
@@ -1497,11 +1504,11 @@ create_tbl(chk_diff)
 chk_var <- c('pa_30') #merge the 60 and 30 minute together?
 #***
 chk_stats <- dplyr::filter(stats, question %in% chk_var) %>%
-  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
+  dplyr::mutate(response = factor(response, levels = c("none", "1 to 3", "4 to 5", "6 to 7")))
 chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var) %>%
-  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7"))) %>%
-  dplyr::mutate(response = factor(response, levels = c("none", "1-3", "4-5", "6-7")))
+  dplyr::mutate(response = factor(response, levels = c("none", "1 to 3", "4 to 5", "6 to 7"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1 to 3", "4 to 5", "6 to 7"))) %>%
+  dplyr::mutate(response = factor(response, levels = c("none", "1 to 3", "4 to 5", "6 to 7")))
 plot_title = "Physical activity for at least 30 minutes"
 ```
 
