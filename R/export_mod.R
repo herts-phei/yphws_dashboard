@@ -220,12 +220,12 @@ export_mod_server <- function(id,
         
         shiny::withProgress(message = "Producing the report. This can take some time...", {
           
-          src <- normalizePath('CopyOfreport.Rmd')
+          src <- normalizePath('report_app.Rmd')
           
           # temporarily switch to the temp dir, in case you do not have write permission to the current working directory
           owd <- setwd(tempdir())
           on.exit(setwd(owd))
-          file.copy(src, 'CopyOfreport.Rmd', overwrite = TRUE)
+          file.copy(src, 'report_app.Rmd', overwrite = TRUE)
           
           # Set up parameters to pass to Rmd document
           params <- list(var = input$exp_report_comp,
@@ -236,7 +236,7 @@ export_mod_server <- function(id,
                          meta = params()$meta)
           
           
-          out <- rmarkdown::render('CopyOfreport.Rmd', params = params, envir = new.env())
+          out <- rmarkdown::render('report_app.Rmd', params = params, envir = new.env())
           
           file.rename(out, file)
           
