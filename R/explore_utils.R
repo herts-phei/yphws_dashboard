@@ -142,7 +142,7 @@ create_sum_sentence <- function(dataset,
   
   if (nrow(dataset) == 0) { return ("") }
   
-  if (multi == F) { # run the following if it's a simple one-choice question
+  if (!multi) { # run the following if it's a simple one-choice question
     
     q_binary <- F
     
