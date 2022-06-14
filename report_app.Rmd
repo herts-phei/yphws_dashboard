@@ -61,7 +61,6 @@ data <- data %>%
                             question == "caring" & response == "No" ~ "Non-carer",
                             question == "caring" & response == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ response))
-
 }
 
 if(group == "bullied"){
@@ -70,7 +69,6 @@ if(group == "bullied"){
                             question == "bullied" & response == "No" ~ "Not bullied",
                             question == "bullied" & response == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ response))
-  
 }
 
 if(group == "selfharm_ever"){
@@ -79,7 +77,6 @@ if(group == "selfharm_ever"){
                             question == "selfharm_ever" & response == "No" ~ "Self-harmed",
                             question == "selfharm_ever" & response == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ response))
-  
 }
 
 ## Code to run rmd independently of app for testing purposes
@@ -96,7 +93,6 @@ if(group == "selfharm_ever"){
 
 
 ```{r functions, include=F}
-
 
 # Summary statistics ------------------------------------------------------
 
@@ -794,7 +790,7 @@ cov2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ",
 >Hertfordshire's Young People's Health & Wellbeing Survey is jointly funded by Hertfordshire County Council's Public Health and Children's Services departments. Analysis is conducted by Public Health Evidence & Intelligence. Further information can be found at https://www.hertshealthevidence.org/surveys.aspx
 
 **This version of the report is grouped by `r group` the category of interest is "`r cat_of_interest`"**. 
-The YPHWS dashboard can be accessed <a href="https://hcc-phei.shinyapps.io/yphws_dashboard/_w_fb79eb83/_w_79088773/">here</a>
+The YPHWS dashboard can be accessed <a href="https://hcc-phei.shinyapps.io/yphws_dashboard/_w_fb79eb83/_w_79088773/">here</a>.
 
 This report summarises the results of `r as.character(max(filter(stats) %>% select(denominator)))` pupils from `r school_number` schools who responded to the `r year_report` Young People's Health & Wellbeing Survey (YPHWS).
 
