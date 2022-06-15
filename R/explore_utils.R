@@ -147,88 +147,91 @@ create_sum_sentence <- function(dataset,
     q_binary <- F
     
     data <- dataset
-    # generate the values used for the sentences. 
-    
     df <- dataset[dataset$breakdown == "All Responses", ]
     
-    most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)]
-    most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)]
-    least_common <- df$response[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])]
-    least_v <- df$value[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])][1]
-    
-    # If all students responded to this question, skip the sex breakdown. Include if not. 
-    
-    total_resp <- sum(dataset$count[dataset$breakdown == "All Responses"], na.rm = TRUE)
-    max_resp <- max(full_data$denominator)
-    
-    perc <- round(total_resp / max_resp * 100, 1)
-    
-    total_resp <- ifelse(total_resp == max_resp, "every student", 
-                         paste0(total_resp, " students", " (", perc, "%)"))
-    
-    # generate main sentence for All Responses
-    sentence <- paste0("Respondents were asked '", df$survey_text_gen[1], "'.<br><br>")
-    
-    if (is.na(total_resp)) { 
+    # generate the values used for the sentences. 
+    if(nrow(df) > 0) {
       
-      return(paste0("No students responded to this question."))
+      most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)]
+      most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)]
+      least_common <- df$response[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])]
+      least_v <- df$value[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])][1]
       
-    } else {
+      # If all students responded to this question, skip the sex breakdown. Include if not. 
       
-      trend <- compare_last_yr(df_new = dataset, 
-                               df_old = dataset_old, 
-                               multi = F,
-                               diffs_all = diffs,
-                               response_interest = NA)
+      total_resp <- sum(dataset$count[dataset$breakdown == "All Responses"], na.rm = TRUE)
+      max_resp <- max(full_data$denominator)
       
-      if (!is.na(group_of_interest)[1]) {
+      perc <- round(total_resp / max_resp * 100, 1)
+      
+      total_resp <- ifelse(total_resp == max_resp, "every student", 
+                           paste0(total_resp, " students", " (", perc, "%)"))
+      
+      # generate main sentence for All Responses
+      sentence <- paste0("Respondents were asked '", df$survey_text_gen[1], "'.<br><br>")
+      
+      if (is.na(total_resp)) { 
         
-        grp_df <- data %>% 
-          dplyr::filter(breakdown %in% group_of_interest) %>% 
-          dplyr::group_by(breakdown) %>% 
-          dplyr::filter(denominator == max(denominator)) %>% 
-          dplyr::ungroup() %>% 
-          dplyr::select(breakdown, denominator) %>% 
-          dplyr::distinct()
-        
-        prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
-        add <- paste0(" Among them, ", paste0(
-          prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
-        
-        sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
-                           "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
-                           "</b> of responses and the least common response was '", least_common[1], "', with <b>",
-                           least_v[1], "</b> of responses.")
-        
-        df1 <- dataset[dataset$breakdown %in% group_of_interest, ]
-        
-        most_common <- df1 %>%
-          dplyr::group_by(breakdown) %>% 
-          dplyr::filter(count == max(count), !is.na(question_text)) %>% 
-          dplyr::summarise(most_common = paste(response, collapse = "' or '"), most_v = min(value)) %>% 
-          dplyr::ungroup() %>% 
-          dplyr::distinct() 
-        
-        least_common <- df1 %>% 
-          dplyr::group_by(breakdown) %>% 
-          dplyr::filter(count == min(count), !is.na(question_text)) %>% 
-          dplyr::summarise(least_common = paste(response, collapse = "' or '"), least_v = min(value)) %>%
-          dplyr::ungroup() %>% 
-          dplyr::distinct() 
-        
-        sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "</b> was '", most_common$most_common, 
-                                                       "', which made up ", most_common$most_v, " of responses and the least common response was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
-                                                       collapse = "<br><br>"))
+        return(paste0("No students responded to this question."))
         
       } else {
         
-        sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ", trend,
-                           "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
-                           "</b> of responses and the least common response was '", least_common[1], "', with <b>",
-                           least_v[1], "</b> of responses.")
+        trend <- compare_last_yr(df_new = dataset, 
+                                 df_old = dataset_old, 
+                                 multi = F,
+                                 diffs_all = diffs,
+                                 response_interest = NA)
+        
+        if (!is.na(group_of_interest)[1]) {
+          
+          grp_df <- data %>% 
+            dplyr::filter(breakdown %in% group_of_interest) %>% 
+            dplyr::group_by(breakdown) %>% 
+            dplyr::filter(denominator == max(denominator)) %>% 
+            dplyr::ungroup() %>% 
+            dplyr::select(breakdown, denominator) %>% 
+            dplyr::distinct()
+          
+          prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
+          add <- paste0(" Among them, ", paste0(
+            prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
+          
+          sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
+                             "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
+                             "</b> of responses and the least common response was '", least_common[1], "', with <b>",
+                             least_v[1], "</b> of responses.")
+          
+          df1 <- dataset[dataset$breakdown %in% group_of_interest, ]
+          
+          most_common <- df1 %>%
+            dplyr::group_by(breakdown) %>% 
+            dplyr::filter(count == max(count), !is.na(question_text)) %>% 
+            dplyr::summarise(most_common = paste(response, collapse = "' or '"), most_v = min(value)) %>% 
+            dplyr::ungroup() %>% 
+            dplyr::distinct() 
+          
+          least_common <- df1 %>% 
+            dplyr::group_by(breakdown) %>% 
+            dplyr::filter(count == min(count), !is.na(question_text)) %>% 
+            dplyr::summarise(least_common = paste(response, collapse = "' or '"), least_v = min(value)) %>%
+            dplyr::ungroup() %>% 
+            dplyr::distinct() 
+          
+          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "</b> was '", most_common$most_common, 
+                                                         "', which made up ", most_common$most_v, " of responses and the least common response was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
+                                                         collapse = "<br><br>"))
+          
+        } else {
+          
+          sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ", trend,
+                             "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
+                             "</b> of responses and the least common response was '", least_common[1], "', with <b>",
+                             least_v[1], "</b> of responses.")
+        }
+        
       }
       
-    }
+    } else {return(NULL)}
     
     
   } else { #run the following instead if it's a multi-check question
@@ -343,8 +346,11 @@ create_basic_plot <- function(df,
                               plot_title,
                               rotate = 0) {
   
+  
   groups <- unique(c("All Responses", 
                      plot_custom_grp))
+  
+  rotate <- ifelse(length(unique(df$response)) > 7, 45, 0)
   
   # plot object
   df %>% 
@@ -374,7 +380,7 @@ create_basic_plot <- function(df,
         '%') }"))) %>%
     echarts4r::e_tooltip(trigger = "item") %>% 
     echarts4r::e_grid(right = 180, left = 50) %>%
-    echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+    echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, min = 0) %>% 
     echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
     echarts4r::e_format_y_axis(suffix = "%", formatter = echarts4r::e_axis_formatter("percent")) %>% 
     echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
