@@ -159,7 +159,7 @@ create_sum_sentence <- function(dataset,
       
       # If all students responded to this question, skip the sex breakdown. Include if not. 
       
-      total_resp <- sum(dataset$count[dataset$breakdown == "All Responses"], na.rm = TRUE)
+      total_resp <- dataset$denominator[dataset$breakdown == "All Responses"][1]
       max_resp <- max(full_data$denominator)
       
       perc <- round(total_resp / max_resp * 100, 1)
@@ -333,7 +333,7 @@ create_sum_sentence <- function(dataset,
   }
   
   # Add a short prompt(?) sentence.
-  sentence <- paste0(sentence, " For more detail, please see the graph or table.")
+  sentence <- paste0(sentence, " For more detail, please see the graph or table. Please note that all count data is rounded to the nearest 5 for data confidentiality purposes.")
   
   return(sentence)
   

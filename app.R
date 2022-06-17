@@ -1,6 +1,7 @@
 library(shiny)
 library(shinyWidgets)
 library(tablerDash)
+library(bs4Dash)
 library(dplyr)
 library(echarts4r)
 library(formattable)
@@ -121,6 +122,7 @@ server <- function(input, output) {
     
     # Differences
     rv$diffs <- dplyr::filter(df_selected, year == input$year)
+    rv$diffs_all <- df_selected
     
   })
   
@@ -131,6 +133,7 @@ server <- function(input, output) {
                  stats = shiny::reactive(rv$stats),
                  stats_old = shiny::reactive(rv$stats_old),
                  stats_combined = shiny::reactive(rv$stats_combined),
+                 diffs = shiny::reactive(rv$diffs_all),
                  q_coded = shiny::reactive(rv$data$q_coded),
                  grp_lookup = shiny::reactive(rv$data$grp_lookup),
                  comp = shiny::reactive(input$comp)

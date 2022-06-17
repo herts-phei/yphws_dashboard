@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Demographics" %in% input$domains) {browser()})
+      #observe(if ("Demographics" %in% input$domains & year() == "2020") {browser()})
 
       # Data --------------------------------------------------------------------
       
