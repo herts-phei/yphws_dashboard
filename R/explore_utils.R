@@ -115,6 +115,15 @@ compare_last_yr <- function(df_new,
       
     } else if (length(main_val) > 2) {
       
+      main_df <- df %>% 
+        dplyr::filter(breakdown == "All Responses", response %in% main_grp,
+                      diff != "statistically similar to") %>% 
+        dplyr::arrange(!!dplyr::ensym(resp_var))
+      
+      main_val <- round(as.numeric(dplyr::pull(main_df, value)) * 100, 1) #percentage
+      main_comp <- dplyr::pull(main_df, diff) #whether it's higher/lower/same
+      main_val_old <- round(as.numeric(dplyr::pull(main_df, value_old)) * 100, 1) #percentage of previous year
+      
       main_comp <- gsub(" than| to", "", main_comp)
       
       sentence <- glue::glue("{sentence} Additionally, {
