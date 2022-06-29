@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Demographics" %in% input$domains & year() == "2020") {browser()})
+      observe(if ("Safety" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
@@ -182,7 +182,7 @@ explore_mod_server <- function(id,
               if (nrow(current_old) > 0) {
                 
                 current_old_trend <- current_old %>% 
-                  dplyr::mutate(year = as.character(as.numeric(params$year) - 1),
+                  dplyr::mutate(year = as.character(as.numeric(year()) - 1),
                                 `2020` = value) %>% 
                   dplyr::filter(response_of_interest == "TRUE")
                 
@@ -210,7 +210,7 @@ explore_mod_server <- function(id,
                                             dataset_old = current_old, 
                                             multi = T,
                                             value_of_interest = resp_interest,
-                                            full_data = chk_stats(),
+                                            full_data = stats,
                                             diffs = chk_diff(),
                                             custom_grp = unique(current$breakdown),
                                             group_of_interest = grp,
@@ -242,7 +242,7 @@ explore_mod_server <- function(id,
                                           dataset_old = current_old,
                                           multi = multi,
                                           value_of_interest = NA,
-                                          full_data = chk_stats(),
+                                          full_data = stats,
                                           diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
                                           group_of_interest = grp,

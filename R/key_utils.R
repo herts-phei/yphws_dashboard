@@ -26,7 +26,7 @@ create_yearly_plot <- function(stats,
   
   p <- stats %>%
     dplyr::filter(question == question_p,
-                  response == response_p,
+                  response %in% response_p,
                   breakdown != "All Responses") %>%
     dplyr::mutate(value = as.numeric(value),
                   lowercl = as.numeric(lowercl),
@@ -42,26 +42,26 @@ create_yearly_plot <- function(stats,
     echarts4r::e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>%
     echarts4r::e_grid(bottom = 100) %>%
     echarts4r::e_title(title,
-                       subtitle) %>%
+                       wrapper(subtitle)) %>%
     echarts4r::e_theme("westeros") %>%
     echarts4r::e_group(group_id) 
   
+  # clean df with just differences
+  m_df <- stats %>%  
+    filter(!is.na(diff),
+           year == "2021",
+           question == question_p,
+           response == response_p,
+           breakdown != "All Responses") %>% 
+    select(
+      xAxis = breakdown,
+      yAxis = value,
+      value = diff
+    ) 
+  
   # Add markers if there are significant differences between years
-  if(any(!is.na(stats$diff))) {
-    
-    # clean df with just differences
-    m_df <- stats %>%  
-      filter(!is.na(diff),
-             year == "2021",
-             question == question_p,
-             response == response_p,
-             breakdown != "All Responses") %>% 
-      select(
-        xAxis = breakdown,
-        yAxis = value,
-        value = diff
-      ) 
-    
+  if(nrow(m_df) > 0) {
+
     for (i in 1:nrow(m_df)) {
       
       # whether its pointing downwards or upwards
