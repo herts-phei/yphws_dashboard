@@ -133,11 +133,12 @@ server <- function(input, output) {
                  stats = shiny::reactive(rv$stats),
                  stats_old = shiny::reactive(rv$stats_old),
                  stats_combined = shiny::reactive(rv$stats_combined),
-                 diffs = shiny::reactive(rv$diffs_all),
                  q_coded = shiny::reactive(rv$data$q_coded),
                  grp_lookup = shiny::reactive(rv$data$grp_lookup),
                  comp = shiny::reactive(input$comp)
   )
+  
+  
   
   # Explore data --------------------------------------------------------------------
   
