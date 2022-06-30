@@ -22,11 +22,12 @@ export_mod <- function(id,
         )
       ),
       shiny::fluidRow(
-        tablerDash::tablerCard(title = "Export full report(COMING SOON)",
+        tablerDash::tablerCard(title = "Export full report",
                                width = 12, 
                                closable = FALSE,
                                shiny::uiOutput(ns("exp_report_comp")),
                                shiny::uiOutput(ns("exp_report_cat")),
+                               shiny::uiOutput(ns("exp_report_year")),
                                shiny::downloadButton(ns("exp_report"), "Export report")
         )
     )
@@ -179,7 +180,7 @@ export_mod_server <- function(id,
       
       pickerInput(
         inputId = ns("exp_report_comp"), 
-        label = "Select what to group by in your report",
+        label = "Select what to group by in your report:",
         choices = list("Sex" = "sex",
                        "Year group" = "schyear",
                        "Ethnicity" = "ethnicity",
@@ -208,12 +209,26 @@ export_mod_server <- function(id,
       
     })
     
+    output$exp_report_year <- shiny::renderUI({
+      
+      stats_combined <- stats_combined()
+      
+      shinyWidgets::pickerInput(
+        inputId = ns("exp_report_year"),
+        label = "Select the year of interest:", 
+        choices = unique(stats_combined$year),
+        selected = unique(stats_combined$year)[1],
+        multiple = FALSE
+      )
+      
+    })
+    
     # download handler
     output$exp_report <- downloadHandler(
       
       
       filename = function() {
-        paste0("Hertfordshire YPHWS Report - ", input$exp_report_comp, " focusing on ", input$exp_report_cat, ".html")
+        paste0("Hertfordshire YPHWS Report - ", input$exp_report_comp, " focusing on ", input$exp_report_cat, "-",input$exp_report_year, ".html")
       },
       
       content = function(file) {
@@ -230,6 +245,7 @@ export_mod_server <- function(id,
           # Set up parameters to pass to Rmd document
           params <- list(var = input$exp_report_comp,
                          cat = input$exp_report_cat,
+                         year = input$exp_report_year,
                          rendered_by_shiny = TRUE,
                          q_coded = q_coded(),
                          data = data(),
