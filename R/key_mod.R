@@ -30,7 +30,7 @@ key_mod <- function(id,
                                     collapsible = FALSE,
                                     title = "", 
                                     tabPanel("Mental Health",
-                                             fluidRow(
+                                             shiny::fluidRow(
                                                shiny::htmlOutput(ns("mh_summary"))
                                              ),
                                              br(),
@@ -54,6 +54,9 @@ key_mod <- function(id,
                                     tabPanel(
                                       "Lifestyle",
                                       shiny::fluidRow(
+                                        shiny::htmlOutput(ns("ls_summary"))
+                                      ),
+                                      shiny::fluidRow(
                                         shiny::column(6, 
                                                       echarts4r::echarts4rOutput(ns("ls_pa")),
                                                       echarts4r::echarts4rOutput(ns("ls_smoking"))),
@@ -65,6 +68,9 @@ key_mod <- function(id,
                                     tabPanel(
                                       "Safety",
                                       shiny::fluidRow(
+                                        shiny::htmlOutput(ns("s_summary"))
+                                      ),
+                                      shiny::fluidRow(
                                         shiny::column(6, 
                                                       echarts4r::echarts4rOutput(ns("s_safe_dark")),
                                                       echarts4r::echarts4rOutput(ns("s_safe_day"))),
@@ -75,6 +81,9 @@ key_mod <- function(id,
                                     ),
                                     tabPanel(
                                       "Sexual Health",
+                                      shiny::fluidRow(
+                                        shiny::htmlOutput(ns("sh_summary"))
+                                      ),
                                       shiny::fluidRow(
                                         shiny::column(6, 
                                                       echarts4r::echarts4rOutput(ns("sh_services")),
@@ -94,11 +103,6 @@ key_mod <- function(id,
                                         )
                                       ),
                                     )) )
-      ),
-      shiny::fluidRow(
-        tablerDash::tablerCard(width = 7,
-                               shiny::htmlOutput(ns("key_themes_text"))
-        )
       )
     )
   )
@@ -123,9 +127,9 @@ key_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      observe({
-        if ("Broxbourne" %in% input$mh_breakdown ) {browser()}
-      })
+      # observe({
+      #   if ("Broxbourne" %in% input$mh_breakdown ) {browser()}
+      # })
       
       stats_w_diffs <- reactive({ add_year_diff(diffs(), stats_combined()) })
       
@@ -285,10 +289,9 @@ key_mod_server <- function(id,
         
       })
       
+      # MH & Wellbeing Graphs -------------------------------------------------------------------
       
-      # Text summary ------------------------------------------------------------
-      
-      output$key_themes_text <- shiny::renderText({
+      output$mh_summary <- shiny::renderText({
         
         comp <- comp()
         stats <- stats()
@@ -308,128 +311,44 @@ key_mod_server <- function(id,
           dplyr::filter(breakdown == "All Responses" & !is.na(question_text))
         
         # --Stats for key respondents ----
+        mh1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'life_satisfied' & response == "low") %>%
+                                                   .$value, "</b> for ", group_name,  " respondents."), "")
         
-        ls1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                 dplyr::filter(key_data, question == 'pa_60' & response == "6 to 7") %>%
-                                                   .$value, "</b> for ", group_name, " respondents."), "")
+        mh2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'selfharm_ever' & response == "Yes") %>% .$value,
+                                                 "</b> for ", group_name, " respondents."), "")
         
-        ls2 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
-                                                 sum(dplyr::filter(key_data, question == 'smoke_ever' &
-                                                                     response != 'I have never smoked') %>% .$value), "</b> and <b>",
-                                                 sum(dplyr::filter(key_data, question == 'smoke_ever' &
-                                                                     response == 'I smoke regularly (once a week or more)') %>% .$value),
-                                                 "</b> respectively."), "")
+        mh3 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'bullied' & response == "Yes") %>% .$value,
+                                                 "</b> for ", group_name, " respondents."), "")
         
-        ls3 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
-                                                 sum(filter(key_data, question == 'vaping' &
-                                                              response != 'I have never vaped') %>% .$value), "</b> and <b>",
-                                                 sum(filter(key_data, question == 'vaping' &
-                                                              response == 'I vape regularly (once a week or more)') %>% .$value),
-                                                 "</b> respectively."), "")
-        
-        ls4 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
-                                                 sum(dplyr::filter(key_data, question == 'alcohol_ever' &
-                                                                     response != 'Never') %>% .$value), "</b> and <b>",
-                                                 sum(dplyr::filter(key_data, question == 'alcohol_ever' &
-                                                                     response == '4 or more times a week') %>% .$value),
-                                                 "</b> respectively."), "")
-        
-        ls5 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
-                                                 sum(dplyr::filter(key_data, question == 'drug_ever' &
-                                                                     response != 'I have never taken drugs') %>% .$value), "</b> and <b>",
-                                                 sum(dplyr::filter(key_data, question == 'drug_ever' &
-                                                                     response == 'I take drugs regularly (once a week or more)') %>% .$value),
-                                                 "</b> respectively."), "")
-        
-        safety <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
-                                                    dplyr::filter(key_data, question == 'safety_day' &
-                                                                    response == 'Unsafe') %>% .$value, ", ",
-                                                    dplyr::filter(key_data, question == 'safety_dark' &
-                                                                    response == 'Unsafe') %>% .$value, ", ",
-                                                    dplyr::filter(key_data, question == 'safety_school' &
-                                                                    response == 'Unsafe') %>% .$value, ", and ",
-                                                    dplyr::filter(key_data, question == 'safety_journey' &
-                                                                    response == 'Unsafe') %>% .$value,
-                                                    "</b> respectively."), "")
-        
-        sch1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                  dplyr::filter(key_data, question == 'schoolsupp_academic' & response == "Yes") %>%
-                                                    .$value, "%</b> for ", group_name, " respondents."), "")
-        
-        sch2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                  dplyr::filter(key_data, question == 'schoolsupp_wellbeing' & response == "Yes") %>%
-                                                    .$value, "%</b> for ", group_name, " respondents."), "")
-        
-        cov1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                  dplyr::filter(key_data, question == 'worry_covid19' & response == 'Yes') %>%
-                                                    .$value, "</b> for ", group_name, " respondents."), "")
-        
-        cov2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                  dplyr::filter(key_data, question == 'any_vacc_taken' & response == 'Yes') %>%
-                                                    .$value, "</b> for ", group_name, " respondents."), "")
-        
+        mh4 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, <b>",
+                                                 dplyr::filter(key_data, question == 'mental_howaccess' & response == 'Yes') %>%
+                                                   .$value, "</b> stated 'Yes'."), "")
         
         # --Text output ----
-        output <- shiny::HTML(
-          
+        shiny::HTML(
           paste0(
+            "<h2>Mental Health & Wellbeing</h2>",
+            "<b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
+            "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br>",
             
-            "<h1>Lifestyle</h1>",
+            "<b>", dplyr::filter(all_data, question == 'selfharm_ever' & response == "Yes" & !is.na(question_text)) %>% .$value,
+            "</b>", " of all respondents stated that they had self-harmed before. ", mh2, "<br>",
             
-            "Out of all responses <b>", dplyr::filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
-            "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
-            " The most common response for this question was <b>",
-            dplyr::filter(all_data,  question =='pa_60') %>% dplyr::filter(count == max(count)) %>% .$response,
-            " days</b>. <br><br>",
+            "<b>", dplyr::filter(all_data, question == 'bullied' & response == "Yes" & !is.na(question_text)) %>% .$value,
+            "</b>", " of all respondents stated that they had been bullied before. ", mh3, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
-            "</b> of respondents reported having ever smoked and <b>",
-            sum(dplyr::filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
-            "</b> reported smoking regularly (once a week or more). ", ls2, "<br><br>",
-            
-            "<b>", sum(dplyr::filter(all_data,  question == 'vaping' & response != 'I have never vaped') %>% .$value),
-            "</b> of respondents reported having ever vaped and <b>",
-            sum(dplyr::filter(all_data,  question == 'vaping' & response == 'I vape regularly (once a week or more)') %>% .$value),
-            "</b> reported vaping regularly (once a week or more). ", ls3, "<br><br>",
-            
-            "<b>", sum(dplyr::filter(all_data,  question == 'alcohol_ever' & response != 'Never') %>% .$value),
-            "</b> of respondents reported having had an alcoholic drink in the past 3 months and <b>",
-            sum(dplyr::filter(all_data,  question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value),
-            "</b> reported drinking 4 or more times a week. ", ls4, "<br><br>",
-            
-            "<b>", sum(dplyr::filter(all_data,  question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value),
-            "</b> of respondents reported having ever taken drugs and <b>",
-            sum(dplyr::filter(all_data,  question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value),
-            "</b> reported taking drugs regularly (once a week or more).", ls5, "<br><br>",
-            
-            "<h1>Safety</h1>",
-            
-            "Regarding safety, <b>",
-            sum(dplyr::filter(all_data,  question == 'safety_day' & response == 'Unsafe') %>% .$value),
-            "</b> of respondents felt unsafe going out during the day, <b>",
-            sum(dplyr::filter(all_data,  question == 'safety_dark' & response == 'Unsafe') %>% .$value),
-            "</b> felt unsafe going out after dark, <b>",
-            dplyr::filter(all_data,  question == 'safety_school' & response == 'Unsafe' & !is.na(question_text)) %>% .$value,
-            "</b> felt unsafe at school, and <b>",
-            dplyr::filter(all_data,  question == 'safety_journey' & response == 'Unsafe' & !is.na(question_text)) %>% .$value,
-            "</b> felt unsafe on their journey to school. ", safety, "<br><br>",
-            
-            "<h1>COVID-19</h1>",
-            
-            "<b>", dplyr::filter(all_data, question == 'worry_covid19' & response == 'Yes') %>% .$value,
-            "</b> stated that COVID-19 was one of the issuers they worry about. ", cov1, "<br><br>",
-            
-            "<b>", dplyr::filter(all_data,  question == 'any_vacc_taken' & response == 'Yes') %>% .$value,
-            "</b> stated that they have taken any dose of the COVID-19 vaccine. ", cov2
-            
+            "<b>", sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response != 'Yes') %>% .$value),
+            "</b> of respondents answered 'Not sure' or 'No' when asked if they knew how to access support and services for mental health. <b>",
+            sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
+            "</b> answered 'Yes'. ", mh4, "<br><br>",
+            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>"
           )
         )
         
-        
       })
-      
-      
-      # MH & Wellbeing Graphs -------------------------------------------------------------------
       
       output$mh_life_sat <- renderEcharts4r({
         
@@ -558,7 +477,9 @@ key_mod_server <- function(id,
       })
       
       
-      output$mh_summary <- shiny::renderText({
+      # Lifestyle Graphs --------------------------------------------------------
+      
+      output$ls_summary <- shiny::renderText({
         
         comp <- comp()
         stats <- stats()
@@ -578,50 +499,60 @@ key_mod_server <- function(id,
           dplyr::filter(breakdown == "All Responses" & !is.na(question_text))
         
         # --Stats for key respondents ----
-        mh1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                 dplyr::filter(key_data, question == 'life_satisfied' & response == "low") %>%
-                                                   .$value, "</b> for ", group_name,  " respondents."), "")
+        ls1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'pa_60' & response == "6 to 7") %>%
+                                                   .$value, "</b> for ", group_name, " respondents."), "")
         
-        mh2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                 dplyr::filter(key_data, question == 'life_satisfied_before_covid' & response == "low") %>% .$value,
-                                                 "</b> for ", group_name, " respondents."), "")
+        ls2 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
+                                                 sum(dplyr::filter(key_data, question == 'smoke_ever' &
+                                                                     response != 'I have never smoked') %>% .$value), "</b> and <b>",
+                                                 sum(dplyr::filter(key_data, question == 'smoke_ever' &
+                                                                     response == 'I smoke regularly (once a week or more)') %>% .$value),
+                                                 "</b> respectively."), "")
         
-        mh3 <- ifelse(!is.na(group_name), paste0("From ", group_name, " respondents, <b>",
-                                                 dplyr::filter(key_data, question =='weight' & response=='Overweight') %>%
-                                                   .$value, "</b> felt overweight, and <b>",
-                                                 dplyr::filter(key_data, question =='weight' & response=='Underweight') %>%
-                                                   .$value, "</b> felt underweight."), "")
+        ls3 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
+                                                 sum(dplyr::filter(key_data, question == 'alcohol_ever' &
+                                                                     response != 'Never') %>% .$value), "</b> and <b>",
+                                                 sum(dplyr::filter(key_data, question == 'alcohol_ever' &
+                                                                     response == '4 or more times a week') %>% .$value),
+                                                 "</b> respectively."), "")
         
-        mh4 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, <b>",
-                                                 dplyr::filter(key_data, question == 'mental_howaccess' & response == 'Yes') %>%
-                                                   .$value, "</b> stated 'Yes'."), "")
+        ls4 <- ifelse(!is.na(group_name), paste0("For ", group_name, " respondents this was <b>",
+                                                 sum(dplyr::filter(key_data, question == 'drug_ever' &
+                                                                     response != 'I have never taken drugs') %>% .$value), "</b> and <b>",
+                                                 sum(dplyr::filter(key_data, question == 'drug_ever' &
+                                                                     response == 'I take drugs regularly (once a week or more)') %>% .$value),
+                                                 "</b> respectively."), "")
         
         # --Text output ----
         shiny::HTML(
           paste0(
-            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>",
-            "<b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
-            "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br>",
+            "<h2>Lifestyle</h2>",
+            "Out of all responses <b>", dplyr::filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
+            "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
+            " The most common response for this question was <b>",
+            dplyr::filter(all_data,  question =='pa_60') %>% dplyr::filter(count == max(count)) %>% .$response,
+            " days</b>. ", ls1, "<br>",
             
-            "<b>", dplyr::filter(all_data, question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value,
-            "</b>", " of all respondents rated  their satisfaction now compared to before COVID-19 as low. ", mh2, "<br>",
+            "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
+            "</b> of respondents reported having ever smoked and <b>",
+            sum(dplyr::filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
+            "</b> reported smoking regularly (once a week or more). ", ls2, "<br>",
             
-            "<b>", dplyr::filter(all_data,  question =='weight' & response=='Overweight' & !is.na(question_text)) %>% .$value,
-            "</b> felt they were overweight while <b>",
-            dplyr::filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
-            "</b> felt they were underweight. ", mh3, "<br>",
+            "<b>", sum(dplyr::filter(all_data,  question == 'alcohol_ever' & response != 'Never') %>% .$value),
+            "</b> of respondents reported having had an alcoholic drink in the past 3 months and <b>",
+            sum(dplyr::filter(all_data,  question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value),
+            "</b> reported drinking 4 or more times a week. ", ls3, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response != 'Yes') %>% .$value),
-            "</b> of respondents answered 'Not sure' or 'No' when asked if they knew how to access support and services for mental health. <b>",
-            sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
-            "</b> answered 'Yes'. ", mh4, "<br>"
-          )
+            "<b>", sum(dplyr::filter(all_data,  question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value),
+            "</b> of respondents reported having ever taken drugs and <b>",
+            sum(dplyr::filter(all_data,  question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value),
+            "</b> reported taking drugs regularly (once a week or more).", ls4, "<br><br>",
+            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>"
+            )
         )
         
       })
-      
-      
-      # Lifestyle Graphs --------------------------------------------------------
       
       output$ls_pa <- renderEcharts4r({
         
@@ -682,6 +613,62 @@ key_mod_server <- function(id,
       
       # Safety Graphs -----------------------------------------------------------
       
+      output$s_summary <- shiny::renderText({
+        
+        comp <- comp()
+        stats <- stats()
+        grp_lookup <- grp_lookup()
+        
+        #TODO clean this.
+        group_name <- unique(stats$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
+                                                    unique(stats$breakdown))]
+        
+        group_name <- ifelse(length(group_name) == 0, NA, group_name)
+        group_breakdown <- ifelse(is.na(group_name), "All Responses", group_name)
+        key_data <- stats %>%
+          dplyr::filter(breakdown %in% group_breakdown)
+        
+        # --Stats for all respondents ----
+        all_data <- stats %>%
+          dplyr::filter(breakdown == "All Responses" & !is.na(question_text))
+        
+        # --Stats for key respondents ----
+        s1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'safety_dark' & response == "Unsafe") %>%
+                                                   .$value, "</b> and <b>", 
+                                                dplyr::filter(key_data, question == 'safety_day' & response == "Unsafe") %>%
+                                                  .$value,"</b> for ", group_name, " respondents, respectively."), "")
+        
+        s3 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                dplyr::filter(key_data, question == 'violence_involved' & response == "Yes, I was the victim") %>%
+                                                  .$value, "</b> for ", group_name, " respondents."), "")
+        
+        s4 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                dplyr::filter(key_data, question == 'home_violence' & response == "Most days/Every day") %>%
+                                                  .$value, "</b> for ", group_name, " respondents."), "")
+        
+        # --Text output ----
+        shiny::HTML(
+          paste0(
+            "<h2>Safety</h2>",
+            "Regarding safety, <b>",
+            sum(dplyr::filter(all_data,  question == 'safety_day' & response == 'Unsafe') %>% .$value),
+            "</b> of respondents felt unsafe going out during the day and <b>",
+            sum(dplyr::filter(all_data,  question == 'safety_dark' & response == 'Unsafe') %>% .$value),
+            "</b> felt unsafe going out after dark. ", s1, "<br>",
+            
+            "<b>", sum(dplyr::filter(all_data,  question == 'violence_involved' & response == 'Yes, I was the victim') %>% .$value),
+            "</b> of respondents reported having been a victim of a violent incident in the past year. ", s3, "<br>",
+            
+            "<b>", sum(dplyr::filter(all_data,  question == 'home_violence' & response == 'Most days/Every day') %>% .$value),
+            "</b> of respondents reported violence at home (e.g. hitting, punching, slapping) between adults or older siblings at home most days or every day. ", s4, " <br><br>",
+            
+            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br>"
+          )
+        )
+        
+      })
+      
       output$s_safe_dark <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
@@ -741,6 +728,58 @@ key_mod_server <- function(id,
       
       
       # Sexual Health Graphs ----------------------------------------------------
+      
+      output$sh_summary <- shiny::renderText({
+        
+        comp <- comp()
+        stats <- stats()
+        grp_lookup <- grp_lookup()
+        
+        #TODO clean this.
+        group_name <- unique(stats$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
+                                                    unique(stats$breakdown))]
+        
+        group_name <- ifelse(length(group_name) == 0, NA, group_name)
+        group_breakdown <- ifelse(is.na(group_name), "All Responses", group_name)
+        key_data <- stats %>%
+          dplyr::filter(breakdown %in% group_breakdown)
+        
+        # --Stats for all respondents ----
+        all_data <- stats %>%
+          dplyr::filter(breakdown == "All Responses" & !is.na(question_text))
+        
+        # --Stats for key respondents ----
+        
+        sh1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                dplyr::filter(key_data, question == 'sh_access' & response == "Yes") %>%
+                                                  .$value, "</b> for ", group_name, " respondents."), "")
+        
+        sh2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                dplyr::filter(key_data, question == 'condoms_free' & response == "Yes") %>%
+                                                  .$value, "</b> for ", group_name, " respondents."), "")
+        
+        sh3 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'sh_pressure' & response == "Agree") %>%
+                                                   .$value, "</b> for ", group_name, " respondents."), "")
+        
+        # --Text output ----
+        shiny::HTML(
+          paste0(
+            "<h2>Sexual Health</h2>",
+            "<b>", sum(dplyr::filter(all_data,  question == 'sh_access' & response == 'Yes') %>% .$value),
+            "</b> of respondents stated that they know how to access sexual health services. ", sh1, "<br>",
+            
+            "<b>", sum(dplyr::filter(all_data,  question == 'condoms_free' & response == 'Yes') %>% .$value),
+            "</b> of respondents stated they knew where to get free condoms. ", sh2, " <br>",
+            
+            "<b>", sum(dplyr::filter(all_data,  question == 'sh_pressure' & response == 'Agree') %>% .$value),
+            "</b> of respondents agree with the statement that there is pressure on young people to have sex. ", sh2, " <br><br>",
+            
+            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br>"
+          )
+        )
+        
+      })
       
       output$sh_services <- renderEcharts4r({
         
