@@ -14,6 +14,7 @@ add_year_diff <- function(diffs,
 }
 
 create_yearly_plot <- function(stats,
+                               q_coded, 
                                question_p,
                                response_p,
                                title, 
@@ -28,15 +29,22 @@ create_yearly_plot <- function(stats,
     dplyr::filter(question == question_p,
                   response %in% response_p,
                   breakdown != "All Responses") %>%
-    dplyr::mutate(value = as.numeric(value),
+    dplyr::mutate(value = round(as.numeric(value), 2),
                   lowercl = as.numeric(lowercl),
                   uppercl = as.numeric(uppercl)) %>%
     dplyr::group_by(year) %>%
     echarts4r::e_charts(breakdown) %>%
-    echarts4r::e_bar(value) %>%
+    echarts4r::e_bar(value, barWidth = "10%", name = .$year, 
+                     tooltip = list(formatter = htmlwidgets::JS("
+      function(params){
+      return('<b>value</b>: ' + Math.round(params.value[1] * 100, 3) + '%' +
+        '<br/><b>year</b>: ' + params.seriesName +
+        '<br/><b>group</b>: ' + params.value[params.encode.x[0]]) 
+        }"
+))) %>%
     # echarts4r::e_error_bar(lowercl, uppercl, name = .$breakdown,
     #                        itemStyle = list(opacity = 0.6)) %>%
-    echarts4r::e_tooltip(trigger = "axis") %>%
+    echarts4r::e_tooltip(trigger = "item") %>%
     echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, min = 0) %>%
     echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>%
     echarts4r::e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>%
@@ -62,23 +70,35 @@ create_yearly_plot <- function(stats,
   # Add markers if there are significant differences between years
   if(nrow(m_df) > 0) {
 
+    direction <- vector()
+
     for (i in 1:nrow(m_df)) {
-      
+
       # whether its pointing downwards or upwards
-      direction <- ifelse(m_df$value[i] == "significantly higher than", 180, 0)
-      
+      if (m_df$value[i] == "significantly higher than") direction <- c(direction, 180) else direction <- c(direction, 0)
+
       # whether to present arrow as green or red
-      polarity <- ifelse(m_df$value[i] == "significantly higher than", "green", "red")
+      rag <- q_coded$polarity[q_coded$question_coded == question_p & q_coded$response == response_p]
+      polarity <- ifelse((rag == "RAG - Low is good" & m_df$value[i] == "significantly higher than") |
+                           (rag == "RAG - High is good" & m_df$value[i] == "significantly lower than"), 
+                         "green", "red")
+
+      # if there are two directions in the plot, need to change serie
+      if (length(unique(m_df$value)) > 1) {
+        serie_unique <- ifelse(direction[i] == 180, "2021", "2020")
+      } else {
+        serie_unique <- "2021"
+      }
       
-      marker <- m_df %>% 
-        mutate(value = "") %>% 
-        slice(i) %>% 
+      marker <- m_df %>%
+        mutate(value = "") %>%
+        slice(i) %>%
         as.list()
-      
-      p <- p %>% echarts4r::e_mark_point(serie = "2021", data = marker, 
+
+      p <- p %>% echarts4r::e_mark_point(serie = serie_unique, data = marker,
                                          symbol = "arrow", symbolSize = 20, symbolRotate = direction,
                                          symbolOffset = c(0, -20),
-                                         itemStyle = list(color = polarity, opacity = 0.3)) 
+                                         itemStyle = list(color = polarity, opacity = 0.3))
     }
   }
   

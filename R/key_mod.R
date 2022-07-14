@@ -36,7 +36,7 @@ key_mod <- function(id,
                                              br(),
                                              fluidRow(
                                                column(6, echarts4rOutput(ns("mh_life_sat")),
-                                                      echarts4rOutput(ns("mh_life_worth")),
+                                                      echarts4rOutput(ns("mh_bullied")),
                                                       echarts4r::echarts4rOutput(ns("mh_worries"))),
                                                column(6, echarts4rOutput(ns("mh_self_harm")),
                                                       echarts4rOutput(ns("mh_services")),
@@ -46,8 +46,8 @@ key_mod <- function(id,
                                                column(
                                                  12,
                                                  shiny::br(),
-                                                 shiny::uiOutput(ns("mh_ui_year")),
-                                                 shiny::uiOutput(ns("mh_ui_breakdown"))
+                                                 shiny::uiOutput(ns("mh_ui_breakdown")),
+                                                 shiny::uiOutput(ns("mh_ui_year"))
                                                )
                                              )
                                     ),
@@ -63,13 +63,36 @@ key_mod <- function(id,
                                       )
                                     ),
                                     tabPanel(
-                                      "Safety"
+                                      "Safety",
+                                      shiny::fluidRow(
+                                        shiny::column(6, 
+                                                      echarts4r::echarts4rOutput(ns("s_safe_dark")),
+                                                      echarts4r::echarts4rOutput(ns("s_safe_day"))),
+                                        shiny::column(6, 
+                                                      echarts4r::echarts4rOutput(ns("s_incident")),
+                                                      echarts4r::echarts4rOutput(ns("s_domestic")))
+                                      )
                                     ),
                                     tabPanel(
-                                      "Sexual Health"
-                                    ),
-                                    tabPanel(
-                                      "Other"
+                                      "Sexual Health",
+                                      shiny::fluidRow(
+                                        shiny::column(6, 
+                                                      echarts4r::echarts4rOutput(ns("sh_services")),
+                                                      echarts4r::echarts4rOutput(ns("sh_info"))
+                                                      ),
+                                        shiny::column(6, 
+                                                      echarts4r::echarts4rOutput(ns("sh_condoms")),
+                                                      echarts4r::echarts4rOutput(ns("sh_pressure"))
+                                                      )
+                                      ),
+                                      fluidRow(
+                                        column(
+                                          12,
+                                          shiny::br(),
+                                          shiny::uiOutput(ns("sh_ui_breakdown")),
+                                          shiny::uiOutput(ns("sh_ui_year"))
+                                        )
+                                      ),
                                     )) )
       ),
       shiny::fluidRow(
@@ -101,7 +124,7 @@ key_mod_server <- function(id,
       ns <- shiny::NS(id)
       
       observe({
-        if ("2020" %in% input$mh_year ) {browser()}
+        if ("Broxbourne" %in% input$mh_breakdown ) {browser()}
       })
       
       stats_w_diffs <- reactive({ add_year_diff(diffs(), stats_combined()) })
@@ -411,6 +434,7 @@ key_mod_server <- function(id,
       output$mh_life_sat <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "life_satisfied",
                            response_p = "low",
                            title = "Low life satisfaction", 
@@ -421,9 +445,10 @@ key_mod_server <- function(id,
         
       })
       
-      output$mh_life_worth <- renderEcharts4r({
+      output$mh_bullied <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(), 
                            question_p = "bullied",
                            response_p = "Yes",
                            title = "Bullying", 
@@ -436,6 +461,7 @@ key_mod_server <- function(id,
       output$mh_self_harm <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "selfharm_ever",
                            response_p = "Yes",
                            title = "Self-harm", 
@@ -448,6 +474,7 @@ key_mod_server <- function(id,
       output$mh_services <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "mental_howaccess",
                            response_p = "Yes",
                            title = "Accessing mental health services", 
@@ -475,7 +502,8 @@ key_mod_server <- function(id,
           inputId = ns("mh_year"),
           label = "",
           choices = unique(stats_combined()$year),
-          status = "info"
+          status = "info",
+          inline= TRUE
         )
         
       })
@@ -488,13 +516,12 @@ key_mod_server <- function(id,
           dplyr::filter(grepl("worry_", question),
                         breakdown == input$mh_breakdown,
                         year == input$mh_year,
-                        response == "Yes") %>%
+                        response == "Yes")  %>%
           dplyr::group_by(breakdown) %>%
           dplyr::arrange(count) %>%
           dplyr::slice(tail(dplyr::row_number(), 5)) %>%
           echarts4r::e_charts(question_text) %>%
-          echarts4r::e_bar(count) %>%
-          echarts4r::e_legend(show = FALSE) %>%
+          echarts4r::e_bar(count, stack = "grp") %>%
           echarts4r::e_flip_coords() %>%
           echarts4r::e_x_axis(splitNumber = 2) %>%
           echarts4r::e_tooltip("item") %>%
@@ -572,7 +599,7 @@ key_mod_server <- function(id,
         # --Text output ----
         shiny::HTML(
           paste0(
-            "* Green or red arrows in the plots indicate a significant difference found between years in that particular group.<br><br>",
+            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>",
             "<b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br>",
             
@@ -599,6 +626,7 @@ key_mod_server <- function(id,
       output$ls_pa <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "pa_60",
                            response_p = "6 to 7",
                            title = "Physical activity", 
@@ -612,6 +640,7 @@ key_mod_server <- function(id,
       output$ls_smoking <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "smoke_ever",
                            response_p = "I smoke regularly (once a week or more)",
                            title = "Regular smokers", 
@@ -625,6 +654,7 @@ key_mod_server <- function(id,
       output$ls_alcohol <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "alcohol_ever",
                            response_p = "4 or more times a week",
                            title = "Alcohol consumption", 
@@ -638,6 +668,7 @@ key_mod_server <- function(id,
       output$ls_drugs <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "drug_ever",
                            response_p = "I take drugs regularly (once a week or more)",
                            title = "Regular drug use", 
@@ -654,6 +685,7 @@ key_mod_server <- function(id,
       output$s_safe_dark <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "safety_dark",
                            response_p = "Unsafe",
                            title = "Feel unsafe after dark", 
@@ -667,6 +699,7 @@ key_mod_server <- function(id,
       output$s_safe_day <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "safety_day",
                            response_p = "Unsafe",
                            title = "Feel unsafe during the day", 
@@ -680,12 +713,13 @@ key_mod_server <- function(id,
       output$s_incident <- renderEcharts4r({
         
         create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
                            question_p = "violence_involved",
                            response_p = "Yes, I was the victim",
                            title = "Victim of a violent incident", 
                            subtitle = "Proportion from each group that were the victim of a violent incident in the past year",
                            group_id = "s",
-                           legend = T, 
+                           legend = F, 
                            connect = F)
         
       })
@@ -693,13 +727,14 @@ key_mod_server <- function(id,
       output$s_domestic <- renderEcharts4r({
         
         create_yearly_plot(stats = filter(stats_w_diffs(), response != "Prefer not to say"),
+                           q_coded = q_coded(),
                            question_p = "home_violence",
                            response_p = "Most days/Every day",
                            title = "Domestic violence", 
                            subtitle = "Proportion from each group that reported any violence (e.g. hitting, punching, slapping) between adults or older siblings at home most days/every day in the past month",
                            group_id = "s",
-                           legend = T, 
-                           connect = F)
+                           legend = F, 
+                           connect = T)
         
       })
     
@@ -707,6 +742,96 @@ key_mod_server <- function(id,
 
 # Sexual Health Graphs ----------------------------------------------------
 
+      output$sh_services <- renderEcharts4r({
+        
+        create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
+                           question_p = "sh_access",
+                           response_p = "Yes",
+                           title = "Knowing how to access sexual health services", 
+                           subtitle = "Proportion from each group that said they know how to access sexual health services",
+                           group_id = "sh",
+                           legend = T, 
+                           connect = F)
+        
+      })
+      
+      output$sh_condoms <- renderEcharts4r({
+        
+        create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
+                           question_p = "condoms_free",
+                           response_p = "Yes",
+                           title = "Knowing where to get free condoms", 
+                           subtitle = "Proportion from each group that said they know where to get free condoms",
+                           group_id = "sh",
+                           legend = F, 
+                           connect = F)
+        
+      })
+      
+      output$sh_pressure <- renderEcharts4r({
+        
+        create_yearly_plot(stats = stats_w_diffs(),
+                           q_coded = q_coded(),
+                           question_p = "sh_pressure",
+                           response_p = "Agree",
+                           title = "Pressure to have sex", 
+                           subtitle = "Proportion from each group that agreed that there is pressure on young people to have sex",
+                           group_id = "sh",
+                           legend = F, 
+                           connect = T)
+        
+      })
+      
+      output$sh_info <- echarts4r::renderEcharts4r({
+        
+        stats <- stats_combined()
+        
+        stats %>%
+          dplyr::filter(grepl("shinfo_", question),
+                        breakdown == input$sh_breakdown,
+                        year == input$sh_year,
+                        response == "Yes") %>%
+          dplyr::group_by(breakdown) %>%
+          dplyr::arrange(count) %>%
+          dplyr::slice(tail(dplyr::row_number(), 5)) %>%
+          echarts4r::e_charts(question_text) %>%
+          echarts4r::e_bar(count, stack = "grp") %>%
+          echarts4r::e_flip_coords() %>%
+          echarts4r::e_x_axis(splitNumber = 2) %>%
+          echarts4r::e_tooltip("item") %>%
+          echarts4r::e_grid(left = "30%") %>%
+          echarts4r::e_title("Top 5 reported ways to get information about sex/relationships",
+                             paste("For", input$sh_breakdown, "in", input$sh_year)) %>%
+          echarts4r::e_theme("walden") %>% 
+          echarts4r::e_legend(show = FALSE)
+        
+      })
+      
+      output$sh_ui_breakdown <- shiny::renderUI({
+        
+        shinyWidgets::prettyRadioButtons(
+          inputId = ns("sh_breakdown"),
+          label = "",
+          choices = unique(stats()$breakdown),
+          status = "info",
+          inline = TRUE
+        )
+        
+      })
+      
+      output$sh_ui_year <- shiny::renderUI({
+        
+        shinyWidgets::prettyRadioButtons(
+          inputId = ns("sh_year"),
+          label = "",
+          choices = unique(stats_combined()$year),
+          status = "info",
+          inline = TRUE
+        )
+        
+      })
 
 # Other Graphs ------------------------------------------------------------
 
