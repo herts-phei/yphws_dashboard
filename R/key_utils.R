@@ -96,7 +96,7 @@ create_yearly_plot <- function(stats,
         as.list()
 
       p <- p %>% echarts4r::e_mark_point(serie = serie_unique, data = marker,
-                                         symbol = "arrow", symbolSize = 20, symbolRotate = direction,
+                                         symbol = "arrow", symbolSize = 13, symbolRotate = direction,
                                          symbolOffset = c(0, -20),
                                          itemStyle = list(color = polarity, opacity = 0.3))
     }
