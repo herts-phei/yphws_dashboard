@@ -130,6 +130,7 @@ server <- function(input, output) {
   
   key_mod_server("key",
                  params = shiny::reactive(rv$params),
+                 year = shiny::reactive(input$year),
                  stats = shiny::reactive(rv$stats),
                  stats_old = shiny::reactive(rv$stats_old),
                  stats_combined = shiny::reactive(rv$stats_combined),

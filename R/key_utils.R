@@ -37,7 +37,7 @@ create_yearly_plot <- function(stats,
     echarts4r::e_bar(value, barWidth = "10%", name = .$year, 
                      tooltip = list(formatter = htmlwidgets::JS("
       function(params){
-      return('<b>value</b>: ' + Math.round(params.value[1] * 100, 3) + '%' +
+      return('<b>value</b>: ' + Math.round(params.value[1] * 100, 4) + '%' +
         '<br/><b>year</b>: ' + params.seriesName +
         '<br/><b>group</b>: ' + params.value[params.encode.x[0]]) 
         }"
@@ -107,7 +107,7 @@ create_yearly_plot <- function(stats,
   }
   
   if(connect) {
-    p %>% echarts4r::e_connect_group("mh")
+    p %>% echarts4r::e_connect_group(group_id)
   } else {
     return(p)
   }

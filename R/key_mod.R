@@ -59,9 +59,10 @@ key_mod <- function(id,
                                       shiny::fluidRow(
                                         shiny::column(6, 
                                                       echarts4r::echarts4rOutput(ns("ls_pa")),
-                                                      echarts4r::echarts4rOutput(ns("ls_smoking"))),
+                                                      echarts4r::echarts4rOutput(ns("ls_alcohol"))
+                                                      ),
                                         shiny::column(6, 
-                                                      echarts4r::echarts4rOutput(ns("ls_alcohol")),
+                                                      echarts4r::echarts4rOutput(ns("ls_smoking")),
                                                       echarts4r::echarts4rOutput(ns("ls_drugs")))
                                       )
                                     ),
@@ -73,9 +74,10 @@ key_mod <- function(id,
                                       shiny::fluidRow(
                                         shiny::column(6, 
                                                       echarts4r::echarts4rOutput(ns("s_safe_dark")),
-                                                      echarts4r::echarts4rOutput(ns("s_safe_day"))),
+                                                      echarts4r::echarts4rOutput(ns("s_incident"))
+                                                      ),
                                         shiny::column(6, 
-                                                      echarts4r::echarts4rOutput(ns("s_incident")),
+                                                      echarts4r::echarts4rOutput(ns("s_safe_day")),
                                                       echarts4r::echarts4rOutput(ns("s_domestic")))
                                       )
                                     ),
@@ -112,6 +114,7 @@ key_mod <- function(id,
 
 key_mod_server <- function(id,
                            params,
+                           year,
                            data,
                            data_old,
                            stats, 
@@ -127,9 +130,9 @@ key_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      # observe({
-      #   if ("Broxbourne" %in% input$mh_breakdown ) {browser()}
-      # })
+      observe({
+        if ("Broxbourne" %in% input$mh_breakdown ) {browser()}
+      })
       
       stats_w_diffs <- reactive({ add_year_diff(diffs(), stats_combined()) })
       
@@ -323,27 +326,25 @@ key_mod_server <- function(id,
                                                  dplyr::filter(key_data, question == 'bullied' & response == "Yes") %>% .$value,
                                                  "</b> for ", group_name, " respondents."), "")
         
-        mh4 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, <b>",
+        mh4 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, this statistic was <b>",
                                                  dplyr::filter(key_data, question == 'mental_howaccess' & response == 'Yes') %>%
-                                                   .$value, "</b> stated 'Yes'."), "")
+                                                   .$value, "</b>."), "")
         
         # --Text output ----
         shiny::HTML(
           paste0(
             "<h2>Mental Health & Wellbeing</h2>",
-            "<b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
+            "In ", year(), " <b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br>",
             
-            "<b>", dplyr::filter(all_data, question == 'selfharm_ever' & response == "Yes" & !is.na(question_text)) %>% .$value,
+            "In ", year(), " <b>", dplyr::filter(all_data, question == 'selfharm_ever' & response == "Yes" & !is.na(question_text)) %>% .$value,
             "</b>", " of all respondents stated that they had self-harmed before. ", mh2, "<br>",
             
-            "<b>", dplyr::filter(all_data, question == 'bullied' & response == "Yes" & !is.na(question_text)) %>% .$value,
+            "In ", year(), " <b>", dplyr::filter(all_data, question == 'bullied' & response == "Yes" & !is.na(question_text)) %>% .$value,
             "</b>", " of all respondents stated that they had been bullied before. ", mh3, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response != 'Yes') %>% .$value),
-            "</b> of respondents answered 'Not sure' or 'No' when asked if they knew how to access support and services for mental health. <b>",
-            sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
-            "</b> answered 'Yes'. ", mh4, "<br><br>",
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
+            "</b> of respondents knew how to access support and services for mental health. ", mh4, "<br><br>",
             "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>"
           )
         )
@@ -529,25 +530,23 @@ key_mod_server <- function(id,
           paste0(
             "<h2>Lifestyle</h2>",
             "Out of all responses <b>", dplyr::filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
-            "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
-            " The most common response for this question was <b>",
-            dplyr::filter(all_data,  question =='pa_60') %>% dplyr::filter(count == max(count)) %>% .$response,
-            " days</b>. ", ls1, "<br>",
+            "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance) in ", year(), 
+            " ", ls1, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
             "</b> of respondents reported having ever smoked and <b>",
             sum(dplyr::filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
             "</b> reported smoking regularly (once a week or more). ", ls2, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'alcohol_ever' & response != 'Never') %>% .$value),
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'alcohol_ever' & response != 'Never') %>% .$value),
             "</b> of respondents reported having had an alcoholic drink in the past 3 months and <b>",
             sum(dplyr::filter(all_data,  question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value),
             "</b> reported drinking 4 or more times a week. ", ls3, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value),
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value),
             "</b> of respondents reported having ever taken drugs and <b>",
             sum(dplyr::filter(all_data,  question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value),
-            "</b> reported taking drugs regularly (once a week or more).", ls4, "<br><br>",
+            "</b> reported taking drugs regularly (once a week or more). ", ls4, "<br><br>",
             "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>"
             )
         )
@@ -561,7 +560,7 @@ key_mod_server <- function(id,
                            question_p = "pa_60",
                            response_p = "6 to 7",
                            title = "Physical activity", 
-                           subtitle = "Proportion from each group that had done at least 60 minutes of physical activity 6-7 days a week (NHS recommended daily physical activity guidance)",
+                           subtitle = "Proportion from each group doing >=60 minutes of physical activity 6-7 days a week",
                            group_id = "ls",
                            legend = T, 
                            connect = F)
@@ -577,7 +576,6 @@ key_mod_server <- function(id,
                            title = "Regular smokers", 
                            subtitle = "Proportion from each group that smoked often (once a week or more)",
                            group_id = "ls",
-                           legend = F, 
                            connect = F)
         
       })
@@ -591,7 +589,6 @@ key_mod_server <- function(id,
                            title = "Alcohol consumption", 
                            subtitle = "Proportion from each group that drank alcohol more than 4 times a week",
                            group_id = "ls",
-                           legend = F, 
                            connect = F)
         
       })
@@ -605,7 +602,6 @@ key_mod_server <- function(id,
                            title = "Regular drug use", 
                            subtitle = "Proportion from each group that take drugs regularly (once a week or more)",
                            group_id = "ls",
-                           legend = F, 
                            connect = T)
         
       })
@@ -634,9 +630,9 @@ key_mod_server <- function(id,
         
         # --Stats for key respondents ----
         s1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                 dplyr::filter(key_data, question == 'safety_dark' & response == "Unsafe") %>%
+                                                 dplyr::filter(key_data, question == 'safety_day' & response == "Unsafe") %>%
                                                    .$value, "</b> and <b>", 
-                                                dplyr::filter(key_data, question == 'safety_day' & response == "Unsafe") %>%
+                                                dplyr::filter(key_data, question == 'safety_dark' & response == "Unsafe") %>%
                                                   .$value,"</b> for ", group_name, " respondents, respectively."), "")
         
         s3 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
@@ -655,15 +651,15 @@ key_mod_server <- function(id,
             sum(dplyr::filter(all_data,  question == 'safety_day' & response == 'Unsafe') %>% .$value),
             "</b> of respondents felt unsafe going out during the day and <b>",
             sum(dplyr::filter(all_data,  question == 'safety_dark' & response == 'Unsafe') %>% .$value),
-            "</b> felt unsafe going out after dark. ", s1, "<br>",
+            "</b> felt unsafe going out after dark in ", year(), ". ", s1, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'violence_involved' & response == 'Yes, I was the victim') %>% .$value),
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'violence_involved' & response == 'Yes, I was the victim') %>% .$value),
             "</b> of respondents reported having been a victim of a violent incident in the past year. ", s3, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'home_violence' & response == 'Most days/Every day') %>% .$value),
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'home_violence' & response == 'Most days/Every day') %>% .$value),
             "</b> of respondents reported violence at home (e.g. hitting, punching, slapping) between adults or older siblings at home most days or every day. ", s4, " <br><br>",
             
-            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br>"
+            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>"
           )
         )
         
@@ -675,7 +671,7 @@ key_mod_server <- function(id,
                            q_coded = q_coded(),
                            question_p = "safety_dark",
                            response_p = "Unsafe",
-                           title = "Feel unsafe after dark", 
+                           title = "Safety after dark", 
                            subtitle = "Proportion from each group that feel unsafe going out after dark",
                            group_id = "s",
                            legend = T, 
@@ -689,10 +685,9 @@ key_mod_server <- function(id,
                            q_coded = q_coded(),
                            question_p = "safety_day",
                            response_p = "Unsafe",
-                           title = "Feel unsafe during the day", 
+                           title = "Safety during the day", 
                            subtitle = "Proportion from each group that feel unsafe going out during the day",
                            group_id = "s",
-                           legend = F, 
                            connect = F)
         
       })
@@ -706,7 +701,6 @@ key_mod_server <- function(id,
                            title = "Victim of a violent incident", 
                            subtitle = "Proportion from each group that were the victim of a violent incident in the past year",
                            group_id = "s",
-                           legend = F, 
                            connect = F)
         
       })
@@ -718,9 +712,8 @@ key_mod_server <- function(id,
                            question_p = "home_violence",
                            response_p = "Most days/Every day",
                            title = "Domestic violence", 
-                           subtitle = "Proportion from each group that reported any violence (e.g. hitting, punching, slapping) between adults or older siblings at home most days/every day in the past month",
+                           subtitle = "Proportion from each group that reported violence at home most days in the past month",
                            group_id = "s",
-                           legend = F, 
                            connect = T)
         
       })
@@ -766,16 +759,16 @@ key_mod_server <- function(id,
         shiny::HTML(
           paste0(
             "<h2>Sexual Health</h2>",
-            "<b>", sum(dplyr::filter(all_data,  question == 'sh_access' & response == 'Yes') %>% .$value),
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'sh_access' & response == 'Yes') %>% .$value),
             "</b> of respondents stated that they know how to access sexual health services. ", sh1, "<br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'condoms_free' & response == 'Yes') %>% .$value),
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'condoms_free' & response == 'Yes') %>% .$value),
             "</b> of respondents stated they knew where to get free condoms. ", sh2, " <br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'sh_pressure' & response == 'Agree') %>% .$value),
-            "</b> of respondents agree with the statement that there is pressure on young people to have sex. ", sh2, " <br><br>",
+            "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'sh_pressure' & response == 'Agree') %>% .$value),
+            "</b> of respondents agree with the statement that there is pressure on young people to have sex. ", sh3, " <br><br>",
             
-            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br>"
+            "* Green or red arrows in the plots indicate a <b>statistically significant difference</b> found between years in that particular group.<br><br>"
           )
         )
         
@@ -787,7 +780,7 @@ key_mod_server <- function(id,
                            q_coded = q_coded(),
                            question_p = "sh_access",
                            response_p = "Yes",
-                           title = "Knowing how to access sexual health services", 
+                           title = "Access services", 
                            subtitle = "Proportion from each group that said they know how to access sexual health services",
                            group_id = "sh",
                            legend = T, 
@@ -804,7 +797,6 @@ key_mod_server <- function(id,
                            title = "Knowing where to get free condoms", 
                            subtitle = "Proportion from each group that said they know where to get free condoms",
                            group_id = "sh",
-                           legend = F, 
                            connect = F)
         
       })
@@ -818,7 +810,6 @@ key_mod_server <- function(id,
                            title = "Pressure to have sex", 
                            subtitle = "Proportion from each group that agreed that there is pressure on young people to have sex",
                            group_id = "sh",
-                           legend = F, 
                            connect = T)
         
       })
