@@ -333,7 +333,7 @@ key_mod_server <- function(id,
         # --Text output ----
         shiny::HTML(
           paste0(
-            "<h2>Mental Health & Wellbeing</h2>",
+            "<h2>Mental Health & Wellbeing Summary</h2>",
             "In ", year(), " <b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br>",
             
@@ -528,7 +528,7 @@ key_mod_server <- function(id,
         # --Text output ----
         shiny::HTML(
           paste0(
-            "<h2>Lifestyle</h2>",
+            "<h2>Lifestyle Summary</h2>",
             "Out of all responses <b>", dplyr::filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
             "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance) in ", year(), 
             " ", ls1, "<br>",
@@ -646,7 +646,7 @@ key_mod_server <- function(id,
         # --Text output ----
         shiny::HTML(
           paste0(
-            "<h2>Safety</h2>",
+            "<h2>Safety Summary</h2>",
             "Regarding safety, <b>",
             sum(dplyr::filter(all_data,  question == 'safety_day' & response == 'Unsafe') %>% .$value),
             "</b> of respondents felt unsafe going out during the day and <b>",
@@ -758,7 +758,7 @@ key_mod_server <- function(id,
         # --Text output ----
         shiny::HTML(
           paste0(
-            "<h2>Sexual Health</h2>",
+            "<h2>Sexual Health Summary</h2>",
             "In ", year(), " <b>", sum(dplyr::filter(all_data,  question == 'sh_access' & response == 'Yes') %>% .$value),
             "</b> of respondents stated that they know how to access sexual health services. ", sh1, "<br>",
             
