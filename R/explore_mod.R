@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      observe(if ("Safety" %in% input$domains) {browser()})
+      # observe(if ("Safety" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
