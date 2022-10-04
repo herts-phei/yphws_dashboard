@@ -1,5 +1,7 @@
 # YPHWS Dashboard
 
+This repository contains the source code for the [Public Young People's Health & Wellbeing Survey](https://hcc-phei.shinyapps.io/yphws_dashboard/). 
+
 ## About the survey
 
 This dashboard shows data from the annual Young People’s Health & Wellbeing Survey (YPHWS) at Hertfordshire level. The Young People’s Health & Wellbeing Survey (YPHWS) is an anonymous online survey which gathers self-reported information annually from those aged 11-19 in Hertfordshire. The survey includes questions about home life, wellbeing, diet, physical activity, smoking, alcohol use, drug use, sexual health, mental health, bullying, and safety. The project is funded by Hertfordshire Public Health and YC Hertfordshire and is run by the Public Health Evidence & Intelligence Team and provides an opportunity for partnership working between organisations providing services to young people around the county.
