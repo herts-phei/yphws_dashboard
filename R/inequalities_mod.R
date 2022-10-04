@@ -20,9 +20,6 @@ inequalities_mod <- function(id,
                                closable = FALSE,
                                width = 4, 
                                shiny::uiOutput(ns("ineq_domains")),
-                               # actionLink(ns("selectall"), "Select All"),
-                               # actionLink(ns("deselectall"), "Deselect All"),
-                               #br(),
                                shiny::uiOutput(ns("ineq_questions"))),
         shiny::column(
           width = 8,
@@ -96,16 +93,6 @@ inequalities_mod_server <- function(id,
       
       output$ineq_questions <- renderUI({
         
-        # shinyWidgets::prettyCheckboxGroup(
-        #   inputId = ns("ineq_questions"),
-        #   label = "Choose the indicators:", 
-        #   choices = as.character(unique(questions()$question_response)), 
-        #   bigger = TRUE,
-        #   status = "info",
-        #   animation = "jelly",
-        #   selected = as.character(unique(questions()$question_response))
-        # )
-        
         shinyWidgets::pickerInput(
           inputId = ns("ineq_questions"),
           label = "Choose the indicators:",
@@ -116,27 +103,6 @@ inequalities_mod_server <- function(id,
         )
         
       })
-      
-      
-      # observe({
-      #   if(is.null(input$selectall)) return(NULL)
-      #   if(is.null(input$deselectall)) return(NULL)
-      #   if (input$selectall > 0) {
-      #     shinyWidgets::updatePrettyCheckboxGroup(session, 
-      #                               "ineq_questions",
-      #                               "Choose the indicators:", 
-      #                               choices = as.character(unique(questions()$question_response)), 
-      #                               selected = as.character(unique(questions()$question_response)))
-      #   }
-      #   
-      #   if (input$deselectall > 0){
-      #     shinyWidgets::updatePrettyCheckboxGroup(session, 
-      #                               "ineq_questions",
-      #                               "Choose the indicators:", 
-      #                               choices = as.character(unique(questions()$question_response)))
-      #   }
-      #   
-      # })
       
       for_height <- shiny::reactive(input$ineq_questions)
       

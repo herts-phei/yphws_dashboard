@@ -7,9 +7,6 @@ compare_last_yr <- function(df_new,
                             multicat = F, 
                             response_interest = NA) {
   
-  # df_new <- stats
-  # df_old <- stats_old
-  # var <- chk_var
   if (nrow(df_old) == 0) { return("") }
   
   # filtering to key groups
