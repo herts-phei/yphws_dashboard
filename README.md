@@ -20,10 +20,16 @@ Note: To protect the identity of respondents, all values are rounded to the near
 
 The **Key Points** tab shows some general statistics about the respondents and a text summary of the main health topics covered.
 
+![image](https://user-images.githubusercontent.com/79272398/193871356-7dcba617-867f-4c26-8cd5-8d1131c09a29.png)
+
 The **Explore Data** tab shows a graph, trend table, and a data table for each question asked in the survey. (Note: For a full list of the questions asked, you can check the table in the Export tab, or download them in the About tab.) You can navigate to the health topic of your choice using the checkboxes on top.
+
+![image](https://user-images.githubusercontent.com/79272398/193871467-7c7e095e-f61a-4920-882a-f42fada757dd.png)
 
 The **Inequalities** tab shows a "tartan rug" graph coloured by statistical differences between groups. You can use the filters on the left to select the health topic and questions to be shown in the tartan rug. The methodology for these comparisons are the same as those in PHE Fingertips indicaters and can be found in the [PHEindicatormethods package](https://github.com/publichealthengland/PHEindicatormethods) documentation.
 
-The **Export** tab allows you to export datasets and download a report version of the full data breakdown. You can use the filters to further customise your exports.
+![image](https://user-images.githubusercontent.com/79272398/193871597-ec296186-d1d9-4935-9e92-c4157e98a2e4.png)
+
+The **Export** tab allows you to export datasets and download a report version of the full data breakdown. You can use the filters to further customise your exports. Please note that the report may take a minute to generate.
 
 The **About** tab provides further information about the survey, data, and dashboard. 
