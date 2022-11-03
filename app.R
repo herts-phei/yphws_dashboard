@@ -18,15 +18,6 @@ library(stringr)
 library(sparkline)
 library(viridis)
 
-year <- "2021"
-
-domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
-             "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
-             "Sexual Health", "Mental Health and Wellbeing", "Safety",
-             "Education", "Sustainability", "COVID-19")
-
-names(domains) <- domains
-
 # UI ----------------------------------------------------------------
 
 ui <- tablerDash::tablerDashPage(
