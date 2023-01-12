@@ -41,3 +41,20 @@ This tab allows the user to either export a custom/thematic report or export the
 - question_coded_gen: question_coded, but not unique for multi_cat variables. Used for grouping.
 - survey_text_gen:
 - response_of_interest: response(s) of interest for each question ("Yes" for "Do you self-harm?")
+
+## Updating the dashboard
+
+During the annual update, make sure to do all operations on the **dev branch** and only merge to master if a thorough QA has been done first.
+
+1. Ensure that the [dashboard-specific processing script](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report/-/blob/master/R/4_dashboard_data.R) has been run in [yphws_school_report](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report). Export `stats.rds`, `q_coded.csv`, and `params.rds` from the /outputs folder in that project and import into this project's /data-raw folder.
+
+2. Add the new year as new values in `app.R`, `shinyWidgets::pickerInput("year"...)` and change the `selected` to the latest year as a default.
+
+3. Test every tab and sections within tabs for obvious errors. Make an issue listing any bugs spotted.
+
+4. Once those bugs are resolved, push the changes (updated data, bug fixes) to the dev branch.
+
+5. Detailed QA
+
+6. Push changes to master and redeploy on shinyapps.io and GitHub.
+
