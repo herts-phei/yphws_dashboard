@@ -30,8 +30,9 @@ ui <- tablerDash::tablerDashPage(
                               tags$head(shiny::includeHTML("google-analytics.html")),
                               shinyWidgets::pickerInput("year", label = "Year:", width = "100px", 
                                                         choices = list("2020" = "2020", 
-                                                                       "2021" = "2021"), 
-                                                        selected = "2021", multiple = FALSE),
+                                                                       "2021" = "2021",
+                                                                       "2022" = "2022"), 
+                                                        selected = "2022", multiple = FALSE),
                               HTML('&nbsp;'),
                               shinyWidgets::pickerInput("comp", label = "Select what to group by:", width = "170px", 
                                                         choices = list("Sex" = "sex", 
@@ -41,7 +42,7 @@ ui <- tablerDash::tablerDashPage(
                                                                        "Sexuality" = "sexuality", 
                                                                        "Young carer" = "caring", 
                                                                        #"Smoker" = "smoke_ever",
-                                                                       "Self-harm" = "selfharm_ever",
+                                                                       #"Self-harm" = "selfharm_ever",
                                                                        "Bullied" = "bullied",
                                                                        "District" = "District"), 
                                                         selected = "sex", multiple = FALSE), 
@@ -89,7 +90,7 @@ server <- function(input, output) {
   #   if ("ethnicity" %in% input$comp) { browser() }
   # 
   # })
-  
+
   # --Load all data-----
   rv <- shiny::reactiveValues()
   rv$params <- get_params() # params
@@ -103,14 +104,14 @@ server <- function(input, output) {
                     lowercl = formattable::percent(lowercl, digits = 1),
                     uppercl = formattable::percent(uppercl, digits = 1),
                     lowereb = value - lowercl,
-                    uppereb = uppercl - value,
-                    value.y = formattable::percent(value.y, digits = 1))
+                    uppereb = uppercl - value)
     
     # Stats
     rv$stats_combined <- dplyr::select(df_selected, year, 1:12) %>% dplyr::distinct() # distinct because of repeated diffs that are now removed. 
     rv$stats <- dplyr::filter(rv$stats_combined, year == input$year)
     rv$stats_old <- dplyr::filter(rv$stats_combined, year == as.character(as.numeric(input$year) - 1))
     
+    #TODO
     # Differences
     rv$diffs <- dplyr::filter(df_selected, year == input$year)
     rv$diffs_all <- df_selected
@@ -150,8 +151,9 @@ server <- function(input, output) {
                           year = shiny::reactive(input$year),
                           comp = shiny::reactive(input$comp), 
                           q_coded = shiny::reactive(rv$data$q_coded),
-                          stats = shiny::reactive(rv$stats),
-                          diffs = shiny::reactive(rv$diffs))
+                          stats = shiny::reactive(rv$stats)
+                          #diffs = shiny::reactive(rv$diffs)
+                          )
   
   # Export ------------------------------------------------------------------
   

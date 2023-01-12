@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      observe(if ("Safety" %in% input$domains) {browser()})
+      #observe(if ("Drug Use" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
@@ -86,7 +86,7 @@ explore_mod_server <- function(id,
       chk_stats <- shiny::reactive({
         stats <- stats()
         stats %>% 
-          dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
+          dplyr::left_join(dplyr::select(q_coded(), -question_text, -year), by = c("question" = "question_coded",
                                                                             "response" = "response")) %>% 
           dplyr::filter(question_coded_gen %in% chk_var(),
                         year == year())
@@ -96,20 +96,18 @@ explore_mod_server <- function(id,
       chk_stats_old <- shiny::reactive({
         stats_old <- stats_old()
         stats_old %>%
-          dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
+          dplyr::left_join(dplyr::select(q_coded(), -question_text, -year), by = c("question" = "question_coded",
                                                                             "response" = "response")) %>%
-          dplyr::filter(question_coded_gen %in% chk_var(),
-                        year == as.character(as.numeric(year()) - 1))
+          dplyr::filter(question_coded_gen %in% chk_var())
       })
       
-      chk_diff <- shiny::reactive({
-        diffs <- diffs()
-        diffs %>% 
-          dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
-                                                                            "response" = "response")) %>% 
-          dplyr::filter(question_coded_gen %in% chk_var(),
-                        year == year())
-      })
+      # chk_diff <- shiny::reactive({
+      #   diffs <- diffs()
+      #   diffs %>% 
+      #     dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
+      #                                                                       "response" = "response")) %>% 
+      #     dplyr::filter(question_coded_gen %in% chk_var())
+      # })
       
       
       # Boxes -------------------------------------------------------------------
@@ -136,11 +134,10 @@ explore_mod_server <- function(id,
             current_old <- dplyr::filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
               dplyr::mutate(year = as.character(as.numeric(year()) - 1))
             
-            multi <- ifelse(any(current$multi_cat, current$multi_binary), TRUE, FALSE) # check if multicat question
-            multi_bin <- ifelse(all(current$multi_cat), FALSE, TRUE) # check if its multicat binary (yes/no)
+            multi <- ifelse(any(as.logical(current$multi_cat), as.logical(current$multi_binary)), TRUE, FALSE) # check if multicat question
+            multi_bin <- ifelse(all(as.logical(current$multi_cat)), FALSE, TRUE) # check if its multicat binary (yes/no)
             
-            # find group of interest 
-            #TODO clean
+            # Find group of interest 
             grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
                                                    unique(current$breakdown))]
             grp <- ifelse(length(grp) == 0, NA, grp)
@@ -165,7 +162,7 @@ explore_mod_server <- function(id,
                 
                 current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
                 
-              }else{
+              } else {
                 
                 current_plot <- current
               }
@@ -193,7 +190,7 @@ explore_mod_server <- function(id,
                 
                 trend_plot <- create_trend_table(stats = stats_,
                                                  stats_old = current_old_trend,
-                                                 params = params)
+                                                 year = year())
                 
                 
               } else {
@@ -211,7 +208,7 @@ explore_mod_server <- function(id,
                                             multi = T,
                                             value_of_interest = resp_interest,
                                             full_data = stats,
-                                            diffs = chk_diff(),
+                                            # diffs = chk_stats(),
                                             custom_grp = unique(current$breakdown),
                                             group_of_interest = grp,
                                             q_coded = q_coded,
@@ -226,7 +223,7 @@ explore_mod_server <- function(id,
                                             multi = T,
                                             value_of_interest = "Yes",
                                             full_data = chk_stats(),
-                                            diffs = chk_diff(),
+                                            # diffs = chk_diff(),
                                             custom_grp = unique(current$breakdown),
                                             group_of_interest = grp,
                                             q_coded = q_coded,
@@ -243,7 +240,7 @@ explore_mod_server <- function(id,
                                           multi = multi,
                                           value_of_interest = NA,
                                           full_data = stats,
-                                          diffs = chk_diff(),
+                                          # diffs = chk_diff(),
                                           custom_grp = unique(current$breakdown),
                                           group_of_interest = grp,
                                           q_coded = q_coded,
@@ -258,6 +255,7 @@ explore_mod_server <- function(id,
                 current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
                 
               }else{
+                
                 current_plot <- current
                 
                 order <- unique(current_plot$breakdown)
@@ -276,7 +274,7 @@ explore_mod_server <- function(id,
                 
                 trend_plot <- create_trend_table(stats = current,
                                                  stats_old = current_old_trend,
-                                                 params = params)
+                                                 year = year())
                 
               } else {
                 
@@ -343,7 +341,7 @@ explore_mod_server <- function(id,
       links <- shiny::reactive({
         
         stats <- stats()
-        diffs <- diffs()
+        # diffs <- diffs()
         comp <- comp()
         q_coded <- q_coded()
         

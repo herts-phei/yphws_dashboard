@@ -140,7 +140,7 @@ create_sum_sentence <- function(dataset,
                                 multi = F, 
                                 value_of_interest = F, 
                                 full_data,
-                                diffs,
+                                # diffs,
                                 custom_grp,
                                 group_of_interest,
                                 q_coded,
@@ -182,11 +182,11 @@ create_sum_sentence <- function(dataset,
         
       } else {
         
-        trend <- compare_last_yr(df_new = dataset, 
-                                 df_old = dataset_old, 
-                                 multi = F,
-                                 diffs_all = diffs,
-                                 response_interest = NA)
+        # trend <- compare_last_yr(df_new = dataset, 
+        #                          df_old = dataset_old, 
+        #                          multi = F,
+        #                          diffs_all = diffs,
+        #                          response_interest = NA)
         
         if (!is.na(group_of_interest)[1]) {
           
@@ -202,7 +202,8 @@ create_sum_sentence <- function(dataset,
           add <- paste0(" Among them, ", paste0(
             prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
           
-          sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
+          sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, 
+                             # trend, 
                              "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
                              "</b> of responses and the least common response was '", least_common[1], "', with <b>",
                              least_v[1], "</b> of responses.")
@@ -229,7 +230,8 @@ create_sum_sentence <- function(dataset,
           
         } else {
           
-          sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ", trend,
+          sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ", 
+                             # trend,
                              "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
                              "</b> of responses and the least common response was '", least_common[1], "', with <b>",
                              least_v[1], "</b> of responses.")
@@ -272,11 +274,11 @@ create_sum_sentence <- function(dataset,
       binary <- ifelse(all(unique(data$response) %in% c("Yes", "No")), TRUE, FALSE) # check if it's a Yes or No
       
       # get trend sentence
-      trend <- compare_last_yr(df_new = dataset,
-                               df_old = dataset_old,
-                               diffs_all = diffs, 
-                               multicat = T,
-                               response_interest = value_of_interest)
+      # trend <- compare_last_yr(df_new = dataset,
+      #                          df_old = dataset_old,
+      #                          diffs_all = diffs, 
+      #                          multicat = T,
+      #                          response_interest = value_of_interest)
       
       if(!is.na(group_of_interest)) {
         
@@ -291,11 +293,15 @@ create_sum_sentence <- function(dataset,
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
         
         sentence <- paste0(sentence, "Among them, ", paste0(
-          prop, " were ", grp_df$breakdown, collapse = ", "), ". ", trend)
+          prop, " were ", grp_df$breakdown, collapse = ", "), ". " 
+          # trend
+          )
         
       } else {
         
-        sentence <- paste0(sentence, trend)
+        sentence <- paste0(sentence
+                           # trend
+                           )
         
       }
       
@@ -614,28 +620,32 @@ create_tbl <- function(stats_diff,
 
 create_trend_table <- function(stats,
                                stats_old,
-                               params) {
+                               year) {
+  
+  prev_yr <- as.character(as.numeric(year) - 1)
   
   table_df <- stats %>%
-    dplyr::mutate(year = params$year, 
-                  `2021` = value) %>%
+    dplyr::mutate(year = year, 
+                  !!dplyr::ensym(year) := value) %>%
     dplyr::left_join(stats_old, by = c("breakdown" = "prev_breakdown",
                                        "question" = "prev_question",
                                        "response" = "prev_response")) %>%
-    dplyr::mutate(`2020` = ifelse(!is.na(prev_value), round(as.numeric(prev_value), 4) * 100, 0),
-                  `2021` = ifelse(!is.na(`2021`), round(as.numeric(`2021`), 4) * 100, 0),
-                  `2020` = ifelse(is.na(`2020`), 0, `2020`),
-                  `2020` = ifelse(is.na(`2020`), 0, `2020`),
-                  Trend = purrr::map2(`2020`, `2021`, c), 
-                  Change = round(`2021` - `2020`, 2)) %>%
-    dplyr::select(Indicator = question_response, Group = breakdown, `2020`, `2021`, 
+    dplyr::mutate(!!dplyr::ensym(prev_yr) := ifelse(!is.na(prev_value), round(as.numeric(prev_value), 4) * 100, 0),
+                  !!dplyr::ensym(year) := ifelse(!is.na(!!dplyr::ensym(year)), round(as.numeric(!!dplyr::ensym(year)), 4) * 100, 0),
+                  !!dplyr::ensym(prev_yr) := ifelse(is.na(!!dplyr::ensym(prev_yr)), 0, !!dplyr::ensym(prev_yr)),
+                  !!dplyr::ensym(prev_yr) := ifelse(is.na(!!dplyr::ensym(prev_yr)), 0, !!dplyr::ensym(prev_yr)),
+                  Trend = purrr::map2(!!dplyr::ensym(prev_yr), !!dplyr::ensym(year), c), 
+                  Change = round(!!dplyr::ensym(year) - !!dplyr::ensym(prev_yr), 2)) %>%
+    dplyr::select(Indicator = question_response, Group = breakdown, !!dplyr::ensym(prev_yr), !!dplyr::ensym(year), 
                   Trend, Change) %>% 
-    dplyr::mutate(`2020` = paste0(`2020`, "%"),
-                  `2021` = paste0(`2021`, "%")) %>% 
+    dplyr::mutate(!!dplyr::ensym(prev_yr) := paste0(!!dplyr::ensym(prev_yr), "%"),
+                  !!dplyr::ensym(year) := paste0(!!dplyr::ensym(year), "%")) %>% 
     dplyr::filter(!is.na(Indicator))
   
   table_df %>%
+    dplyr::distinct() %>% 
     reactable::reactable(defaultSorted = c("Indicator", "Group"), defaultPageSize = 100,
+                         sortable = FALSE,
                          columns = list(
                            Indicator = reactable::colDef(
                              sortable = F,
@@ -649,11 +659,7 @@ create_trend_table <- function(stats,
           }
         }
       }")),
-      Group = reactable::colDef(sortable = F),
-      `2020` = reactable::colDef(sortable = F),
-      `2021` = reactable::colDef(sortable = F), 
       Trend = reactable::colDef(
-        sortable = F,
         cell = function(value, index) {
           sparkline::sparkline(table_df$Trend[[index]], 
                                chartRangeMin = 0, chartRangeMax = 100)
@@ -661,7 +667,6 @@ create_trend_table <- function(stats,
       ),
       Change = reactable::colDef(
         header = shiny::span("Change", class = "sr-only"),
-        sortable = FALSE,
         align = "center",
         width = 40,
         cell = function(value) trend_indicator(value)
