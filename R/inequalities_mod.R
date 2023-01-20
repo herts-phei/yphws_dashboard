@@ -18,7 +18,7 @@ inequalities_mod <- function(id,
       shiny::fluidRow(
         tablerDash::tablerCard(title = "Filters",
                                closable = FALSE,
-                               width = 4, 
+                               width = 4,
                                shiny::uiOutput(ns("ineq_domains")),
                                shiny::uiOutput(ns("ineq_questions"))),
         shiny::column(
@@ -47,7 +47,7 @@ inequalities_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      observe({if("Safety" %in% input$ineq_domains) {browser()}})
+      # observe({if("Safety" %in% input$ineq_domains) {browser()}})
       
       # Intro text --------------------------------------------------------------------
       
@@ -68,13 +68,13 @@ inequalities_mod_server <- function(id,
         
         params <- params()
         
-        shinyWidgets::prettyCheckboxGroup(
+        shinyWidgets::awesomeRadio(
           inputId = ns("ineq_domains"),
           label = "Choose the health topic(s):", 
           choices = params$domains, 
-          bigger = TRUE,
+          # bigger = TRUE,
           status = "info",
-          animation = "jelly",
+          # animation = "jelly",
           selected = params$domains[1]
         )
         
@@ -97,7 +97,9 @@ inequalities_mod_server <- function(id,
           label = "Choose the indicators:",
           choices = as.character(unique(questions()$question_response)), 
           selected = as.character(unique(questions()$question_response)),
-          options = list(`actions-box` = TRUE),   
+          options = pickerOptions(
+            actionsBox = TRUE,
+            liveSearch = TRUE),
           multiple = T
         )
         
