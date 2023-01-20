@@ -325,8 +325,9 @@ explore_mod_server <- function(id,
           
           l[[1]] <- bs4Dash::tabItem("name", 
                                      bs4Dash::bs4TabCard(width = 12, side = "right", status = "success",
-                                                         collapsible = FALSE, 
-                                                         shiny::htmlOutput("No data available for the selected year.")))
+                                                         collapsible = FALSE,
+                                                         title = shiny::HTML(paste0(input$domains[1],"<br>")),
+                                                         shiny::tabPanel(title = NULL, "No data available for the selected year.")))
           
         }
 
