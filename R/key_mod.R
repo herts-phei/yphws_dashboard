@@ -477,11 +477,13 @@ key_mod_server <- function(id,
       })
       
       output$mh_year <- shiny::renderUI({
+        stats <- stats_combined() %>%
+          dplyr::arrange(desc(year))
         
         shinyWidgets::prettyRadioButtons(
           inputId = ns("mh_year"),
           label = "",
-          choices = unique(stats_combined()$year),
+          choices = unique(stats$year),
           inline = TRUE,
           status = "info",
           fill = TRUE
