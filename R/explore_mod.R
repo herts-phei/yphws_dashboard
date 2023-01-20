@@ -86,7 +86,7 @@ explore_mod_server <- function(id,
       chk_stats <- shiny::reactive({
         stats <- stats()
         stats %>% 
-          dplyr::left_join(dplyr::select(q_coded(), -question_text, -year), by = c("question" = "question_coded",
+          dplyr::left_join(dplyr::distinct(dplyr::select(q_coded(), -question_text, -year)), by = c("question" = "question_coded",
                                                                             "response" = "response")) %>% 
           dplyr::filter(question_coded_gen %in% chk_var(),
                         year == year())
@@ -96,7 +96,7 @@ explore_mod_server <- function(id,
       chk_stats_old <- shiny::reactive({
         stats_old <- stats_old()
         stats_old %>%
-          dplyr::left_join(dplyr::select(q_coded(), -question_text, -year), by = c("question" = "question_coded",
+          dplyr::left_join(dplyr::distinct(dplyr::select(q_coded(), -question_text, -year)), by = c("question" = "question_coded",
                                                                             "response" = "response")) %>%
           dplyr::filter(question_coded_gen %in% chk_var())
       })
