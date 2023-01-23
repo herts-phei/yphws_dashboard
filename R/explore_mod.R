@@ -149,7 +149,7 @@ explore_mod_server <- function(id,
               # response of interest (usually Yes)
               if(multi_bin) { resp_interest = "Yes" } else {
                 
-                resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes"), 
+                resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes","Would like to attend", "Currently attending", "Don't want to attend"), 
                                        collapse = "|")
                 resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
                 
