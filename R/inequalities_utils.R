@@ -6,8 +6,6 @@ differences <- function(data, by, from, to, join = NULL) {
   # e.g. data, school, report_school, report_school returns differences between
   # each year of the report school (includes comaring year to itself)
   
-  box::use(magrittr[`%>%`])
-  
   data_from <- data[data[[by]] %in% from, ]
   data_to <- data[data[[by]] %in% to, ] 
   
@@ -21,8 +19,6 @@ differences <- function(data, by, from, to, join = NULL) {
 
 get_stats_diffs <- function(stats, 
                             levels){
-  
-  box::use(magrittr[`%>%`])
   
   stats <- dplyr::filter(stats, breakdown %in% levels)
   
