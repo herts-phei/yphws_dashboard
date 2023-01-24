@@ -225,7 +225,7 @@ export_mod_server <- function(id,
       shinyWidgets::pickerInput(
         inputId = ns("exp_report_year"),
         label = "Select the year of interest:", 
-        choices = unique(stats_combined$year),
+        choices = c("2021", "2020"),
         selected = unique(stats_combined$year)[1],
         options = pickerOptions(
           liveSearch = TRUE),
