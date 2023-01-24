@@ -311,7 +311,7 @@ create_sum_sentence <- function(dataset,
           dplyr::filter(breakdown == c("All Responses", group_of_interest)[group]) 
         
         group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "all students", 
-                             paste0("<b>", grp_df$breakdown, "</b>"))
+                             paste0("<b>", grp_df$breakdown, "s</b>"))
         
         # generate the values used for the sentences. 
         df <- grp_df %>% 
@@ -332,10 +332,10 @@ create_sum_sentence <- function(dataset,
         
         if (binary) {
           
-          temp <- paste0("Out of responses from ", group_name, "s, ", 
+          temp <- paste0("Out of responses from ", group_name, ", ", 
                          glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))
         } else {
-          temp <- paste0("The number of ", group_name, "s who stated '", df$response[1], "' was ",
+          temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
                          glue::glue_collapse(glue::glue("<b>{df$value}</b> for '{df$question_text.x}'"), ", ", last = ", and "))
         }
         
