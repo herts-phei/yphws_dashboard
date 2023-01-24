@@ -224,7 +224,7 @@ create_sum_sentence <- function(dataset,
             dplyr::ungroup() %>% 
             dplyr::distinct() 
           
-          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "</b> was '", most_common$most_common, 
+          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "s</b> was '", most_common$most_common, 
                                                          "', which made up ", most_common$most_v, " of responses and the least common response was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
                                                          collapse = "<br><br>"))
           
@@ -332,10 +332,10 @@ create_sum_sentence <- function(dataset,
         
         if (binary) {
           
-          temp <- paste0("Out of responses from ", group_name, ", ", 
+          temp <- paste0("Out of responses from ", group_name, "s, ", 
                          glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))
         } else {
-          temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
+          temp <- paste0("The number of ", group_name, "s who stated '", df$response[1], "' was ",
                          glue::glue_collapse(glue::glue("<b>{df$value}</b> for '{df$question_text.x}'"), ", ", last = ", and "))
         }
         

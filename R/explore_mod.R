@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      observe(if ("Education" %in% input$domains) {browser()})
+      #observe(if ("Education" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
