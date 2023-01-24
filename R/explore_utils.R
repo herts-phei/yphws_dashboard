@@ -224,7 +224,7 @@ create_sum_sentence <- function(dataset,
             dplyr::ungroup() %>% 
             dplyr::distinct() 
           
-          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "</b> was '", most_common$most_common, 
+          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "s</b> was '", most_common$most_common, 
                                                          "', which made up ", most_common$most_v, " of responses and the least common response was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
                                                          collapse = "<br><br>"))
           
@@ -311,24 +311,26 @@ create_sum_sentence <- function(dataset,
           dplyr::filter(breakdown == c("All Responses", group_of_interest)[group]) 
         
         group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "all students", 
-                             paste0("<b>", grp_df$breakdown, "</b>"))
+                             paste0("<b>", grp_df$breakdown, "s</b>"))
         
         # generate the values used for the sentences. 
         df <- grp_df %>% 
           dplyr::filter(question %in% reps, response_of_interest == "TRUE") %>% 
           dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
           #drop_na(reworded) %>% 
-          dplyr::arrange(dplyr::desc(count))
+          dplyr::arrange(dplyr::desc(count)) %>%
+          dplyr::select(-tidyselect::contains(".y")) %>%
+          dplyr::distinct()
+        
+        # if we only want the top N responses, subset df
+        
+        if (!is.na(top)) { 
+          df <- df %>% 
+            dplyr::arrange(desc(value)) %>% 
+            dplyr::slice(1:top)
+        } 
         
         if (binary) {
-          
-          # if we only want the top N responses, subset df
-          
-          if (!is.na(top)) { 
-            df <- df %>% 
-              dplyr::arrange(desc(value)) %>% 
-              dplyr::slice(1:top)
-          } 
           
           temp <- paste0("Out of responses from ", group_name, ", ", 
                          glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))

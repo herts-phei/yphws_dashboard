@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Demographics" %in% input$domains) {browser()})
+      #observe(if ("Education" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
@@ -153,7 +153,7 @@ explore_mod_server <- function(id,
               # response of interest (usually Yes)
               if(multi_bin) { resp_interest = "Yes" } else {
                 
-                resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes","Would like to attend", "Currently attending", "Don't want to attend"), 
+                resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes","Currently attending"), 
                                        collapse = "|")
                 resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
                 
@@ -215,7 +215,7 @@ explore_mod_server <- function(id,
                                             custom_grp = unique(current$breakdown),
                                             group_of_interest = grp,
                                             q_coded = q_coded,
-                                            top = NA)
+                                            top = 5)
                 
               } else {
                 
