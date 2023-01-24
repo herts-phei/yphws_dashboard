@@ -166,6 +166,9 @@ key_mod_server <- function(id,
         stats <- stats()
         grp <- q_coded()$heading[q_coded()$question_coded == comp()][1]
         
+        #TODO
+        if(grp == "Sex" & !year() %in% c("2020", "2021")) { grp <- "Gender" }
+        
         if(comp() == "District") { grp <- "District" }
         
         # since schyear question isn't present, visualise age instead.

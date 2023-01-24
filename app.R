@@ -35,7 +35,7 @@ ui <- tablerDash::tablerDashPage(
                                                         selected = "2022", multiple = FALSE),
                               HTML('&nbsp;'),
                               shinyWidgets::pickerInput("comp", label = "Select what to group by:", width = "170px", 
-                                                        choices = list("Sex" = "sex", 
+                                                        choices = list("Gender" = "sex", 
                                                                        "Year group" = "schyear", 
                                                                        "Ethnicity" = "ethnicity",
                                                                        "IMD Quintile" = "imd_quintile",
