@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Drug Use" %in% input$domains) {browser()})
+      observe(if ("Education" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
@@ -211,7 +211,7 @@ explore_mod_server <- function(id,
                                             custom_grp = unique(current$breakdown),
                                             group_of_interest = grp,
                                             q_coded = q_coded,
-                                            top = NA)
+                                            top = 5)
                 
               } else {
                 

@@ -318,17 +318,19 @@ create_sum_sentence <- function(dataset,
           dplyr::filter(question %in% reps, response_of_interest == "TRUE") %>% 
           dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
           #drop_na(reworded) %>% 
-          dplyr::arrange(dplyr::desc(count))
+          dplyr::arrange(dplyr::desc(count)) %>%
+          dplyr::select(-tidyselect::contains(".y")) %>%
+          dplyr::distinct()
+        
+        # if we only want the top N responses, subset df
+        
+        if (!is.na(top)) { 
+          df <- df %>% 
+            dplyr::arrange(desc(value)) %>% 
+            dplyr::slice(1:top)
+        } 
         
         if (binary) {
-          
-          # if we only want the top N responses, subset df
-          
-          if (!is.na(top)) { 
-            df <- df %>% 
-              dplyr::arrange(desc(value)) %>% 
-              dplyr::slice(1:top)
-          } 
           
           temp <- paste0("Out of responses from ", group_name, ", ", 
                          glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))
