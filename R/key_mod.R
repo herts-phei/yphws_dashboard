@@ -275,9 +275,9 @@ key_mod_server <- function(id,
                                                  dplyr::filter(key_data, question == 'life_satisfied' & response == "low") %>%
                                                    .$value, "</b> for ", group_name,  " respondents."), "")
         
-        mh2 <- ifelse(!is.na(group_name), paste0(" This statistic was <b>",
-                                                 dplyr::filter(key_data, question == 'hopeful_future' & response == "Never") %>% .$value,
-                                                 "</b> for ", group_name, " respondents."), "")
+        # mh2 <- ifelse(!is.na(group_name), paste0(" This statistic was <b>",
+        #                                          dplyr::filter(key_data, question == 'hopeful_future' & response == "Never") %>% .$value,
+        #                                          "</b> for ", group_name, " respondents."), "")
         
         mh3 <- ifelse(!is.na(group_name), paste0("From ", group_name, " respondents, <b>",
                                                  dplyr::filter(key_data, question =='weight' & response=='Overweight') %>%
@@ -379,8 +379,8 @@ key_mod_server <- function(id,
             "<b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br><br>",
             
-            "<b>", dplyr::filter(all_data, question == 'hopeful_future' & response == "Never" & !is.na(question_text)) %>% .$value,
-            "</b>", " of all respondents stated that they never feel hopeful about their future.", mh2, "<br><br>",
+            # "<b>", dplyr::filter(all_data, question == 'hopeful_future' & response == "Never" & !is.na(question_text)) %>% .$value,
+            # "</b>", " of all respondents stated that they never feel hopeful about their future.", mh2, "<br><br>",
             
             "<b>", dplyr::filter(all_data,  question =='weight' & response =='Overweight' & !is.na(question_text)) %>% .$value,
             "</b> felt they were overweight while <b>",

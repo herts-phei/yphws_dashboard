@@ -433,7 +433,7 @@ create_multi_plot <- function(df,
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
   } else {
     
@@ -470,7 +470,7 @@ create_multi_plot <- function(df,
                      updatemenus = list(type_list),
                      yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
   }
   

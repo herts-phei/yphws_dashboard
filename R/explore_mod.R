@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Education" %in% input$domains) {browser()})
+      #observe(if ("Safety" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
@@ -133,9 +133,13 @@ explore_mod_server <- function(id,
             
             # Current question
             current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
+              dplyr::select(-question_raw) %>% 
+              dplyr::distinct() %>% 
               dplyr::mutate(year = as.character(as.numeric(year())))
             
             current_old <- dplyr::filter(chk_stats_old(), question_coded_gen %in% chk_var()[i]) %>% 
+              dplyr::select(-question_raw) %>% 
+              dplyr::distinct() %>% 
               dplyr::mutate(year = as.character(as.numeric(year()) - 1))
             
             multi <- ifelse(any(as.logical(current$multi_cat), as.logical(current$multi_binary)), TRUE, FALSE) # check if multicat question
