@@ -140,7 +140,7 @@ create_sum_sentence <- function(dataset,
                                 multi = F, 
                                 value_of_interest = F, 
                                 full_data,
-                                diffs,
+                                # diffs,
                                 custom_grp,
                                 group_of_interest,
                                 q_coded,
@@ -182,11 +182,11 @@ create_sum_sentence <- function(dataset,
         
       } else {
         
-        trend <- compare_last_yr(df_new = dataset, 
-                                 df_old = dataset_old, 
-                                 multi = F,
-                                 diffs_all = diffs,
-                                 response_interest = NA)
+        # trend <- compare_last_yr(df_new = dataset, 
+        #                          df_old = dataset_old, 
+        #                          multi = F,
+        #                          diffs_all = diffs,
+        #                          response_interest = NA)
         
         if (!is.na(group_of_interest)[1]) {
           
@@ -202,7 +202,8 @@ create_sum_sentence <- function(dataset,
           add <- paste0(" Among them, ", paste0(
             prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
           
-          sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, trend, 
+          sentence <- paste0(sentence, "Within Hertfordshire, ", total_resp, " responded to this question. " , add, 
+                             # trend, 
                              "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
                              "</b> of responses and the least common response was '", least_common[1], "', with <b>",
                              least_v[1], "</b> of responses.")
@@ -223,13 +224,14 @@ create_sum_sentence <- function(dataset,
             dplyr::ungroup() %>% 
             dplyr::distinct() 
           
-          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "</b> was '", most_common$most_common, 
+          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "s</b> was '", most_common$most_common, 
                                                          "', which made up ", most_common$most_v, " of responses and the least common response was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
                                                          collapse = "<br><br>"))
           
         } else {
           
-          sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ", trend,
+          sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ", 
+                             # trend,
                              "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up <b>", most_v[1], 
                              "</b> of responses and the least common response was '", least_common[1], "', with <b>",
                              least_v[1], "</b> of responses.")
@@ -272,11 +274,11 @@ create_sum_sentence <- function(dataset,
       binary <- ifelse(all(unique(data$response) %in% c("Yes", "No")), TRUE, FALSE) # check if it's a Yes or No
       
       # get trend sentence
-      trend <- compare_last_yr(df_new = dataset,
-                               df_old = dataset_old,
-                               diffs_all = diffs, 
-                               multicat = T,
-                               response_interest = value_of_interest)
+      # trend <- compare_last_yr(df_new = dataset,
+      #                          df_old = dataset_old,
+      #                          diffs_all = diffs, 
+      #                          multicat = T,
+      #                          response_interest = value_of_interest)
       
       if(!is.na(group_of_interest)) {
         
@@ -291,11 +293,15 @@ create_sum_sentence <- function(dataset,
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
         
         sentence <- paste0(sentence, "Among them, ", paste0(
-          prop, " were ", grp_df$breakdown, collapse = ", "), ". ", trend)
+          prop, " were ", grp_df$breakdown, collapse = ", "), ". " 
+          # trend
+          )
         
       } else {
         
-        sentence <- paste0(sentence, trend)
+        sentence <- paste0(sentence
+                           # trend
+                           )
         
       }
       
@@ -305,24 +311,26 @@ create_sum_sentence <- function(dataset,
           dplyr::filter(breakdown == c("All Responses", group_of_interest)[group]) 
         
         group_name <- ifelse(unique(grp_df$breakdown) == "All Responses", "all students", 
-                             paste0("<b>", grp_df$breakdown, "</b>"))
+                             paste0("<b>", grp_df$breakdown, "s</b>"))
         
         # generate the values used for the sentences. 
         df <- grp_df %>% 
           dplyr::filter(question %in% reps, response_of_interest == "TRUE") %>% 
           dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
           #drop_na(reworded) %>% 
-          dplyr::arrange(dplyr::desc(count))
+          dplyr::arrange(dplyr::desc(count)) %>%
+          dplyr::select(-tidyselect::contains(".y")) %>%
+          dplyr::distinct()
+        
+        # if we only want the top N responses, subset df
+        
+        if (!is.na(top)) { 
+          df <- df %>% 
+            dplyr::arrange(desc(value)) %>% 
+            dplyr::slice(1:top)
+        } 
         
         if (binary) {
-          
-          # if we only want the top N responses, subset df
-          
-          if (!is.na(top)) { 
-            df <- df %>% 
-              dplyr::arrange(desc(value)) %>% 
-              dplyr::slice(1:top)
-          } 
           
           temp <- paste0("Out of responses from ", group_name, ", ", 
                          glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))
@@ -398,7 +406,7 @@ create_basic_plot <- function(df,
     echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
                                                                       image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
     echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore")) %>% 
-    echarts4r::e_theme_custom("www/phei.json")
+    echarts4r::e_theme_custom("phei.json")
   
 }
 
@@ -425,7 +433,7 @@ create_multi_plot <- function(df,
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
   } else {
     
@@ -462,7 +470,7 @@ create_multi_plot <- function(df,
                      updatemenus = list(type_list),
                      yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
   }
   
@@ -614,28 +622,32 @@ create_tbl <- function(stats_diff,
 
 create_trend_table <- function(stats,
                                stats_old,
-                               params) {
+                               year) {
+  
+  prev_yr <- as.character(as.numeric(year) - 1)
   
   table_df <- stats %>%
-    dplyr::mutate(year = params$year, 
-                  `2021` = value) %>%
+    dplyr::mutate(year = year, 
+                  !!dplyr::ensym(year) := value) %>%
     dplyr::left_join(stats_old, by = c("breakdown" = "prev_breakdown",
                                        "question" = "prev_question",
                                        "response" = "prev_response")) %>%
-    dplyr::mutate(`2020` = ifelse(!is.na(prev_value), round(as.numeric(prev_value), 4) * 100, 0),
-                  `2021` = ifelse(!is.na(`2021`), round(as.numeric(`2021`), 4) * 100, 0),
-                  `2020` = ifelse(is.na(`2020`), 0, `2020`),
-                  `2020` = ifelse(is.na(`2020`), 0, `2020`),
-                  Trend = purrr::map2(`2020`, `2021`, c), 
-                  Change = round(`2021` - `2020`, 2)) %>%
-    dplyr::select(Indicator = question_response, Group = breakdown, `2020`, `2021`, 
+    dplyr::mutate(!!dplyr::ensym(prev_yr) := ifelse(!is.na(prev_value), round(as.numeric(prev_value), 4) * 100, 0),
+                  !!dplyr::ensym(year) := ifelse(!is.na(!!dplyr::ensym(year)), round(as.numeric(!!dplyr::ensym(year)), 4) * 100, 0),
+                  !!dplyr::ensym(prev_yr) := ifelse(is.na(!!dplyr::ensym(prev_yr)), 0, !!dplyr::ensym(prev_yr)),
+                  !!dplyr::ensym(prev_yr) := ifelse(is.na(!!dplyr::ensym(prev_yr)), 0, !!dplyr::ensym(prev_yr)),
+                  Trend = purrr::map2(!!dplyr::ensym(prev_yr), !!dplyr::ensym(year), c), 
+                  Change = round(!!dplyr::ensym(year) - !!dplyr::ensym(prev_yr), 2)) %>%
+    dplyr::select(Indicator = question_response, Group = breakdown, !!dplyr::ensym(prev_yr), !!dplyr::ensym(year), 
                   Trend, Change) %>% 
-    dplyr::mutate(`2020` = paste0(`2020`, "%"),
-                  `2021` = paste0(`2021`, "%")) %>% 
+    dplyr::mutate(!!dplyr::ensym(prev_yr) := paste0(!!dplyr::ensym(prev_yr), "%"),
+                  !!dplyr::ensym(year) := paste0(!!dplyr::ensym(year), "%")) %>% 
     dplyr::filter(!is.na(Indicator))
   
   table_df %>%
+    dplyr::distinct() %>% 
     reactable::reactable(defaultSorted = c("Indicator", "Group"), defaultPageSize = 100,
+                         sortable = FALSE,
                          columns = list(
                            Indicator = reactable::colDef(
                              sortable = F,
@@ -649,11 +661,7 @@ create_trend_table <- function(stats,
           }
         }
       }")),
-      Group = reactable::colDef(sortable = F),
-      `2020` = reactable::colDef(sortable = F),
-      `2021` = reactable::colDef(sortable = F), 
       Trend = reactable::colDef(
-        sortable = F,
         cell = function(value, index) {
           sparkline::sparkline(table_df$Trend[[index]], 
                                chartRangeMin = 0, chartRangeMax = 100)
@@ -661,7 +669,6 @@ create_trend_table <- function(stats,
       ),
       Change = reactable::colDef(
         header = shiny::span("Change", class = "sr-only"),
-        sortable = FALSE,
         align = "center",
         width = 40,
         cell = function(value) trend_indicator(value)

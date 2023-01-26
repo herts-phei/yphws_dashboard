@@ -18,7 +18,7 @@ inequalities_mod <- function(id,
       shiny::fluidRow(
         tablerDash::tablerCard(title = "Filters",
                                closable = FALSE,
-                               width = 4, 
+                               width = 4,
                                shiny::uiOutput(ns("ineq_domains")),
                                shiny::uiOutput(ns("ineq_questions"))),
         shiny::column(
@@ -39,8 +39,7 @@ inequalities_mod_server <- function(id,
                                     year,
                                     comp, 
                                     q_coded,
-                                    stats,
-                                    diffs) {
+                                    stats) {
   
   shiny::moduleServer(
     id, 
@@ -48,7 +47,7 @@ inequalities_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe({if("Safety" %in% input$ineq_domains) {browser()}})
+       observe({if("Safety" %in% input$ineq_domains) {browser()}})
       
       # Intro text --------------------------------------------------------------------
       
@@ -69,13 +68,13 @@ inequalities_mod_server <- function(id,
         
         params <- params()
         
-        shinyWidgets::prettyCheckboxGroup(
+        shinyWidgets::awesomeRadio(
           inputId = ns("ineq_domains"),
           label = "Choose the health topic(s):", 
           choices = params$domains, 
-          bigger = TRUE,
+          # bigger = TRUE,
           status = "info",
-          animation = "jelly",
+          # animation = "jelly",
           selected = params$domains[1]
         )
         
@@ -98,7 +97,9 @@ inequalities_mod_server <- function(id,
           label = "Choose the indicators:",
           choices = as.character(unique(questions()$question_response)), 
           selected = as.character(unique(questions()$question_response)),
-          options = list(`actions-box` = TRUE),   
+          options = pickerOptions(
+            actionsBox = TRUE,
+            liveSearch = TRUE),
           multiple = T
         )
         
@@ -114,13 +115,16 @@ inequalities_mod_server <- function(id,
         
         params <- params()
         q_coded <- q_coded()
-        diffs <- diffs()
-        
+        diffs <- get_stats_diffs(stats = stats(), 
+                                 levels = unique(stats()$breakdown))
+          
         df <- diffs %>% 
-          dplyr::filter(year == year()) %>% 
-          dplyr::left_join(dplyr::select(q_coded, -question_text), by = c("question" = "question_coded", 
+          dplyr::left_join(dplyr::select(q_coded, -question_text, -year), by = c("question" = "question_coded", 
                                                                           "response" = "response")) %>% 
-          dplyr::filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") 
+          dplyr::filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") %>% 
+          distinct()
+        
+        names(df) <- gsub("\\.x", "", names(df))
         
         if(comp() == "schyear"){
           

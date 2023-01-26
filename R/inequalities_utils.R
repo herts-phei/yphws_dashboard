@@ -1,3 +1,37 @@
+
+differences <- function(data, by, from, to, join = NULL) {
+  # looks for sig differences between report area and all responses
+  # e.g. data, school, report_school, all_schools, schoolyear returns differences
+  # between the respective year of the report school and all schools 
+  # e.g. data, school, report_school, report_school returns differences between
+  # each year of the report school (includes comaring year to itself)
+  
+  data_from <- data[data[[by]] %in% from, ]
+  data_to <- data[data[[by]] %in% to, ] 
+  
+  df <- dplyr::inner_join(data_from, data_to, by = c(join, "question", "response")) %>%
+    dplyr::mutate(diff = dplyr::case_when(lowercl.x > uppercl.y ~ "significantly higher than",
+                                          uppercl.x < lowercl.y ~ "significantly lower than"),
+                  image = paste0("graphics/", diff, ".png"))
+  
+  return(df)
+}
+
+get_stats_diffs <- function(stats, 
+                            levels){
+  
+  stats <- dplyr::filter(stats, breakdown %in% levels)
+  
+  stats_diffs_all <- differences(stats, "breakdown", c(unique(stats$breakdown)), "All Responses")
+  
+  stats_diffs_all$breakdown.x <- factor(stats_diffs_all$breakdown.x, levels = levels)
+  stats_diffs_all$breakdown.x <- droplevels(stats_diffs_all$breakdown.x)
+
+  return(stats_diffs_all)
+  
+}
+
+
 tartan <- function(df,
                    indicators, 
                    comparator_area,
@@ -54,14 +88,12 @@ tartan <- function(df,
   new_comparator_area <- stringr::str_wrap(comparator_area, 25)
   
   p_data <- df %>% 
-    dplyr::filter(!!dplyr::ensym(indicator_col) %in% indicators,
-                  # TODO exclusive to dashboard!
-                  breakdown.y == comparator_area) %>% 
+    dplyr::filter(!!dplyr::ensym(indicator_col) %in% indicators) %>% 
     dplyr::group_by(!!dplyr::ensym(indicator_col)) %>%
     dplyr::filter(!!dplyr::ensym(period_sort_col) == max(!!dplyr::ensym(period_sort_col))) %>%
     dplyr::ungroup() %>%
     dplyr::bind_rows(date_rows) %>%
-    dplyr::filter(!!dplyr::ensym(area_col) %in% c("Period", comparator_area, new_comparator_area, areas)) %>% 
+    #dplyr::filter(!!dplyr::ensym(area_col) %in% c("Period", comparator_area, new_comparator_area, areas)) %>% 
     dplyr::select(!!dplyr::ensym(area_col), !!dplyr::ensym(indicator_col), !!dplyr::ensym(period_col), !!dplyr::ensym(value_col), !!dplyr::ensym(upper_ci), !!dplyr::ensym(lower_ci), diff) %>% 
     dplyr::mutate(colour = dplyr::case_when(diff == "significantly higher than" ~ higher, 
                                             diff == "significantly lower than" ~ lower, 
