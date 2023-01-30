@@ -20,17 +20,17 @@ export_mod <- function(id,
                                br(),
                                reactableOutput(ns("data_table"))
         )
-      ),
-      shiny::fluidRow(
-        tablerDash::tablerCard(title = "Export full report",
-                               width = 12, 
-                               closable = FALSE,
-                               shiny::uiOutput(ns("exp_report_comp")),
-                               shiny::uiOutput(ns("exp_report_cat")),
-                               shiny::uiOutput(ns("exp_report_year")),
-                               shiny::downloadButton(ns("exp_report"), "Export report")
-        )
-    )
+      )
+    #   shiny::fluidRow(
+    #     tablerDash::tablerCard(title = "Export full report",
+    #                            width = 12, 
+    #                            closable = FALSE,
+    #                            shiny::uiOutput(ns("exp_report_comp")),
+    #                            shiny::uiOutput(ns("exp_report_cat")),
+    #                            shiny::uiOutput(ns("exp_report_year")),
+    #                            shiny::downloadButton(ns("exp_report"), "Export report")
+    #     )
+    # )
   )
   )
   
@@ -92,7 +92,10 @@ export_mod_server <- function(id,
         label = "Health topic:", 
         choices = na.omit(unique(q_coded$question_theme)),
         selected = na.omit(unique(q_coded$question_theme)),
-        multiple = TRUE
+        multiple = TRUE,
+        options = pickerOptions(
+          actionsBox = TRUE,
+          liveSearch = TRUE),
       )
       
     })
@@ -114,7 +117,9 @@ export_mod_server <- function(id,
         choices = unique(filtered),
         selected = unique(filtered), 
         multiple = TRUE,
-        options = list(`actions-box` = TRUE)
+        options = pickerOptions(
+          actionsBox = TRUE,
+          liveSearch = TRUE),
         
       )
       
@@ -192,6 +197,8 @@ export_mod_server <- function(id,
                        "Bullied" = "bullied",
                        "District" = "District"),
         selected = comp,
+        options = pickerOptions(
+          liveSearch = TRUE),
         multiple = FALSE)
       
     })
@@ -205,6 +212,8 @@ export_mod_server <- function(id,
       
       shinyWidgets::pickerInput(ns("exp_report_cat"), "Select the category from the selected group you are most interested in:",
                                 choices = as.character(na.omit(choices)), multiple = FALSE,
+                                options = pickerOptions(
+                                  liveSearch = TRUE),
                                 selected = as.character(na.omit(choices)[1]))
       
     })
@@ -216,8 +225,10 @@ export_mod_server <- function(id,
       shinyWidgets::pickerInput(
         inputId = ns("exp_report_year"),
         label = "Select the year of interest:", 
-        choices = unique(stats_combined$year),
+        choices = c("2021", "2020"),
         selected = unique(stats_combined$year)[1],
+        options = pickerOptions(
+          liveSearch = TRUE),
         multiple = FALSE
       )
       

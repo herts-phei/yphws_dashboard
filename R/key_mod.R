@@ -125,8 +125,9 @@ key_mod_server <- function(id,
                          value = reactive({stats() %>% 
                              dplyr::filter(breakdown == "All Responses",
                                            question == "sexuality",
-                                           response %in% c("Gay, lesbian or bisexual",
-                                                           "Other")) %>%
+                                           !response %in% c("Heterosexual/Straight",
+                                                            "Prefer not to say",
+                                                            "Undecided/Questioning")) %>%
                              dplyr::summarise(value = sum(value)) %>%
                              dplyr::pull(value)}),
                          title = "LGBTQ+ respondents"
@@ -140,7 +141,7 @@ key_mod_server <- function(id,
                                            response == "Quintile 1 - Most Deprived") %>%
                              dplyr::summarise(value = sum(value)) %>%
                              dplyr::pull(value)}),
-                         title = "IMD Quint. 1 (most deprived)"
+                         title = "IMD 1- Most Deprived"
       )
       
       # Text --------------------------------------------------------------------
@@ -165,6 +166,9 @@ key_mod_server <- function(id,
         stats <- stats()
         grp <- q_coded()$heading[q_coded()$question_coded == comp()][1]
         
+        #TODO
+        if(grp == "Sex" & !year() %in% c("2020", "2021")) { grp <- "Gender" }
+        
         if(comp() == "District") { grp <- "District" }
         
         # since schyear question isn't present, visualise age instead.
@@ -182,7 +186,7 @@ key_mod_server <- function(id,
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
             echarts4r::e_title("Age breakdown in %") %>% 
-            echarts4r::e_theme_custom("www/phei.json")
+            echarts4r::e_theme_custom("phei.json")
           
         } else {
           
@@ -198,7 +202,7 @@ key_mod_server <- function(id,
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
             echarts4r::e_title(paste(grp, "breakdown in %")) %>% 
-            echarts4r::e_theme_custom("www/phei.json")
+            echarts4r::e_theme_custom("phei.json")
           
         }
         
@@ -223,7 +227,7 @@ key_mod_server <- function(id,
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
             echarts4r::e_title("Ethnicity breakdown in %") %>% 
-            echarts4r::e_theme_custom("www/phei.json")
+            echarts4r::e_theme_custom("phei.json")
           
         } else {
           
@@ -238,13 +242,12 @@ key_mod_server <- function(id,
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_legend(bottom = 0) %>% 
             echarts4r::e_title("IMD breakdown in %") %>% 
-            echarts4r::e_theme_custom("www/phei.json")
+            echarts4r::e_theme_custom("phei.json")
           
         }
         
         
       })
-      
       
       # Text summary ------------------------------------------------------------
       
@@ -272,9 +275,9 @@ key_mod_server <- function(id,
                                                  dplyr::filter(key_data, question == 'life_satisfied' & response == "low") %>%
                                                    .$value, "</b> for ", group_name,  " respondents."), "")
         
-        mh2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                 dplyr::filter(key_data, question == 'life_satisfied_before_covid' & response == "low") %>% .$value,
-                                                 "</b> for ", group_name, " respondents."), "")
+        # mh2 <- ifelse(!is.na(group_name), paste0(" This statistic was <b>",
+        #                                          dplyr::filter(key_data, question == 'hopeful_future' & response == "Never") %>% .$value,
+        #                                          "</b> for ", group_name, " respondents."), "")
         
         mh3 <- ifelse(!is.na(group_name), paste0("From ", group_name, " respondents, <b>",
                                                  dplyr::filter(key_data, question =='weight' & response=='Overweight') %>%
@@ -286,6 +289,17 @@ key_mod_server <- function(id,
                                                  dplyr::filter(key_data, question == 'mental_howaccess' & response == 'Yes') %>%
                                                    .$value, "</b> stated 'Yes'."), "")
         
+        mh5 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, <b>",
+                                                 dplyr::filter(key_data, question == 'selfharm_ever' & response == 'Yes') %>%
+                                                   .$value, "</b> stated 'Yes'."), "")
+        
+        mh6 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, <b>",
+                                                 dplyr::filter(key_data, question == 'bullied' & response == 'Yes') %>%
+                                                   .$value, "</b> stated 'Yes'."), "")
+        
+        mh7 <- ifelse(!is.na(group_name), paste0(" From ", group_name, " respondents, <b>",
+                                                 dplyr::filter(key_data, question == 'bullied_currently' & response == 'Yes') %>%
+                                                   .$value, "</b> stated 'Yes'."), "")
         
         ls1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                  dplyr::filter(key_data, question == 'pa_60' & response == "6 to 7") %>%
@@ -330,6 +344,14 @@ key_mod_server <- function(id,
                                                                     response == 'Unsafe') %>% .$value,
                                                     "</b> respectively."), "")
         
+        bull1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'bullied' & response == "Yes") %>%
+                                                   .$value, "</b> for ", group_name, " respondents."), "")
+        
+        bull2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+                                                   dplyr::filter(key_data, question == 'bullied_currently' & response == "Yes") %>%
+                                                     .$value, "</b> for ", group_name, " respondents."), "")
+        
         sch1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                   dplyr::filter(key_data, question == 'schoolsupp_academic' & response == "Yes") %>%
                                                     .$value, "%</b> for ", group_name, " respondents."), "")
@@ -338,13 +360,13 @@ key_mod_server <- function(id,
                                                   dplyr::filter(key_data, question == 'schoolsupp_wellbeing' & response == "Yes") %>%
                                                     .$value, "%</b> for ", group_name, " respondents."), "")
         
-        cov1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                  dplyr::filter(key_data, question == 'worry_covid19' & response == 'Yes') %>%
-                                                    .$value, "</b> for ", group_name, " respondents."), "")
-        
-        cov2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                  dplyr::filter(key_data, question == 'any_vacc_taken' & response == 'Yes') %>%
-                                                    .$value, "</b> for ", group_name, " respondents."), "")
+        # cov1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+        #                                           dplyr::filter(key_data, question == 'worry_covid19' & response == 'Yes') %>%
+        #                                             .$value, "</b> for ", group_name, " respondents."), "")
+        # 
+        # cov2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
+        #                                           dplyr::filter(key_data, question == 'any_vacc_taken' & response == 'Yes') %>%
+        #                                             .$value, "</b> for ", group_name, " respondents."), "")
         
         
         # --Text output ----
@@ -357,22 +379,22 @@ key_mod_server <- function(id,
             "<b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br><br>",
             
-            "<b>", dplyr::filter(all_data, question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value,
-            "</b>", " of all respondents rated  their satisfaction now compared to before COVID-19 as low. ", mh2, "<br><br>",
+            # "<b>", dplyr::filter(all_data, question == 'hopeful_future' & response == "Never" & !is.na(question_text)) %>% .$value,
+            # "</b>", " of all respondents stated that they never feel hopeful about their future.", mh2, "<br><br>",
             
-            "<b>", dplyr::filter(all_data,  question =='weight' & response=='Overweight' & !is.na(question_text)) %>% .$value,
+            "<b>", dplyr::filter(all_data,  question =='weight' & response =='Overweight' & !is.na(question_text)) %>% .$value,
             "</b> felt they were overweight while <b>",
             dplyr::filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
             "</b> felt they were underweight. ", mh3, "<br><br>",
             
-            # "The top 5 issues ", group_name, " were worried about were: ", worries_$question_text[1], " (", worries_$count[1], ")", ", ", worries_$question_text[2], " (", worries_$count[2], "), ",
-            # worries_$question_text[3], " (", worries_$count[3], "), ",worries_$question_text[4], " (", worries_$count[4], "), and ", worries_$question_text[5], " (", worries_$count[5], "). <br><br>",
-            #
+            "<b>", dplyr::filter(all_data, question == 'selfharm_ever' & response == "Yes" & !is.na(question_text)) %>% .$value,
+            "</b>", " of all respondents stated that they have self-harmed before.", mh5, "<br><br>",
+          
             "<b>", sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response != 'Yes') %>% .$value),
             "</b> of respondents answered 'Not sure' or 'No' when asked if they knew how to access support and services for mental health. <b>",
             sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
             "</b> answered 'Yes'. ", mh4, "<br><br>",
-            
+          
             "<h1>Lifestyle</h1>",
             
             "Out of all responses <b>", dplyr::filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
@@ -401,6 +423,14 @@ key_mod_server <- function(id,
             sum(dplyr::filter(all_data,  question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value),
             "</b> reported taking drugs regularly (once a week or more).", ls5, "<br><br>",
             
+            "<h1>Bullying</h1>",
+            
+            "<b>", dplyr::filter(all_data, question == 'bullied' & response == "Yes" & !is.na(question_text)) %>% .$value,
+            "</b>", " of all respondents stated that they have been bullied before.", mh6, "<br><br>",
+            
+            "<b>", dplyr::filter(all_data, question == 'bullied_currently' & response == "Yes" & !is.na(question_text)) %>% .$value,
+            "</b>", " of all respondents stated that they have self-harmed before.", mh7, "<br><br>",
+            
             "<h1>Safety</h1>",
             
             "Regarding safety, <b>",
@@ -411,15 +441,7 @@ key_mod_server <- function(id,
             dplyr::filter(all_data,  question == 'safety_school' & response == 'Unsafe' & !is.na(question_text)) %>% .$value,
             "</b> felt unsafe at school, and <b>",
             dplyr::filter(all_data,  question == 'safety_journey' & response == 'Unsafe' & !is.na(question_text)) %>% .$value,
-            "</b> felt unsafe on their journey to school. ", safety, "<br><br>",
-            
-            "<h1>COVID-19</h1>",
-            
-            "<b>", dplyr::filter(all_data, question == 'worry_covid19' & response == 'Yes') %>% .$value,
-            "</b> stated that COVID-19 was one of the issuers they worry about. ", cov1, "<br><br>",
-            
-            "<b>", dplyr::filter(all_data,  question == 'any_vacc_taken' & response == 'Yes') %>% .$value,
-            "</b> stated that they have taken any dose of the COVID-19 vaccine. ", cov2
+            "</b> felt unsafe on their journey to school. ", safety, "<br><br>"
             
           )
         )
@@ -458,11 +480,13 @@ key_mod_server <- function(id,
       })
       
       output$mh_year <- shiny::renderUI({
+        stats <- stats_combined() %>%
+          dplyr::arrange(desc(year))
         
         shinyWidgets::prettyRadioButtons(
           inputId = ns("mh_year"),
           label = "",
-          choices = unique(stats_combined()$year),
+          choices = unique(stats$year),
           inline = TRUE,
           status = "info",
           fill = TRUE

@@ -9,10 +9,10 @@ about_mod <- function(id,
     tabName = name,
     shiny::fluidRow(
       shiny::column(12, 
-                    tablerDash::tablerCard(width = 12, title = "About the survey",
-                                           shiny::htmlOutput(ns("info"))),
                     tablerDash::tablerCard(width = 12, title = "Using the dashboard", 
                                            shiny::htmlOutput(ns("using"))),
+                    tablerDash::tablerCard(width = 12, title = "About the survey",
+                                           shiny::htmlOutput(ns("info"))),
                     tablerDash::tablerCard(width = 12, title = "Survey question",
                                            "To download the full set of questions asked this year, please click the button below.",
                                            shiny::br(),
@@ -59,12 +59,17 @@ about_mod_server <- function(id) {
         shiny::HTML(
           paste0(
             "To get the most out of the dashboard, we recommend starting by selecting how you want the data to be broken down by using the selection in the navigation bar.",
-            " This will affect your data views in all tabs. If you select Sex, for example, most graphs and tables will be broken down by All, Female, Male, and Other. Selecting",
-            " Year group will break the graphs and tables down by Years 7-12, etc. You can then explore the data in the Explore Data tab, where a graph, trend table,",
-            " and data table will be generated for each question asked in the survey. You can navigate through health topics by using the checkbox selection on top. If you want to see inequalities", 
-            " between the groups in your selected breakdown (e.g. 'Do female respondents have significantly higher proportions of self-harm this year?'), you can use the Inequalities tab", 
+            " This will affect your data views in all tabs. If you select Gender, for example, most graphs and tables will be broken down by All, Female, Male, and Transgender, and Other. Selecting",
+            " Year group will break the graphs and tables down by Years 7-12, etc. <br><br>",
+            
+            "You can then explore the data in the Explore Data tab, where a graph, trend table,",
+            " and data table will be generated for each question asked in the survey. You can navigate through health topics by using the checkbox selection on top. <br><br>", 
+            
+            "If you want to see inequalities between the groups in your selected breakdown (e.g. 'Do female respondents have significantly higher proportions of self-harm this year?'), you can use the Inequalities tab", 
             " to select the health topic/s and question/s you are interested in and produce a 'tartan rug' visualisation showing if there are any statistically significant differences.",
-            " The methodology is the same as the one used for the Public Health England Fingertips. Note: To protect the identity of respondents, all values are rounded to the nearest 5.",
+            " The methodology is the same as the one used for the Public Health England Fingertips. <br><br>", 
+            
+            "Note: To protect the identity of respondents, all values are rounded to the nearest 5.",
             " This is in line with Office of National Statistics recommendations for disclosure control. Note that this means that when a value constitutes 100% or 0% of responses there",
             " may be a small number of individuals responding with a different option who have been suppressed.<br><br>"
           )
