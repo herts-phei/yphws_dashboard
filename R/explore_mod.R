@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Diet and Lifestyle" %in% input$domains) {browser()})
+      #observe(if ("Smoking and Vaping" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
