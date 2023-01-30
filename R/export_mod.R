@@ -20,17 +20,17 @@ export_mod <- function(id,
                                br(),
                                reactableOutput(ns("data_table"))
         )
-      ),
-      shiny::fluidRow(
-        tablerDash::tablerCard(title = "Export full report",
-                               width = 12, 
-                               closable = FALSE,
-                               shiny::uiOutput(ns("exp_report_comp")),
-                               shiny::uiOutput(ns("exp_report_cat")),
-                               shiny::uiOutput(ns("exp_report_year")),
-                               shiny::downloadButton(ns("exp_report"), "Export report")
-        )
-    )
+      )
+    #   shiny::fluidRow(
+    #     tablerDash::tablerCard(title = "Export full report",
+    #                            width = 12, 
+    #                            closable = FALSE,
+    #                            shiny::uiOutput(ns("exp_report_comp")),
+    #                            shiny::uiOutput(ns("exp_report_cat")),
+    #                            shiny::uiOutput(ns("exp_report_year")),
+    #                            shiny::downloadButton(ns("exp_report"), "Export report")
+    #     )
+    # )
   )
   )
   

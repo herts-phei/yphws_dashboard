@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Safety" %in% input$domains) {browser()})
+      #observe(if ("Diet and Lifestyle" %in% input$domains) {browser()})
 
       # Data --------------------------------------------------------------------
       
@@ -157,7 +157,7 @@ explore_mod_server <- function(id,
               # response of interest (usually Yes)
               if(multi_bin) { resp_interest = "Yes" } else {
                 
-                resp_interest <- paste(c("low", "On most days", "I have never heard of it", "Agree", "Unsafe", "Yes","Currently attending"), 
+                resp_interest <- paste(c("low", "On most days", "60 or more minutes", "I have never heard of it", "Agree", "Unsafe", "Yes", "Currently attending"), 
                                        collapse = "|")
                 resp_interest <- unique(current$response)[grepl(resp_interest, unique(current$response))]
                 
@@ -209,7 +209,7 @@ explore_mod_server <- function(id,
               
               # text differs depending on type of question
               if(!multi_bin) {
-
+                
                 text <- create_sum_sentence(dataset = current,
                                             dataset_old = current_old, 
                                             multi = T,
@@ -315,16 +315,17 @@ explore_mod_server <- function(id,
                                                                              uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
                                                                ) %>% 
                                                                dplyr::filter(question_coded_gen %in% chk_var()[i]) %>% 
-                                                               dplyr::select(breakdown, question = question_text, response, value, count, denominator,
-                                                                             lowercl, uppercl) %>% 
+                                                               dplyr::select(breakdown, question = question_text, response, percent = value, 
+                                                                             count, total = denominator,
+                                                                             `lower CI` = lowercl, `upper CI` = uppercl) %>% 
                                                                distinct() %>% 
                                                                reactable::reactable(groupBy = c("breakdown", "question"),
                                                                                     columns = list(
-                                                                                      value = reactable::colDef(maxWidth = 70),
+                                                                                      percent = reactable::colDef(maxWidth = 68),
                                                                                       count = reactable::colDef(maxWidth = 65),
-                                                                                      denominator = reactable::colDef(maxWidth = 70),
-                                                                                      lowercl = reactable::colDef(maxWidth = 70),
-                                                                                      uppercl = reactable::colDef(maxWidth = 70)
+                                                                                      total = reactable::colDef(maxWidth = 65),
+                                                                                      `lower CI` = reactable::colDef(maxWidth = 75),
+                                                                                      `upper CI` = reactable::colDef(maxWidth = 75)
                                                                                     ))
                                                            )) )
           }
