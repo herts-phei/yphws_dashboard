@@ -1,0 +1,13 @@
+name: yphws_dashboard
+title: yphws_dashboard
+username:
+account: hcc-phei
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5971904
+bundleId: 6790253
+url: https://hcc-phei.shinyapps.io/yphws_dashboard/
+when: 1675098924.69091
+lastSyncTime: 1675098924.69093
+asMultiple: FALSE
+asStatic: FALSE
