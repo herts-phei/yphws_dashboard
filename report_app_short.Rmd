@@ -60,8 +60,7 @@ data <- data %>%
   dplyr::mutate(response = dplyr::case_when(question == "caring" & response == "Yes" ~ "Young carer",
                             question == "caring" & response == "No" ~ "Non-carer",
                             question == "caring" & response == "Prefer not to say" ~ "Prefer not to say",
-                            TRUE ~ response),
-                breakdown = dplyr::if_else(breakdown == "Yes", "Young carer", breakdown))
+                            TRUE ~ response))
 }
 
 if(group == "bullied"){
@@ -69,8 +68,7 @@ if(group == "bullied"){
   dplyr::mutate(response = dplyr::case_when(question == "bullied" & response == "Yes" ~ "Bullied",
                             question == "bullied" & response == "No" ~ "Not bullied",
                             question == "bullied" & response == "Prefer not to say" ~ "Prefer not to say",
-                            TRUE ~ response),
-                breakdown = dplyr::if_else(breakdown == "Yes", "Bullied", breakdown))
+                            TRUE ~ response))
 }
 
 if(group == "selfharm_ever"){
@@ -78,8 +76,7 @@ if(group == "selfharm_ever"){
   dplyr::mutate(response = dplyr::case_when(question == "selfharm_ever" & response == "Yes" ~ "Self-harmed",
                             question == "selfharm_ever" & response == "No" ~ "Self-harmed",
                             question == "selfharm_ever" & response == "Prefer not to say" ~ "Prefer not to say",
-                            TRUE ~ response),
-                breakdown = dplyr::if_else(breakdown == "Yes", "Self-harmed", breakdown))
+                            TRUE ~ response))
 }
 
 # Code to run rmd independently of app for testing purposes
