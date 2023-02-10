@@ -87,10 +87,10 @@ if(group == "selfharm_ever"){
 # source("R/global_utils.R", local = TRUE)
 # data <- get_data()
 # q_coded <-data$q_coded
-# group <- "bullied" # Which variable to break down by. Usually ethnicity.
+# group <- "caring" # Which variable to break down by. Usually ethnicity.
 # cat_of_interest <- "Young carer"
 # school_number <- 40
-# data <- data$data$bullied
+# data <- data$data$caring
 # year_report <- 2022
 
 ```
@@ -442,7 +442,7 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
     if(length(unique(data$response)) <= 2) {
       
       data1 <- data %>% 
-        dplyr::left_join(select(q_coded, -response), by = c("question" = "question_coded")) %>% 
+        dplyr::left_join(select(q_coded, question_coded, menu_text), by = c("question" = "question_coded")) %>% 
         dplyr::mutate(question = menu_text) %>% 
         dplyr::select(1, question, response, count, percentage, `lower CI`, `upper CI`) %>% 
         dplyr::distinct() %>% 
@@ -453,7 +453,7 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
     } else {
       
       data1 <- data %>% 
-        dplyr::left_join(select(q_coded, -response), by = c("question" = "question_text")) %>% 
+        dplyr::left_join(select(q_coded, question_coded, menu_text), by = c("question" = "question_coded"))  %>% 
         dplyr::select(1, question=question_text, response, count, percentage, `lower CI`, `upper CI`) %>% 
         dplyr::distinct() %>% 
         dplyr::mutate(`upper CI` = as.character(`upper CI`),
@@ -680,8 +680,6 @@ Further reports on health & wellbeing can be found at [www.hertshealthevidence.o
 **Mental health and wellbeing**<br>
 
 - **`r filter(stats, breakdown == group_breakdown & question == 'life_satisfied' & response == "low" & !is.na(question_text))  %>% .$value`** of `r group_name` rated their life satisfaction as low. `r mh1`
-
-<!-- - **`r filter(stats, breakdown == group_breakdown & question == 'life_satisfied_before_covid' & response == "low" & !is.na(question_text)) %>% .$value`** of `r group_name` rated  their satisfaction now compared to before COVID-19 as low. `r mh2` -->
 
 -  **`r filter(stats, breakdown == group_breakdown & question =='weight' & response=='Overweight' & !is.na(question_text)) %>% .$value`** `r group_name` felt they were overweight while **`r filter(stats,  breakdown == group_breakdown & question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value`** felt they were underweight. `r mh3`
 

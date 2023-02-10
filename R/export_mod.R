@@ -22,13 +22,16 @@ export_mod <- function(id,
         )
       ),
       shiny::fluidRow(
-        tablerDash::tablerCard(title = "Export full report",
+        tablerDash::tablerCard(title = "Export full report (2022 data)",
                                width = 12, 
                                closable = FALSE,
                                shiny::uiOutput(ns("exp_report_comp")),
                                shiny::uiOutput(ns("exp_report_cat")),
+                               shiny::uiOutput(ns("text")),
                                #shiny::uiOutput(ns("exp_report_year")),
                                shiny::downloadButton(ns("exp_report"), "Export report")
+                          
+                               
         )
     )
   )
@@ -50,7 +53,7 @@ export_mod_server <- function(id,
     function(input, output, session) {
       
       ns <- NS(id)
-      
+
 # Table export ------------------------------------------------------------
 
     output$exp_year <- renderUI({
@@ -192,8 +195,8 @@ export_mod_server <- function(id,
                        "IMD Quintile" = "imd_quintile",
                        "Sexuality" = "sexuality",
                        "Young carer" = "caring",
-                       # "Smoker" = "smoke_ever",
-                       "Self-harm" = "selfharm_ever",
+                       #"Smoker" = "smoke_ever",
+                       #"Self-harm" = "selfharm_ever",
                        "Bullied" = "bullied",
                        "District" = "District"),
         selected = comp,
@@ -209,6 +212,7 @@ export_mod_server <- function(id,
       
       choices <- unique(data[[input$exp_report_comp]]$breakdown) 
       choices <- choices[choices != "All Responses" & choices != "Non-white"]
+      
       
       shinyWidgets::pickerInput(ns("exp_report_cat"), "Select the category from the selected group you are most interested in:",
                                 choices = as.character(na.omit(choices)), multiple = FALSE,
@@ -233,6 +237,13 @@ export_mod_server <- function(id,
     #   )
     #   
     # })
+    
+    output$text <- shiny::renderText({
+      
+      paste("If you would like customised reports for previous years please contact PH.Intelligence@hertfordshire.gov.uk")
+      
+    })
+    
     
     # download handler
     output$exp_report <- downloadHandler(
