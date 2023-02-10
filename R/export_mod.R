@@ -189,7 +189,7 @@ export_mod_server <- function(id,
       pickerInput(
         inputId = ns("exp_report_comp"), 
         label = "Select what to group by in your report:",
-        choices = list("Sex" = "sex",
+        choices = list("Gender" = "sex",
                        "Year group" = "schyear",
                        "Ethnicity" = "ethnicity",
                        "IMD Quintile" = "imd_quintile",
