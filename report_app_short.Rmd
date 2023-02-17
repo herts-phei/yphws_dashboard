@@ -1733,8 +1733,8 @@ chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title = "Information about relationships and sex"
 
-top_5 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 5)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_5 &
+top_2 <- tail(sort(dplyr::filter(chk_stats, breakdown == "All Responses", response == "Yes")$count), 2)
+chk_var <- unique(chk_stats$question[chk_stats$count %in% top_2 &
                                        chk_stats$breakdown == "All Responses"])
 ```
 
@@ -1870,7 +1870,9 @@ create_tbl(chk_diff)
 **(This question was only asked to respondents who stated they were Year 10+)**
 
 ``` {r Sexual health beliefs_summary}
-chk_var <- c('shinfo_parents','shinfo_school','shinfo_friends','shinfo_relations','shinfo_clinic','shinfo_media','shinfo_poster','shinfo_porn','shinfo_doctor','shinfo_healthsite','shinfo_helpline','shinfo_yw','shinfo_other')
+chk_var <- c('sh_pressure','sh_wait','sh_serious','sh_condoms','sh_pregnancy','sh_16', "sh_condomsti",
+             "sh_schooled"
+)
 chk_stats <- dplyr::filter(stats, question %in% chk_var)
 chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
