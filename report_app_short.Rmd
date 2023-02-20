@@ -55,12 +55,26 @@ data <- params$data
 data <- data[[group]]
 data <- data %>% dplyr::filter(question != "lsoa_code")
 
+
+# Code to run rmd independently of app for testing purposes
+# Replacing q_coded section with data from folders
+# source("R/global_utils.R", local = TRUE)
+# data <- get_data()
+# q_coded <-data$q_coded
+# group <- "bullied" # Which variable to break down by. Usually ethnicity.
+# cat_of_interest <- "Bullied"
+# school_number <- 40
+# data <- data$data$bullied
+# year_report <- 2022
+
+
 if(group == "caring"){
 data <- data %>%
   dplyr::mutate(response = dplyr::case_when(question == "caring" & response == "Yes" ~ "Young carer",
                             question == "caring" & response == "No" ~ "Non-carer",
                             question == "caring" & response == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ response))
+rename_group = "Young carer"
 }
 
 if(group == "bullied"){
@@ -69,33 +83,124 @@ if(group == "bullied"){
                             question == "bullied" & response == "No" ~ "Not bullied",
                             question == "bullied" & response == "Prefer not to say" ~ "Prefer not to say",
                             TRUE ~ response))
+  rename_group = "Bullied"
 }
 
-if(group == "selfharm_ever"){
-  data <- data %>%
-  dplyr::mutate(response = dplyr::case_when(question == "selfharm_ever" & response == "Yes" ~ "Self-harmed",
-                            question == "selfharm_ever" & response == "No" ~ "Self-harmed",
-                            question == "selfharm_ever" & response == "Prefer not to say" ~ "Prefer not to say",
-                            TRUE ~ response))
+# if(group == "selfharm_ever"){
+#   data <- data %>%
+#   dplyr::mutate(response = dplyr::case_when(question == "selfharm_ever" & response == "Yes" ~ "Self-harmed",
+#                             question == "selfharm_ever" & response == "No" ~ "Self-harmed",
+#                             question == "selfharm_ever" & response == "Prefer not to say" ~ "Prefer not to say",
+#                             TRUE ~ response))
+# }
+if(group == "sex"){
+  rename_group = "Gender"
 }
 
-# Code to run rmd independently of app for testing purposes
-# Replacing q_coded section with data from folders
-# source("R/global_utils.R", local = TRUE)
-# data <- get_data()
-# q_coded <-data$q_coded
-# group <- "caring" # Which variable to break down by. Usually ethnicity.
-# cat_of_interest <- "Young carer"
-# school_number <- 40
-# data <- data$data$caring
-# year_report <- 2022
+if(group == "schyear"){
+  rename_group = "Year group"
+}
 
+if(group == "ethnicity"){
+  rename_group = "Ethnicity"
+}
+
+if(group == "imd_quintile"){
+  rename_group = "IMD Quintile"
+}
+    
+if(group == "sexuality"){
+  rename_group = "Sexuality"
+}
+    
+if(group == "District"){
+  rename_group = "District"
+}
+                       
 ```
 
 
 ```{r functions, include=F}
 
 # Summary statistics ------------------------------------------------------
+
+create_sum_sentence_cat_interest <- function(dataset = chk_stats, 
+                                      multi = F, 
+                                      value_of_interest = F, 
+                                      full_data = stats,
+                                      diffs = chk_diff,
+                                      custom_grp = plot_custom_grp,
+                                      group_of_interest = cat_of_interest) {
+  
+  if (nrow(dataset) == 0) { return ("") }
+  
+  if (multi == F) { # run the following if it's a simple one-choice question
+    
+    q_binary <- F
+    
+    data <- dataset
+    # generate the values used for the sentences. 
+    
+    df <- dataset[dataset$breakdown == "All Responses", ]
+    
+    most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)]
+    most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)]
+    least_common <- df$response[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])]
+    least_v <- df$value[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])][1]
+    
+    # If all students responded to this question, skip the sex breakdown. Include if not. 
+    
+    total_resp <- sum(dataset$count[dataset$breakdown == "All Responses"], na.rm = TRUE)
+    max_resp <- max(full_data$denominator)
+    
+    perc <- round(total_resp / max_resp * 100, 1)
+    
+    total_resp <- ifelse(total_resp == max_resp, "every student", 
+                         paste0(total_resp, " students", " (", perc, "%)"))
+    
+    # generate main sentence for All Responses
+    
+    if (is.na(total_resp)) { 
+      
+      return(paste0("Within the category, no students responded to this question."))
+      
+      } else {
+        
+        sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ",
+                           "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up ", most_v[1], 
+                           " of responses and the least common response was '", least_common[1], "', with ",
+                           least_v[1], " of responses.", " For more detail, please see the Graph or Table tabs.")
+      }
+  } else{
+          reps <- unique(dataset$question)
+    data <- filter(dataset, !is.na(question_text))
+    
+    total_resp <- max(data$denominator)[1]
+    max_resp <- max(full_data$denominator)[1]
+    
+    perc <- round(total_resp / max_resp * 100, 1)
+    
+    total_resp <- ifelse(total_resp == max_resp, "every student", 
+                         paste0(total_resp, " students", " (", perc, "%)"))
+    
+    if (is.na(total_resp)) { 
+      
+      return(paste0("Within the school, no students responded to this question."))
+      
+    } else {
+      
+      # Start main sentence. 
+      sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question. ")
+      
+        }
+    }
+    
+  
+  return(sentence)
+  
+}
+
+
 
 create_sum_sentence_herts <- function(dataset = chk_stats, 
                                       multi = F, 
@@ -139,7 +244,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
       
     } else {
       
-      if (!is.na(group_of_interest)[1]) {
+      if (!is.na(group_of_interest)[1]) {#& chk_var != group
         
         grp_df <- data %>% 
           dplyr::filter(breakdown %in% group_of_interest) %>% 
@@ -164,7 +269,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
           dplyr::group_by(breakdown) %>% 
           dplyr::filter(count == max(count), !is.na(question_text)) %>% 
           dplyr::summarise(most_common = paste(response, collapse = "' or '"),
-                    most_v = value) %>% 
+                           most_v = value) %>% 
           dplyr::ungroup() %>% 
           dplyr::distinct() 
         
@@ -172,7 +277,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
           dplyr::group_by(breakdown) %>% 
           dplyr::filter(count == min(count), !is.na(question_text), ) %>% 
           dplyr::summarise(least_common = paste(response, collapse = "' or '"),
-                    least_v = value) %>% 
+                           least_v = value) %>% 
           dplyr::ungroup() %>% 
           dplyr::distinct() 
         
@@ -263,6 +368,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
   return(sentence)
   
 }
+
 
 # Bar graphs --------------------------------------------------------------
 
@@ -641,18 +747,11 @@ sch2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ",
                                               dplyr::filter(stats_all, question == 'schoolsupp_wellbeing' & response == "Yes") %>% 
                                                 .$value, " for all responses."), "")
 
-# cov1 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-#                                               dplyr::filter(stats_all, question == 'worry_covid19' & response == 'Yes') %>% 
-#                                                 .$value, " for all responses."), "")
-
-# cov2 <- ifelse(!is.na(cat_of_interest), paste0("This statistic was ", 
-#                                               dplyr::filter(stats_all, question == 'any_vacc_taken' & response == 'Yes') %>% 
-#                                                 .$value, " for all responses."), "")
 ```
 
 >Hertfordshire's Young People's Health & Wellbeing Survey is jointly funded by Hertfordshire County Council's Public Health and Children's Services departments. Analysis is conducted by Public Health Evidence & Intelligence. Further information can be found at https://www.hertshealthevidence.org/surveys.aspx
 
-**This version of the report is grouped by `r group` the category of interest is "`r cat_of_interest`"**. 
+**This version of the report is grouped by "`r rename_group`" the category of interest is "`r cat_of_interest`"**. 
 The YPHWS dashboard can be accessed <a href="https://hcc-phei.shinyapps.io/yphws_dashboard/">here</a>.
 
 This report summarises the results of `r as.character(max(filter(stats) %>% select(denominator)))` pupils from `r school_number` schools who responded to the `r year_report` Young People's Health & Wellbeing Survey (YPHWS).
@@ -784,7 +883,11 @@ plot_title <- "Sexuality"
 
 ### Summary
 
-`r create_sum_sentence_herts()`
+`r 
+if(group != "sexuality"){
+ create_sum_sentence_herts()
+ } else {
+create_sum_sentence_cat_interest()}`
 
 ### Graph
 
@@ -812,7 +915,11 @@ plot_title <- "Ethnicity"
 
 ### Summary
 
-`r create_sum_sentence_herts()`
+`r 
+if(group != "ethnicity"){
+ create_sum_sentence_herts()
+ } else {
+create_sum_sentence_cat_interest()}`
 
 ### Graph
 
@@ -933,13 +1040,20 @@ chk_stats <- dplyr::filter(stats, question %in% chk_var)
 chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title = "Caring responsibilities"
+
 ```
 
 <span style="color: #CC0000;">`r if(min(chk_diff$denominator) < 20){low_denom_warning}`</span>
 
 ### Summary
 
-`r create_sum_sentence_herts()`
+`r 
+if(group != "caring"){
+ create_sum_sentence_herts()
+ } else {
+create_sum_sentence_cat_interest()}`
+
+
 
 
 ### Graph
@@ -2380,21 +2494,24 @@ chk_stats <- dplyr::filter(stats, question %in% chk_var)
 chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title = "Experiences with bullying"
+
 ```
 
 <span style="color: #CC0000;">`r if(min(chk_diff$denominator) < 20){low_denom_warning}`</span>
 
 ### Summary
 
-`r create_sum_sentence_herts(multi = T,value_of_interest = "Yes")[1]`
+`r 
+if(group != "bullied"){
+ create_sum_sentence_herts(multi = T,value_of_interest = "Yes")[1]
+ } else {
+create_sum_sentence_cat_interest(multi = T)}`
 
 
 ### Graph
 ```{r Bullyothers_graph, fig.height=6.5}
 create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 ```
-
-
 
 ### Table
 ```{r Bullyothers_table}
