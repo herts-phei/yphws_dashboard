@@ -27,7 +27,7 @@ ui <- tablerDash::tablerDashPage(
     src = "img/yphws_logo_horizontal.png",
     tablerDash::tablerNavMenu(id = "tabs",
                               tags$head(shiny::includeScript("navAppend.js")),
-                              #tags$head(shiny::includeHTML("google-analytics.html")),
+                              tags$head(shiny::includeHTML("google-analytics.html")),
                               shinyWidgets::pickerInput("year", label = "Year:", width = "100px", 
                                                         choices = list("2020" = "2020", 
                                                                        "2021" = "2021",

@@ -433,7 +433,7 @@ create_multi_plot <- function(df,
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d")))
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
   } else {
     
@@ -470,7 +470,7 @@ create_multi_plot <- function(df,
                      updatemenus = list(type_list),
                      yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d")))
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
   }
   
@@ -607,9 +607,6 @@ create_tbl <- function(stats_diff,
       data %>% 
         dplyr::distinct() %>% 
         dplyr::arrange(breakdown) %>% 
-        dplyr::rename(total = denominator, 
-                      `lower CI` = lowercl,
-                      `upper CI` = uppercl) %>% 
         reactable::reactable(defaultPageSize = 10, groupBy = groupedby, striped = T,
                              columns = list(
                                percentage = reactable::colDef(format = reactable::colFormat(percent = T, digits = 1))

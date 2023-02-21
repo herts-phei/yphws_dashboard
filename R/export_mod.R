@@ -20,17 +20,20 @@ export_mod <- function(id,
                                br(),
                                reactableOutput(ns("data_table"))
         )
-      )
-    #   shiny::fluidRow(
-    #     tablerDash::tablerCard(title = "Export full report",
-    #                            width = 12, 
-    #                            closable = FALSE,
-    #                            shiny::uiOutput(ns("exp_report_comp")),
-    #                            shiny::uiOutput(ns("exp_report_cat")),
-    #                            shiny::uiOutput(ns("exp_report_year")),
-    #                            shiny::downloadButton(ns("exp_report"), "Export report")
-    #     )
-    # )
+      ),
+      shiny::fluidRow(
+        tablerDash::tablerCard(title = "Export full report (2022 data)",
+                               width = 12, 
+                               closable = FALSE,
+                               shiny::uiOutput(ns("exp_report_comp")),
+                               shiny::uiOutput(ns("exp_report_cat")),
+                               shiny::uiOutput(ns("text")),
+                               #shiny::uiOutput(ns("exp_report_year")),
+                               shiny::downloadButton(ns("exp_report"), "Export report")
+                          
+                               
+        )
+    )
   )
   )
   
@@ -50,7 +53,7 @@ export_mod_server <- function(id,
     function(input, output, session) {
       
       ns <- NS(id)
-      
+
 # Table export ------------------------------------------------------------
 
     output$exp_year <- renderUI({
@@ -186,14 +189,14 @@ export_mod_server <- function(id,
       pickerInput(
         inputId = ns("exp_report_comp"), 
         label = "Select what to group by in your report:",
-        choices = list("Sex" = "sex",
+        choices = list("Gender" = "sex",
                        "Year group" = "schyear",
                        "Ethnicity" = "ethnicity",
                        "IMD Quintile" = "imd_quintile",
                        "Sexuality" = "sexuality",
                        "Young carer" = "caring",
-                       # "Smoker" = "smoke_ever",
-                       "Self-harm" = "selfharm_ever",
+                       #"Smoker" = "smoke_ever",
+                       #"Self-harm" = "selfharm_ever",
                        "Bullied" = "bullied",
                        "District" = "District"),
         selected = comp,
@@ -210,6 +213,7 @@ export_mod_server <- function(id,
       choices <- unique(data[[input$exp_report_comp]]$breakdown) 
       choices <- choices[choices != "All Responses" & choices != "Non-white"]
       
+      
       shinyWidgets::pickerInput(ns("exp_report_cat"), "Select the category from the selected group you are most interested in:",
                                 choices = as.character(na.omit(choices)), multiple = FALSE,
                                 options = pickerOptions(
@@ -218,28 +222,35 @@ export_mod_server <- function(id,
       
     })
     
-    output$exp_report_year <- shiny::renderUI({
+    # output$exp_report_year <- shiny::renderUI({
+    #   
+    #   stats_combined <- stats_combined()
+    #   
+    #   shinyWidgets::pickerInput(
+    #     inputId = ns("exp_report_year"),
+    #     label = "Select the year of interest:", 
+    #     choices = c("2021", "2020"),
+    #     selected = unique(stats_combined$year)[1],
+    #     options = pickerOptions(
+    #       liveSearch = TRUE),
+    #     multiple = FALSE
+    #   )
+    #   
+    # })
+    
+    output$text <- shiny::renderText({
       
-      stats_combined <- stats_combined()
-      
-      shinyWidgets::pickerInput(
-        inputId = ns("exp_report_year"),
-        label = "Select the year of interest:", 
-        choices = c("2021", "2020"),
-        selected = unique(stats_combined$year)[1],
-        options = pickerOptions(
-          liveSearch = TRUE),
-        multiple = FALSE
-      )
+      paste("If you would like customised reports for previous years please contact PH.Intelligence@hertfordshire.gov.uk")
       
     })
+    
     
     # download handler
     output$exp_report <- downloadHandler(
       
       
       filename = function() {
-        paste0("Hertfordshire YPHWS Report - ", input$exp_report_comp, " focusing on ", input$exp_report_cat, "-",input$exp_report_year, ".html")
+        paste0("Hertfordshire YPHWS Report - ", input$exp_report_comp, " focusing on ", input$exp_report_cat, "-2022", ".html")
       },
       
       content = function(file) {
@@ -256,7 +267,7 @@ export_mod_server <- function(id,
           # Set up parameters to pass to Rmd document
           params <- list(var = input$exp_report_comp,
                          cat = input$exp_report_cat,
-                         year = input$exp_report_year,
+                         #year = input$exp_report_year,
                          rendered_by_shiny = TRUE,
                          q_coded = q_coded(),
                          data = data(),

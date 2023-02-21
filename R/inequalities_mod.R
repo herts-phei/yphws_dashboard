@@ -47,7 +47,7 @@ inequalities_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-       #observe({if("Safety" %in% input$ineq_domains) {browser()}})
+       observe({if("Safety" %in% input$ineq_domains) {browser()}})
       
       # Intro text --------------------------------------------------------------------
       
