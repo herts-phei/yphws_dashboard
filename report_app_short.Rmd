@@ -11,6 +11,7 @@ output:
     lightbox: false
     gallery: false
     highlight: tango
+    css: "robobook.css"
 params:
   var: null
   cat: null
@@ -2928,16 +2929,18 @@ create_tbl(chk_diff)
 **“Are you a part of or attending any projects, groups, or clubs in your local area? If so, please select from the list below.” **
 
 ``` {r Clubs and extracurriculars_summary}
-chk_var <- c('clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteer','clubs_ycherts','clubs_other')
+chk_var <- c("clubs_arts",'clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteering','clubs_syp','clubs_other')
 
 chk_stats <- dplyr::filter(stats, question %in% chk_var)
 chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
 
 plot_title = "Clubs and extracurriculars"
 
-top_3 <- tail(sort(dplyr::filter(chk_stats,breakdown == "All Responses", response == "Yes")$count), 3)
-chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
+top_3 <- tail(sort(dplyr::filter(chk_stats,breakdown == "All Responses", response == "Currently attending")$count), 3)
+chk_var_brief <- unique(chk_stats$question[chk_stats$count %in% top_3 &
                                        chk_stats$breakdown == "All Responses"])
+
+chk_stats_brief <- dplyr::filter(stats_diffs, question %in% chk_var_brief)
 
 ```
 
@@ -2945,11 +2948,11 @@ chk_var <- unique(chk_stats$question[chk_stats$count %in% top_3 &
 
 ### Summary
 
-`r create_sum_sentence_herts(multi = T, value_of_interest = "Yes")[1]`
+`r create_sum_sentence_herts(data = chk_stats_brief, multi = T, value_of_interest = "Currently attending")[1]`
 
 ### Graph
 ```{r Clubs and extracurriculars_graph, fig.height=6.5}
-chk_var <- c('clubs_perform','clubs_schoolclub','clubs_doe','clubs_music','clubs_religion','clubs_sports','clubs_uniformed','clubs_volunteer','clubs_ycherts','clubs_other')
+
 create_multicat_plot_herts(chk_stats, q_coded = q_coded)$result
 ```
 

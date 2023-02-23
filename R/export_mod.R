@@ -250,7 +250,11 @@ export_mod_server <- function(id,
       
       
       filename = function() {
-        paste0("Hertfordshire YPHWS Report - ", input$exp_report_comp, " focusing on ", input$exp_report_cat, "-2022", ".html")
+        #TODO Temporary fix before 2023 lookup fix
+        if (input$exp_report_comp == "sex" ) { brkdown <- "Gender" } else {brkdown <- input$exp_report_comp } 
+        
+        
+        paste0("Hertfordshire YPHWS Report - ", brkdown, " focusing on ", input$exp_report_cat, "-2022", ".html")
       },
       
       content = function(file) {
