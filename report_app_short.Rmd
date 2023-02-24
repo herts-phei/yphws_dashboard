@@ -11,7 +11,6 @@ output:
     lightbox: false
     gallery: false
     highlight: tango
-    css: "robobook.css"
 params:
   var: null
   cat: null
