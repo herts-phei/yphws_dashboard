@@ -263,7 +263,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
           dplyr::select(breakdown, denominator) %>% 
           dplyr::distinct()
         
-        prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
+        prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 1), "%")
         add <- paste0(" Among them, ", paste0(
           prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
         
