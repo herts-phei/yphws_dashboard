@@ -20,6 +20,7 @@ params:
   meta: NA
 ---
 
+
 ``` {r setup, include=F}
 # Setup -------------------------------------------------------------------
 library(dplyr)
@@ -61,12 +62,15 @@ data <- data %>% dplyr::filter(question != "lsoa_code")
 # source("R/global_utils.R", local = TRUE)
 # data <- get_data()
 # q_coded <-data$q_coded
-# group <- "bullied" # Which variable to break down by. Usually ethnicity.
-# cat_of_interest <- "Bullied"
+# group <- "District" # Which variable to break down by. Usually ethnicity.
+# cat_of_interest <- "Prefer not to say / Unknown"
 # school_number <- 40
-# data <- data$data$bullied
+# data <- data$data$District
 # year_report <- 2022
 
+if(cat_of_interest == "Prefer not to say / Unknown") {
+  cat_of_interest <- "Prefer not to say/Unknown"
+}
 
 if(group == "caring"){
 data <- data %>%
@@ -112,9 +116,14 @@ if(group == "imd_quintile"){
 if(group == "sexuality"){
   rename_group = "Sexuality"
 }
-    
+
 if(group == "District"){
+ 
+   data <- data %>%
+     dplyr::mutate(breakdown = ifelse(breakdown == "Prefer not to say / Unknown", "Prefer not to say/Unknown", breakdown))
   rename_group = "District"
+  
+  
 }
                        
 ```
@@ -632,9 +641,9 @@ worries_ <- worries_ %>%
     question == "worry_safety" ~ "their safety", question == "worry_socialmedia" ~ "social media", question == "worry_bully" ~ "bullying",
     question == "worry_relationships" ~ "relationships and/or their sexual health", question == "worry_crime" ~ "crime",
     question == "worry_drugsalcohol" ~ "drugs and alcohol", question == "worry_gambling" ~ "gambling",
-    question == "worry_future" ~ "thier future", question == 	"worry_treatgirls" ~ "harrassment/violence against girls",
-    question == "worry_violencegirls" ~ "harrassment/violence against girls", question ==	"worry_racism" ~ "racism",
-    question == "worry_lgbt" ~ "sexual orientation/identity", question == "worry_violenceboys" ~"harrassment/violence against boys",
+    question == "worry_future" ~ "thier future", question == 	"worry_treatgirls" ~ "harassment/violence against girls",
+    question == "worry_violencegirls" ~ "harassment/violence against girls", question ==	"worry_racism" ~ "racism",
+    question == "worry_lgbt" ~ "sexual orientation/identity", question == "worry_violenceboys" ~"harassment/violence against boys",
     question == "worry_incrime" ~ "getting invovled in crime"
   ))
 
@@ -664,6 +673,9 @@ options <- c("Yes", "Somewhat")
 # General groups for plotting function
 
 plot_custom_grp <- as.character(na.omit(unique(data$breakdown)))
+if(group == "District"){
+plot_custom_grp <- c("All Responses", "Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire", "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield", "Outside of Hertfordshire", "Prefer not to say/Unknown")
+}
 plot_custom_grp <- plot_custom_grp[plot_custom_grp != "All Responses"]
 ```
 
@@ -826,6 +838,10 @@ plot_title <- "Age"
 
 <span style="color: #CC0000;">`r if(min(chk_diff$denominator) < 20){low_denom_warning}`</span>
 
+### Summary
+
+`r create_sum_sentence_cat_interest()`
+
 ### Graph
 
 
@@ -854,6 +870,14 @@ plot_title <- "Sex"
 ```
 
 <span style="color: #CC0000;">`r if(min(chk_diff$denominator) < 20){low_denom_warning}`</span>
+
+### Summary
+
+`r 
+if(group != "sex"){
+ create_sum_sentence_herts()
+ } else {
+create_sum_sentence_cat_interest()}`
 
 ### Graph
 
@@ -892,7 +916,7 @@ create_sum_sentence_cat_interest()}`
 ### Graph
 
 ```{r sexuality_graph}
-create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title)
+create_basic_plot(df = chk_stats,                    plot_custom_grp = plot_custom_grp,                    plot_title = plot_title, rotate = 25)
 ```
 
 ### Table
@@ -2154,7 +2178,7 @@ create_tbl(chk_diff)
 
 ## Hopefulness {.tabset}
 
-**"Do you feel hopefull about your future"**
+**"Do you feel hopeful about your future"**
 ``` {r hopeful_future_summary}
 chk_var <- c('hopeful_future')
 
@@ -2386,7 +2410,7 @@ chk_var <- c("mental_type_online", "mental_type_phone", "mental_type_121", "ment
 
 chk_stats <- filter(stats, question %in% chk_var)
 
-plot_title = "Preferred type of support for mental health"
+plot_title = "Prefered type of support for mental health"
 
 top_2 <- tail(sort(dplyr::filter(chk_stats,  breakdown == "All Responses", response == "Yes")$count), 2)
 
