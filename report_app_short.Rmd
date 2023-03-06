@@ -68,9 +68,7 @@ data <- data %>% dplyr::filter(question != "lsoa_code")
 # data <- data$data$District
 # year_report <- 2022
 
-if(cat_of_interest == "Prefer not to say / Unknown") {
-  cat_of_interest <- "Prefer not to say/Unknown"
-}
+
 
 if(group == "caring"){
 data <- data %>%
@@ -121,8 +119,12 @@ if(group == "District"){
  
    data <- data %>%
      dplyr::mutate(breakdown = ifelse(breakdown == "Prefer not to say / Unknown", "Prefer not to say/Unknown", breakdown))
+   
   rename_group = "District"
   
+if(cat_of_interest == "Prefer not to say / Unknown") {
+  cat_of_interest <- "Prefer not to say/Unknown"
+}
   
 }
                        
@@ -424,7 +426,7 @@ create_basic_plot <- function(df,
     echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
              right = 10, top = 35, bottom = 10,
              itemHeight = 10, itemWidth = 20,
-             textStyle = list(fontSize = 12)) %>%
+             textStyle = list(fontSize = 11)) %>%
     echarts4r::e_theme("westeros") %>%
     echarts4r::e_title(plot_title) %>% 
     echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
