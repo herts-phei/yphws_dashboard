@@ -59,8 +59,8 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if ("Diet and Lifestyle" %in% input$domains) {browser()})
-
+      #observe(if("Mental Health and Wellbeing" %in% input$domains) {browser()})
+      
       # Data --------------------------------------------------------------------
       
       chk_var <- shiny::reactive({
@@ -91,7 +91,7 @@ explore_mod_server <- function(id,
         stats <- stats()
         stats %>% 
           dplyr::left_join(dplyr::distinct(dplyr::select(q_coded(), -question_text, -year)), by = c("question" = "question_coded",
-                                                                            "response" = "response")) %>% 
+                                                                                                    "response" = "response")) %>% 
           dplyr::filter(question_coded_gen %in% chk_var(),
                         year == year())
         
@@ -101,7 +101,7 @@ explore_mod_server <- function(id,
         stats_old <- stats_old()
         stats_old %>%
           dplyr::left_join(dplyr::distinct(dplyr::select(q_coded(), -question_text, -year)), by = c("question" = "question_coded",
-                                                                            "response" = "response")) %>%
+                                                                                                    "response" = "response")) %>%
           dplyr::filter(question_coded_gen %in% chk_var())
       })
       
@@ -176,7 +176,10 @@ explore_mod_server <- function(id,
               }
               
               current_plot$response <- forcats::as_factor(current$response)
-              current_plot$response <- forcats::fct_relevel(current$response, levels = c("low", "medium", "high", "very high", "I have never heard of it", "I have heard of it but know nothing about it", "It can be both treated and cured", "It can be treated but not cured"))
+              
+              if(!multi_bin & multi) {
+                current_plot$response <- forcats::fct_relevel(current$response, c("low", "medium", "high", "very high", "I have never heard of it", "I have heard of it but know nothing about it", "It can be both treated and cured", "It can be treated but not cured"))
+              }
               
               # multicat style plot
               int_plot <- create_multi_plot(df = current_plot,
@@ -309,7 +312,7 @@ explore_mod_server <- function(id,
                                                            ),
                                                            shiny::tabPanel(
                                                              "Table",
-                                                              chk_stats() %>% 
+                                                             chk_stats() %>% 
                                                                dplyr::mutate(value = paste0(round(as.numeric(value) * 100, 2), "%"),
                                                                              lowercl = paste0(round(as.numeric(lowercl) * 100, 2), "%"),
                                                                              uppercl = paste0(round(as.numeric(uppercl) * 100, 2), "%")
@@ -339,7 +342,7 @@ explore_mod_server <- function(id,
                                                          shiny::tabPanel(title = NULL, "No data available for the selected year.")))
           
         }
-
+        
         
         return(l)
         

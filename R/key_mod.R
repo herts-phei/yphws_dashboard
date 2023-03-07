@@ -150,7 +150,7 @@ key_mod_server <- function(id,
         
         paste("This dashboard shows the results of", max(stats()$denominator, na.rm = TRUE),
               "pupils from schools in Hertfordshire who responded to the Young People’s Health & Wellbeing Survey (YPHWS).",
-              "This is second year of running this survey. You can change the data by year of survey and breakdown of interest using the", 
+              "This is third year of running this survey. You can change the data by year of survey and breakdown of interest using the", 
               " dropdowns in the navigation bar. To see more of the data, check the Explore Data and Inequalities tabs.<br><br>",
               "The Young People’s Health & Wellbeing Survey (YPHWS) is a youth health and wellbeing survey which gathers self-reported",
               "information annually from those aged 11-19 in Hertfordshire. The survey includes questions about home life, wellbeing, diet, physical",
