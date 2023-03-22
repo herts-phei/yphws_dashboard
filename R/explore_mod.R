@@ -79,8 +79,8 @@ explore_mod_server <- function(id,
           dplyr::pull(question_coded_gen)
         
         #TODO temporary 2022 solution for duplicated sex var. Remove during 2023 update
-        if("sex" %in% chk_var & year() == "2022") { chk_var <- chk_var[chk_var != "sex"] }
-        if("gender" %in% chk_var & year() != "2022") { chk_var <- chk_var[chk_var != "gender"] }
+        ## if("sex" %in% chk_var & year() == "2022") { chk_var <- chk_var[chk_var != "sex"] }
+        ## if("gender" %in% chk_var & year() != "2022") { chk_var <- chk_var[chk_var != "gender"] }
         
         return(unique(chk_var))
         
