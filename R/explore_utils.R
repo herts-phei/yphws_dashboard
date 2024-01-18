@@ -174,7 +174,7 @@ create_sum_sentence <- function(dataset,
                            paste0(total_resp, " students", " (", perc, "%)"))
       
       # generate main sentence for All Responses
-      sentence <- paste0("Respondents were asked '", df$survey_text_gen[1], "'.<br><br>")
+      sentence <- paste0("Respondents were asked '<b>", df$survey_text_gen[1], "</b>'.<br><br>")
       
       if (is.na(total_resp)) { 
         

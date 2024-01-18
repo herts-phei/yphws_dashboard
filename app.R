@@ -17,6 +17,7 @@ library(rmdformats)
 library(stringr)
 library(sparkline)
 library(viridis)
+library(forcats)
 
 # UI ----------------------------------------------------------------
 
