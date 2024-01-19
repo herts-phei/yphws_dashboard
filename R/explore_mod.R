@@ -59,7 +59,7 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if("Mental Health and Wellbeing" %in% input$domains) {browser()})
+      observe(if("Mental Health and Wellbeing" %in% input$domains) {browser()})
       
       # Data --------------------------------------------------------------------
       
