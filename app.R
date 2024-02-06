@@ -139,6 +139,7 @@ server <- function(input, output) {
                      year = shiny::reactive(input$year), 
                      stats = shiny::reactive(rv$stats),
                      stats_old = shiny::reactive(rv$stats_old),
+                     stats_combined = shiny::reactive(rv$stats_combined),
                      diffs = shiny::reactive(rv$diffs),
                      comp = shiny::reactive(input$comp),
                      q_coded = shiny::reactive(rv$data$q_coded),

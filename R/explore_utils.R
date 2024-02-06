@@ -477,6 +477,148 @@ create_multi_plot <- function(df,
   
 }
 
+create_trend_plot <- function(df, 
+                              plot_custom_grp, 
+                              plot_title,
+                              year,
+                              multi = FALSE) {
+
+  # df=trend
+  # plot_custom_grp = order
+  # plot_title = ""
+  # year = year()
+
+    groups <- unique(c("All Responses", 
+                       plot_custom_grp))
+    
+    rotate <- ifelse(length(unique(df$response)) > 7, 45, 0)
+    
+    if (multi) {
+      
+      trend_opts <- unique(df$menu_text[df$year == year])
+      
+      # If it's actually a simple question with multiple responses of interest
+      if (all(is.na(unique(trend_opts)))) {
+        trend_opts <- unique(df$response[df$year == year])
+        
+        base <- df %>% 
+          dplyr::filter(breakdown == "All Responses",
+                        response %in% trend_opts) %>% 
+          dplyr::group_by(response) %>% 
+          dplyr::mutate(temp_sum = 1,
+                        keep = case_when(sum(temp_sum) > 3 ~ TRUE,
+                                         TRUE ~ FALSE)) %>% 
+          dplyr::ungroup() %>% 
+          dplyr::filter(keep) %>% 
+          dplyr::mutate(value = round(as.numeric(.$value), 3),
+                        lowercl = round(as.numeric(.$lowercl), 3),
+                        uppercl = round(as.numeric(.$uppercl), 3),
+                        response = stringr::str_wrap(response, 15),
+                        breakdown = factor(breakdown, levels = groups),
+                        year = factor(year, levels = sort(unique(df$year)))) %>% 
+          dplyr::arrange(year) %>% 
+          dplyr::filter(!is.na(question_text)) %>% 
+          dplyr::group_by(response)
+        
+        legend_length <- ifelse(max(nchar(df$response) > 40), -100, 10)
+        
+      } else {
+        
+        base <- df %>% 
+          dplyr::filter(breakdown == "All Responses",
+                        menu_text %in% trend_opts) %>% 
+          dplyr::group_by(menu_text) %>% 
+          dplyr::mutate(temp_sum = 1,
+                        keep = case_when(sum(temp_sum) > 3 ~ TRUE,
+                                         TRUE ~ FALSE)) %>% 
+          dplyr::ungroup() %>% 
+          dplyr::filter(keep) %>% 
+          dplyr::mutate(value = round(as.numeric(.$value), 3),
+                        lowercl = round(as.numeric(.$lowercl), 3),
+                        uppercl = round(as.numeric(.$uppercl), 3),
+                        response = stringr::str_wrap(response, 15),
+                        breakdown = factor(breakdown, levels = groups),
+                        year = factor(year, levels = sort(unique(df$year)))) %>% 
+          dplyr::arrange(year) %>% 
+          dplyr::filter(!is.na(question_text)) %>% 
+          dplyr::group_by(menu_text)
+        
+        legend_length <- ifelse(max(nchar(df$menu_text) > 40), -100, 10)
+        
+      }
+
+      base %>% 
+        echarts4r::e_charts(year) %>% 
+        echarts4r::e_line(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
+      function(params){
+      return('value: ' + params.value[1] * 100 + '%' +
+        '<br/>breakdown: ' + params.seriesName +
+        '<br/>group: ' + params.value[params.encode.x[0]]) 
+        }"))) %>% 
+        echarts4r::e_tooltip(trigger = "item") %>% 
+        echarts4r::e_grid(right = 180, left = 50) %>%
+        echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, min = 0) %>% 
+        echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
+        echarts4r::e_format_y_axis(suffix = "%", formatter = echarts4r::e_axis_formatter("percent")) %>% 
+        echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
+                            right = legend_length, top = 55, bottom = 10,
+                            itemHeight = 10, itemWidth = 20,
+                            textStyle = list(fontSize = 12)) %>%
+        #echarts4r::e_theme("westeros") %>%
+        echarts4r::e_title(plot_title) %>% 
+        echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
+                                                                          image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
+        echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore"))
+      
+    } else {
+      
+      trend_opts <- unique(df$breakdown[df$year == year])
+      
+      legend_length <- ifelse(max(nchar(df$breakdown) > 40), -100, 10)
+      
+      df %>% 
+        dplyr::filter(breakdown %in% trend_opts) %>% 
+        dplyr::group_by(breakdown) %>% 
+        dplyr::mutate(temp_sum = 1,
+                      keep = case_when(sum(temp_sum) > 3 ~ TRUE,
+                                       TRUE ~ FALSE)) %>% 
+        dplyr::ungroup() %>% 
+        dplyr::filter(keep) %>%
+        dplyr::mutate(value = round(as.numeric(.$value), 3),
+                      lowercl = round(as.numeric(.$lowercl), 3),
+                      uppercl = round(as.numeric(.$uppercl), 3),
+                      response = stringr::str_wrap(response, 15),
+                      breakdown = factor(breakdown, levels = groups),
+                      year = factor(year, levels = sort(unique(df$year)))) %>% 
+        dplyr::arrange(year) %>% 
+        dplyr::filter(!is.na(question_text)) %>% 
+        dplyr::group_by(breakdown) %>% 
+        echarts4r::e_charts(year) %>% 
+        echarts4r::e_line(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
+      function(params){
+      return('value: ' + params.value[1] * 100 + '%' +
+        '<br/>breakdown: ' + params.seriesName +
+        '<br/>group: ' + params.value[params.encode.x[0]]) 
+        }"))) %>% 
+        echarts4r::e_tooltip(trigger = "item") %>% 
+        echarts4r::e_grid(right = 180, left = 50) %>%
+        echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, min = 0) %>% 
+        echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
+        echarts4r::e_format_y_axis(suffix = "%", formatter = echarts4r::e_axis_formatter("percent")) %>% 
+        echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
+                            right = legend_length, top = 35, bottom = 10,
+                            itemHeight = 10, itemWidth = 20,
+                            textStyle = list(fontSize = 12)) %>%
+        echarts4r::e_theme("westeros") %>%
+        echarts4r::e_title(plot_title) %>% 
+        echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
+                                                                          image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
+        echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore")) 
+      
+    }
+  
+}
+
 # Tables ------------------------------------------------------------------
 
 create_tbl <- function(stats_diff, 
