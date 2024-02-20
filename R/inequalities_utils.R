@@ -94,7 +94,8 @@ tartan <- function(df,
     dplyr::ungroup() %>%
     dplyr::bind_rows(date_rows) %>%
     #dplyr::filter(!!dplyr::ensym(area_col) %in% c("Period", comparator_area, new_comparator_area, areas)) %>% 
-    dplyr::select(!!dplyr::ensym(area_col), !!dplyr::ensym(indicator_col), !!dplyr::ensym(period_col), !!dplyr::ensym(value_col), !!dplyr::ensym(upper_ci), !!dplyr::ensym(lower_ci), diff) %>% 
+    dplyr::select(!!dplyr::ensym(area_col), !!dplyr::ensym(indicator_col), !!dplyr::ensym(period_col), 
+                  !!dplyr::ensym(value_col), !!dplyr::ensym(upper_ci), !!dplyr::ensym(lower_ci), diff) %>% 
     dplyr::mutate(colour = dplyr::case_when(diff == "significantly higher than" ~ higher, 
                                             diff == "significantly lower than" ~ lower, 
                                             TRUE ~ col_y),

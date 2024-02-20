@@ -85,10 +85,6 @@ key_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      # observe({
-      #   if ("2020" %in% input$mh_year ) {browser()}
-      # })
-      
       # Info boxes --------------------------------------------------------------
       
       # Total responses
@@ -161,6 +157,10 @@ key_mod_server <- function(id,
       
       # Group summary -----------------------------------------------------------
       
+      # observe({
+      #   if ("2020" %in% input$mh_year ) {browser()}
+      # })
+      
       output$ethn_donut <- echarts4r::renderEcharts4r({
         
         stats <- stats()
@@ -177,7 +177,7 @@ key_mod_server <- function(id,
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
                           question == "age") %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
                                                                            formatter = htmlwidgets::JS("function(params){
@@ -193,7 +193,7 @@ key_mod_server <- function(id,
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
                           question == comp()) %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
                                                                            formatter = htmlwidgets::JS("function(params){
@@ -218,7 +218,7 @@ key_mod_server <- function(id,
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
                           question == "ethnicity") %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
                                                                            formatter = htmlwidgets::JS("function(params){
@@ -234,7 +234,7 @@ key_mod_server <- function(id,
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
                           question == "imd_quintile") %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
                                                                            formatter = htmlwidgets::JS("function(params){
@@ -403,10 +403,10 @@ key_mod_server <- function(id,
             dplyr::filter(all_data,  question =='pa_60') %>% dplyr::filter(count == max(count)) %>% .$response,
             " days</b>. <br><br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
-            "</b> of respondents reported having ever smoked and <b>",
-            sum(dplyr::filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
-            "</b> reported smoking regularly (once a week or more). ", ls2, "<br><br>",
+            # "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
+            # "</b> of respondents reported having ever smoked and <b>",
+            # sum(dplyr::filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
+            # "</b> reported smoking regularly (once a week or more). ", ls2, "<br><br>",
             
             "<b>", sum(dplyr::filter(all_data,  question == 'vaping' & response != 'I have never vaped') %>% .$value),
             "</b> of respondents reported having ever vaped and <b>",
@@ -429,7 +429,7 @@ key_mod_server <- function(id,
             "</b>", " of all respondents stated that they have been bullied before.", mh6, "<br><br>",
             
             "<b>", dplyr::filter(all_data, question == 'bullied_currently' & response == "Yes" & !is.na(question_text)) %>% .$value,
-            "</b>", " of all respondents stated that they have self-harmed before.", mh7, "<br><br>",
+            "</b>", " of all respondents stated that are currently being bullied.", mh7, "<br><br>",
             
             "<h1>Safety</h1>",
             

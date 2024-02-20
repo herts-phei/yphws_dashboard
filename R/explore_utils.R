@@ -158,9 +158,9 @@ create_sum_sentence <- function(dataset,
     # generate the values used for the sentences. 
     if(nrow(df) > 0) {
       
-      most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)]
-      most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)]
-      least_common <- df$response[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])]
+      most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)][1]
+      most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)][1]
+      least_common <- df$response[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])][1]
       least_v <- df$value[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])][1]
       
       # If all students responded to this question, skip the sex breakdown. Include if not. 
@@ -212,14 +212,14 @@ create_sum_sentence <- function(dataset,
           
           most_common <- df1 %>%
             dplyr::group_by(breakdown) %>% 
-            dplyr::filter(count == max(count), !is.na(question_text)) %>% 
+            dplyr::filter(count == max(count), !is.na(question_text), !duplicated(response)) %>% 
             dplyr::summarise(most_common = paste(response, collapse = "' or '"), most_v = min(value)) %>% 
             dplyr::ungroup() %>% 
             dplyr::distinct() 
           
           least_common <- df1 %>% 
             dplyr::group_by(breakdown) %>% 
-            dplyr::filter(count == min(count), !is.na(question_text)) %>% 
+            dplyr::filter(count == min(count), !is.na(question_text), !duplicated(response)) %>% 
             dplyr::summarise(least_common = paste(response, collapse = "' or '"), least_v = min(value)) %>%
             dplyr::ungroup() %>% 
             dplyr::distinct() 
@@ -316,10 +316,10 @@ create_sum_sentence <- function(dataset,
         # generate the values used for the sentences. 
         df <- grp_df %>% 
           dplyr::filter(question %in% reps, response_of_interest == "TRUE") %>% 
-          dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
+          dplyr::left_join(select(q_coded, reworded, question_coded), by = c("question" = "question_coded")) %>% 
           #drop_na(reworded) %>% 
           dplyr::arrange(dplyr::desc(count)) %>%
-          dplyr::select(-tidyselect::contains(".y")) %>%
+          dplyr::select(-tidyselect::contains(".y"), -order, -question_type, -polarity, -rotation) %>%
           dplyr::distinct()
         
         # if we only want the top N responses, subset df
@@ -333,10 +333,10 @@ create_sum_sentence <- function(dataset,
         if (binary) {
           
           temp <- paste0("Out of responses from ", group_name, ", ", 
-                         glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))
+                         glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text}'"), ", ", last = ", and "))
         } else {
           temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
-                         glue::glue_collapse(glue::glue("<b>{df$value}</b> for '{df$question_text.x}'"), ", ", last = ", and "))
+                         glue::glue_collapse(glue::glue("<b>{df$value}</b> for '{df$question_text}'"), ", ", last = ", and "))
         }
         
         sentence <- paste0(sentence, temp, ".<br><br>")
@@ -547,6 +547,8 @@ create_trend_plot <- function(df,
         
       }
 
+      if(nrow(base) == 0) return("Trend data cannot be generated as this question does not have enough yearly data.")
+      
       base %>% 
         echarts4r::e_charts(year) %>% 
         echarts4r::e_line(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("

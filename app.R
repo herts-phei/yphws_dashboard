@@ -118,6 +118,25 @@ server <- function(input, output) {
     
   })
   
+  # Edit q_coded for differences after 2023
+  q_coded <- shiny::reactive({
+    if(as.numeric(input$year) > 2022) {
+      rota <- ifelse(as.numeric(input$year) %% 2 == 0, 2, 1)
+      
+      rv$data$q_coded %>% 
+        dplyr::filter(year == input$year) %>% 
+        dplyr::distinct() %>% 
+        dplyr::mutate(rotation = as.character(rotation)) %>% 
+        dplyr::filter(rotation %in% c("0", as.character(rota)),
+                      year == input$year)
+
+    } else {
+      rv$data$q_coded %>% 
+        dplyr::filter(year %in% c("2020", "2021", "2022")) %>% 
+        dplyr::distinct()
+    }
+  })
+  
   # Key Points --------------------------------------------------------------
   
   key_mod_server("key",
@@ -126,7 +145,7 @@ server <- function(input, output) {
                  stats = shiny::reactive(rv$stats),
                  stats_old = shiny::reactive(rv$stats_old),
                  stats_combined = shiny::reactive(rv$stats_combined),
-                 q_coded = shiny::reactive(rv$data$q_coded),
+                 q_coded = shiny::reactive(q_coded()),
                  grp_lookup = shiny::reactive(rv$data$grp_lookup),
                  comp = shiny::reactive(input$comp)
   )
@@ -142,7 +161,7 @@ server <- function(input, output) {
                      stats_combined = shiny::reactive(rv$stats_combined),
                      diffs = shiny::reactive(rv$diffs),
                      comp = shiny::reactive(input$comp),
-                     q_coded = shiny::reactive(rv$data$q_coded),
+                     q_coded = shiny::reactive(q_coded()),
                      grp_lookup = shiny::reactive(rv$data$grp_lookup))
   
   # Inequalities ------------------------------------------------------------
@@ -151,7 +170,7 @@ server <- function(input, output) {
                           params = shiny::reactive(rv$params),
                           year = shiny::reactive(input$year),
                           comp = shiny::reactive(input$comp), 
-                          q_coded = shiny::reactive(rv$data$q_coded),
+                          q_coded = shiny::reactive(q_coded()),
                           stats = shiny::reactive(rv$stats)
                           #diffs = shiny::reactive(rv$diffs)
                           )
@@ -162,7 +181,7 @@ server <- function(input, output) {
                     params = shiny::reactive(rv$params),
                     data = shiny::reactive(rv$data$data),
                     stats_combined = shiny::reactive(rv$stats_combined),
-                    q_coded = shiny::reactive(rv$data$q_coded),
+                    q_coded = shiny::reactive(q_coded()),
                     comp = shiny::reactive(input$comp))
   
   # About -------------------------------------------------------------------

@@ -65,33 +65,46 @@ explore_mod_server <- function(id,
       chk_var <- shiny::reactive({
         
         q_coded <- q_coded()
+        stats <- stats()
         
         # Filter to specific "rotas" after 2022 when intermittent questions were introduced
-        if (as.numeric(year()) > 2022) {
-          
-          rota <- ifelse(as.numeric(year()) %% 2 == 0, 2, 1)
-          q_coded <- q_coded %>% 
-            dplyr::mutate(rotation = as.character(rotation)) %>% 
-            dplyr::filter(rotation %in% c("0", as.character(rota)),
-                          year == year())
-          
-        }
+        # if (as.numeric(year()) > 2022) {
+        #   
+        #   rota <- ifelse(as.numeric(year()) %% 2 == 0, 2, 1)
+        #   q_coded <- q_coded %>% 
+        #     dplyr::mutate(rotation = as.character(rotation)) %>% 
+        #     dplyr::filter(rotation %in% c("0", as.character(rota)),
+        #                   year == year())
+        #   
+        # }
 
         # vector of selected vars
         single <- q_coded %>% 
           dplyr::arrange(question_raw) %>% 
           dplyr::filter(question_theme %in% input$domains)
         
+        # filter out questions with only auto-filled No's
+        multi_no_responses <- stats %>% 
+          dplyr::select(question, response) %>% 
+          dplyr::left_join(dplyr::select(q_coded, question_coded, response, multi_binary) %>% distinct(),
+                           by = c("question" = "question_coded", 
+                                  "response" = "response")) %>% 
+          dplyr::filter(question %in% single$question_coded, multi_binary == "TRUE") %>% 
+          dplyr::group_by(question) %>% 
+          dplyr::mutate(exception = case_when(!"Yes" %in% response ~ FALSE, TRUE ~ TRUE)) %>% 
+          dplyr::filter(!exception) %>% 
+          dplyr::distinct()
+        
         chk_var <- q_coded %>%
           dplyr::filter(question_coded %in% single$question_coded,
-                        !is.na(response),
+                        !is.na(response), !question_coded %in% multi_no_responses$question,
                         question_coded %in% unique(stats()$question)) %>%
           dplyr::pull(question_coded_gen)
         
-        if ("Living Conditions" %in% input$domains) {
-          
-          chk_var <- c("condition", "caring", "findiff", "fsm", "school_supported", "district_residence", "imd_quintile")
-        }
+        # if ("Living Conditions" %in% input$domains) {
+        #   
+        #   chk_var <- c("condition", "caring", "findiff", "fsm", "school_supported", "district_residence", "imd_quintile")
+        # }
         #TODO temporary 2022 solution for duplicated sex var. Remove during 2023 update
         ## if("sex" %in% chk_var & year() == "2022") { chk_var <- chk_var[chk_var != "sex"] }
         ## if("gender" %in% chk_var & year() != "2022") { chk_var <- chk_var[chk_var != "gender"] }
@@ -103,11 +116,13 @@ explore_mod_server <- function(id,
       # filtered datasets
       chk_stats <- shiny::reactive({
         stats <- stats()
+        q_coded <- dplyr::select(q_coded(), -question_text, -year)
+
         stats %>% 
-          dplyr::left_join(dplyr::distinct(dplyr::select(q_coded(), -question_text, -year)), by = c("question" = "question_coded",
-                                                                                                    "response" = "response")) %>% 
-          dplyr::filter(question_coded_gen %in% chk_var(),
-                        year == year())
+          dplyr::left_join(q_coded, by = c("question" = "question_coded",
+                                                           "response" = "response")) %>% 
+          dplyr::filter(question_coded_gen %in% chk_var()) %>% 
+          distinct()
         
       })
       
@@ -123,7 +138,6 @@ explore_mod_server <- function(id,
         stats <- stats_combined()
         
         q_coded_trend <- q_coded() %>% 
-          dplyr::filter(year == year()) %>% 
           dplyr::select(-polarity, -question_text, -rotation, -year,
                         -question_type, -order, -question_raw) %>% 
           dplyr::distinct()
@@ -142,7 +156,7 @@ explore_mod_server <- function(id,
       #     dplyr::filter(question_coded_gen %in% chk_var())
       # })
       
-      #observe(if("Living Conditions" %in% input$domains) {browser()})
+      #observe(if(grepl("Mental", input$domains)) {browser()})
       
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
@@ -158,6 +172,7 @@ explore_mod_server <- function(id,
           diffs <- diffs()
           comp <- comp()
           q_coded <- q_coded()
+          
           grp_lookup <- grp_lookup()
           
           for (i in 1:length(chk_var())){
@@ -207,6 +222,7 @@ explore_mod_server <- function(id,
               } else {
                 
                 current_plot <- current
+                order <- unique(current_plot$breakdown)
               }
               
               current_plot$response <- forcats::as_factor(current$response)
@@ -234,8 +250,8 @@ explore_mod_server <- function(id,
                 
               } else {
                 
-                trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
-                trend_text <- ""
+                trend_plot <- "Trend data cannot be generated as this question does not have enough yearly data."
+                #trend_text <- ""
                 
               }
               
