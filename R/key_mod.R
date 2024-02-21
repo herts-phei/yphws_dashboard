@@ -139,10 +139,6 @@ key_mod_server <- function(id,
         stats <- stats()
         grp <- q_coded()$heading[q_coded()$question_coded == comp()][1]
         
-        # if(grp == "Sex" & !year() %in% c("2020", "2021")) { grp <- "Gender" }
-        # 
-        # if(comp() == "district_clean") { grp = "District" }
-        
         # since schyear question isn't present, visualise age instead.
         if(comp() == "schyear") {
           
@@ -514,101 +510,6 @@ key_mod_server <- function(id,
           echarts4r::e_title("Top 5 ways to cope",
                              paste("For", input$mh_breakdown, "in", input$mh_year)) %>%
           echarts4r::e_theme("walden")
-        
-      })
-      
-      
-      # Extras ------------------------------------------------------------------
-      
-      
-      output$life_sat <- renderEcharts4r({
-        
-        stats_combined() %>%
-          filter(question == "life_satisfied",
-                 response == "low",
-                 breakdown != "All Responses") %>%
-          mutate(value = as.numeric(value)) %>%
-          group_by(year) %>%
-          e_charts(breakdown) %>%
-          e_bar(value) %>%
-          e_tooltip(trigger = "axis") %>%
-          e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>%
-          e_x_axis(axisLabel = list(interval = 0)) %>%
-          e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>%
-          e_grid(bottom = 100) %>%
-          e_title("Low life satisfaction",
-                  "Proportion from each group that responded with a rating of 4 or less out of 10.") %>%
-          e_theme_custom("phei.json") %>%
-          e_group("mh")
-        
-      })
-      
-      output$life_worth <- renderEcharts4r({
-        
-        stats_combined() %>%
-          filter(question == "bullied",
-                 response == "Yes",
-                 breakdown != "All Responses") %>%
-          mutate(value = as.numeric(value)) %>%
-          group_by(year) %>%
-          e_charts(breakdown) %>%
-          e_bar(value) %>%
-          e_tooltip(trigger = "axis") %>%
-          e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>%
-          e_x_axis(axisLabel = list(interval = 0)) %>%
-          e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>%
-          e_grid(bottom = 100) %>%
-          e_title("Bullying",
-                  "Proportion from each group that stated that they have been bullied before.") %>%
-          e_theme_custom("phei.json") %>%
-          e_group("mh")
-        
-      })
-      
-      output$self_harm <- renderEcharts4r({
-        
-        stats_combined() %>%
-          filter(question == "selfharm_ever",
-                 response == "Yes",
-                 breakdown != "All Responses") %>%
-          mutate(value = as.numeric(value)) %>%
-          group_by(year) %>%
-          e_charts(breakdown) %>%
-          e_bar(value) %>%
-          e_tooltip(trigger = "axis") %>%
-          e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>%
-          e_x_axis(axisLabel = list(interval = 0)) %>%
-          e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>%
-          e_legend(show = F) %>%
-          e_grid(bottom = 100) %>%
-          e_title("Self-harm",
-                  "Proportion from each group that stated that they had self-harmed before.") %>%
-          e_theme_custom("phei.json") %>%
-          e_group("mh")
-        
-      })
-      
-      output$mh_services <- renderEcharts4r({
-        
-        stats_combined() %>%
-          filter(question == "mental_howaccess",
-                 response == "Yes",
-                 breakdown != "All Responses") %>%
-          mutate(value = as.numeric(value)) %>%
-          group_by(year) %>%
-          e_charts(breakdown) %>%
-          e_bar(value) %>%
-          e_tooltip(trigger = "axis") %>%
-          e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>%
-          e_x_axis(axisLabel = list(interval = 0)) %>%
-          e_legend(show = F) %>%
-          e_format_y_axis(suffix = "%", formatter = e_axis_formatter("percent")) %>%
-          e_grid(bottom = 100) %>%
-          e_title("Accessing mental health services",
-                  "Proportion from each group stating that they knew how to access mental health services.") %>%
-          e_theme_custom("phei.json") %>%
-          e_group("mh") %>%
-          e_connect_group("mh")
         
       })
       
