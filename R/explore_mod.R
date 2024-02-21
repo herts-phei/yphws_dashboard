@@ -41,8 +41,6 @@ explore_mod <- function(id,
 
 # Server ------------------------------------------------------------------
 
-# NOTE: Selecting the Safety health topic will crash the app locally, but not on the server for some reason. 
-
 explore_mod_server <- function(id,
                                params,
                                year,
@@ -67,17 +65,6 @@ explore_mod_server <- function(id,
         q_coded <- q_coded()
         stats <- stats()
         
-        # Filter to specific "rotas" after 2022 when intermittent questions were introduced
-        # if (as.numeric(year()) > 2022) {
-        #   
-        #   rota <- ifelse(as.numeric(year()) %% 2 == 0, 2, 1)
-        #   q_coded <- q_coded %>% 
-        #     dplyr::mutate(rotation = as.character(rotation)) %>% 
-        #     dplyr::filter(rotation %in% c("0", as.character(rota)),
-        #                   year == year())
-        #   
-        # }
-
         # vector of selected vars
         single <- q_coded %>% 
           dplyr::arrange(question_raw) %>% 
@@ -99,15 +86,8 @@ explore_mod_server <- function(id,
           dplyr::filter(question_coded %in% single$question_coded,
                         !is.na(response), !question_coded %in% multi_no_responses$question,
                         question_coded %in% unique(stats()$question)) %>%
+          dplyr::arrange(order) %>% 
           dplyr::pull(question_coded_gen)
-        
-        # if ("Mental Health and Wellbeing" %in% input$domains) {
-        # 
-        #   chk_var <- c("selfharm_ever", "worry")
-        # }
-        #TODO temporary 2022 solution for duplicated sex var. Remove during 2023 update
-        ## if("sex" %in% chk_var & year() == "2022") { chk_var <- chk_var[chk_var != "sex"] }
-        ## if("gender" %in% chk_var & year() != "2022") { chk_var <- chk_var[chk_var != "gender"] }
         
         return(unique(chk_var))
         
@@ -117,10 +97,10 @@ explore_mod_server <- function(id,
       chk_stats <- shiny::reactive({
         stats <- stats()
         q_coded <- dplyr::select(q_coded(), -question_text, -year)
-
+        
         stats %>% 
           dplyr::left_join(q_coded, by = c("question" = "question_coded",
-                                                           "response" = "response")) %>% 
+                                           "response" = "response")) %>% 
           dplyr::filter(question_coded_gen %in% chk_var()) %>% 
           distinct()
         
@@ -149,7 +129,7 @@ explore_mod_server <- function(id,
           dplyr::distinct() # because of dupes caused by some years having same question_code
       })
       
-      #observe(if(grepl("Smok", input$domains)) {browser()})
+      #observe(if(grepl("Mental", input$domains)) {browser()})
       
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
@@ -315,7 +295,7 @@ explore_mod_server <- function(id,
               
               # trend table
               if (nrow(current_old) > 0) {
-
+                
                 m <- ifelse(length(unique(trend$response)) > 1, TRUE, FALSE)
                 trend_plot <- create_trend_plot(df = trend,
                                                 plot_custom_grp = order,
@@ -368,7 +348,7 @@ explore_mod_server <- function(id,
                                                                                       `upper CI` = reactable::colDef(maxWidth = 75)
                                                                                     ))
                                                            )
-                                                           ) )
+                                       ) )
           }
           
         } else {
