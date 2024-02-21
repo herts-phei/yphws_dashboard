@@ -414,37 +414,37 @@ create_multi_plot <- function(df,
                               plot_title,
                               binary) {
   
-  df <- df %>% 
-    dplyr::filter(!is.na(question_text)) %>% 
-    droplevels() 
-  
+  df <- df %>%
+    dplyr::filter(!is.na(question_text)) %>%
+    droplevels()
+
   if (binary) {
-    
-    df %>% 
-      dplyr::filter(response == "Yes") %>% 
+
+    df %>%
+      dplyr::filter(response == "Yes") %>%
       dplyr::arrange(response) %>%
       plotly::plot_ly(x = ~value, y = ~question_text, type = "bar", name = ~breakdown, color = ~breakdown,
                       colors = "viridis", legendgroup = ~breakdown, orientation = 'h',
                       hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ",
-                                                                      response, "<br>(CI:", lowercl, " to ", 
+                                                                      response, "<br>(CI:", lowercl, " to ",
                                                                       uppercl, ")"), 30), "<extra></extra>")) %>%
-      plotly::layout(title = list(text = paste("<b>", plot_title, "</b>"), 
+      plotly::layout(title = list(text = paste("<b>", plot_title, "</b>"),
                                   yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      yaxis = list(title = "", autorange = "reversed")) %>%
-      plotly::config(displaylogo = FALSE, 
+      plotly::config(displaylogo = FALSE,
                      modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
-    
+
   } else {
-    
+
     groups <- unique(df$menu_text)
-    
+
     button_list <- lapply(1:length(groups), function(x){
       list(method = "restyle",
            args = list("transforms[0].value", groups[x]),
            label = groups[x])
     })
-    
+
     type_list <-  list(
       type = 'dropdown',
       active = 0,
@@ -455,23 +455,23 @@ create_multi_plot <- function(df,
       x = 1.02,
       buttons = button_list
     )
-    
+
     df %>%
       dplyr::arrange(response) %>%
       plotly::plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
                       colors = "viridis", legendgroup = ~response, orientation = 'h',
                       hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ",
-                                                                      response, "<br>(CI:", lowercl, " to ", 
+                                                                      response, "<br>(CI:", lowercl, " to ",
                                                                       uppercl, ")"), 30), "<extra></extra>"),
                       transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
-      plotly::layout(barmode = "stack", 
+      plotly::layout(barmode = "stack",
                      title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      updatemenus = list(type_list),
                      yaxis = list(title = "", autorange = "reversed")) %>%
-      plotly::config(displaylogo = FALSE, 
+      plotly::config(displaylogo = FALSE,
                      modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
-    
+
   }
   
   
@@ -543,7 +543,7 @@ create_trend_plot <- function(df,
           dplyr::filter(!is.na(question_text)) %>% 
           dplyr::group_by(menu_text)
         
-        legend_length <- ifelse(max(nchar(df$menu_text) > 40), -100, 10)
+        legend_length <- ifelse(max(nchar(df$menu_text) > 40), 100, 10)
         
       }
 

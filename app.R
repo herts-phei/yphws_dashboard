@@ -44,7 +44,7 @@ ui <- tablerDash::tablerDashPage(
                                                                        "Sexuality" = "sexuality", 
                                                                        # "Young carer" = "caring", 
                                                                        # "Bullied" = "bullied",
-                                                                       "District" = "District"), 
+                                                                       "District" = "district_clean"), 
                                                         selected = "sex", multiple = FALSE), 
                               tablerDash::tablerNavMenuItem(
                                 "Key Points",

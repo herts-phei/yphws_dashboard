@@ -22,14 +22,15 @@ export_mod <- function(id,
         )
       ),
       shiny::fluidRow(
-        tablerDash::tablerCard(title = "Export full report (2022 data)",
+        tablerDash::tablerCard(title = "Export custom full report",
                                width = 12, 
                                closable = FALSE,
-                               shiny::uiOutput(ns("exp_report_comp")),
-                               shiny::uiOutput(ns("exp_report_cat")),
-                               shiny::uiOutput(ns("text")),
+                               # shiny::uiOutput(ns("exp_report_comp")),
+                               # shiny::uiOutput(ns("exp_report_cat")),
+                               shiny::uiOutput(ns("text"))
                                #shiny::uiOutput(ns("exp_report_year")),
-                               shiny::downloadButton(ns("exp_report"), "Export report")
+                               #TODO
+                               #shiny::downloadButton(ns("exp_report"), "Export report")
                                
                                
         )
@@ -195,8 +196,6 @@ export_mod_server <- function(id,
                          "IMD Quintile" = "imd_quintile",
                          "Sexuality" = "sexuality",
                          "Young carer" = "caring",
-                         #"Smoker" = "smoke_ever",
-                         #"Self-harm" = "selfharm_ever",
                          "Bullied" = "bullied",
                          "District" = "District"),
           selected = comp,
@@ -240,7 +239,9 @@ export_mod_server <- function(id,
       
       output$text <- shiny::renderText({
         
-        paste("If you would like customised reports for previous years please contact PH.Intelligence@hertfordshire.gov.uk")
+        paste0("The 2023 data is currently being processed so that it can be used for customised reports.",
+               " Customised reports allow you to export a full report with all indicators broken down by categories of your choosing (e.g. Those who have been bullied vs. not bullied).",
+               " If you would like to be notified on when this functionality will available to use, please email YPHWS@hertfordshire.gov.uk")
         
       })
       

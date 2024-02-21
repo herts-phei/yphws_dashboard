@@ -7,7 +7,7 @@ explore_mod <- function(id,
   
   domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
                "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
-               "Sexual Health", "Mental Health and Wellbeing", "Safety",
+               "Sexual Health", "Mental Health and Wellbeing", "Bullying", "Safety",
                "Education", "Sustainability", "COVID-19")
   
   names(domains) <- domains
@@ -101,9 +101,9 @@ explore_mod_server <- function(id,
                         question_coded %in% unique(stats()$question)) %>%
           dplyr::pull(question_coded_gen)
         
-        # if ("Living Conditions" %in% input$domains) {
-        #   
-        #   chk_var <- c("condition", "caring", "findiff", "fsm", "school_supported", "district_residence", "imd_quintile")
+        # if ("Mental Health and Wellbeing" %in% input$domains) {
+        # 
+        #   chk_var <- c("selfharm_ever", "worry")
         # }
         #TODO temporary 2022 solution for duplicated sex var. Remove during 2023 update
         ## if("sex" %in% chk_var & year() == "2022") { chk_var <- chk_var[chk_var != "sex"] }
@@ -148,15 +148,8 @@ explore_mod_server <- function(id,
           dplyr::filter(question_coded_gen %in% chk_var()) %>% 
           dplyr::distinct() # because of dupes caused by some years having same question_code
       })
-      # chk_diff <- shiny::reactive({
-      #   diffs <- diffs()
-      #   diffs %>% 
-      #     dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
-      #                                                                       "response" = "response")) %>% 
-      #     dplyr::filter(question_coded_gen %in% chk_var())
-      # })
       
-      #observe(if(grepl("Mental", input$domains)) {browser()})
+      #observe(if(grepl("Smok", input$domains)) {browser()})
       
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
@@ -251,7 +244,6 @@ explore_mod_server <- function(id,
               } else {
                 
                 trend_plot <- "Trend data cannot be generated as this question does not have enough yearly data."
-                #trend_text <- ""
                 
               }
               
@@ -333,7 +325,7 @@ explore_mod_server <- function(id,
                 
               } else {
                 
-                trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+                trend_plot <- "Trend data cannot be generated as this question does not have enough yearly data."
                 
               }
             }

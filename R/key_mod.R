@@ -24,32 +24,6 @@ key_mod <- function(id,
                                echarts4r::echarts4rOutput(ns("imd_donut"))), 
         
       ),
-      # fluidRow(
-      #   tabItem("name",
-      #           bs4TabCard(width = 12, side = "right", status = "success",
-      #                      collapsible = FALSE,
-      #                      title = "",
-      #                      tabPanel("Mental Health",
-      #                               fluidRow(
-      #                                 column(6, echarts4rOutput(ns("life_sat")),
-      #                                        echarts4rOutput(ns("life_worth"))),
-      #                                 column(6, echarts4rOutput(ns("self_harm")),
-      #                                        echarts4rOutput(ns("mh_services")))
-      #                               )
-      #                      ),
-      #                      tabPanel(
-      #                        "Lifestyle"
-      #                      ),
-      #                      tabPanel(
-      #                        "Safety"
-      #                      ),
-      #                      tabPanel(
-      #                        "Sexual Health"
-      #                      ),
-      #                      tabPanel(
-      #                        "Other"
-      #                      )) )
-      # ),
       shiny::fluidRow(
         tablerDash::tablerCard(width = 5, 
                                shiny::uiOutput(ns("mh_year")),
@@ -146,7 +120,7 @@ key_mod_server <- function(id,
         
         paste("This dashboard shows the results of", max(stats()$denominator, na.rm = TRUE),
               "pupils from schools in Hertfordshire who responded to the Young People’s Health & Wellbeing Survey (YPHWS).",
-              "This is second year of running this survey. You can change the data by year of survey and breakdown of interest using the", 
+              "This is fourth year of running this survey. You can change the data by year of survey and breakdown of interest using the", 
               " dropdowns in the navigation bar. To see more of the data, check the Explore Data and Inequalities tabs.<br><br>",
               "The Young People’s Health & Wellbeing Survey (YPHWS) is a youth health and wellbeing survey which gathers self-reported",
               "information annually from those aged 11-19 in Hertfordshire. The survey includes questions about home life, wellbeing, diet, physical",
@@ -154,22 +128,20 @@ key_mod_server <- function(id,
         
       })
       
-      
-      # Group summary -----------------------------------------------------------
-      
       # observe({
-      #   if ("2020" %in% input$mh_year ) {browser()}
+      #   if ("Broxbourne" %in% input$mh_breakdown ) {browser()}
       # })
       
+      # Group summary -----------------------------------------------------------
+   
       output$ethn_donut <- echarts4r::renderEcharts4r({
         
         stats <- stats()
         grp <- q_coded()$heading[q_coded()$question_coded == comp()][1]
         
-        #TODO
-        if(grp == "Sex" & !year() %in% c("2020", "2021")) { grp <- "Gender" }
-        
-        if(comp() == "District") { grp <- "District" }
+        # if(grp == "Sex" & !year() %in% c("2020", "2021")) { grp <- "Gender" }
+        # 
+        # if(comp() == "district_clean") { grp = "District" }
         
         # since schyear question isn't present, visualise age instead.
         if(comp() == "schyear") {
@@ -192,16 +164,17 @@ key_mod_server <- function(id,
           
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
-                          question == comp()) %>% 
+                          question == "sex") %>% 
             dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
-            echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
-                                                                           formatter = htmlwidgets::JS("function(params){
+            echarts4r::e_pie(value, radius = c("50%", "70%"), 
+                             label = list(position = "inside", 
+                                          formatter = htmlwidgets::JS("function(params){
            return(`${params.value}`+'%');}"))) %>% 
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
-            echarts4r::e_title(paste(grp, "breakdown in %")) %>% 
+            echarts4r::e_title(paste("Gender", "breakdown in %")) %>% 
             echarts4r::e_theme_custom("phei.json")
           
         }
@@ -470,7 +443,7 @@ key_mod_server <- function(id,
           shinyWidgets::prettyRadioButtons(
             inputId = ns("mh_breakdown"),
             label = "",
-            choices = unique(stats()$breakdown),
+            choices = unique(stats_combined()$breakdown[stats_combined()$year == input$mh_year]),
             inline = TRUE,
             status = "info",
             fill = TRUE
