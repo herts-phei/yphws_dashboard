@@ -7,7 +7,7 @@ explore_mod <- function(id,
   
   domains <- c("Demographics", "Living Conditions", "Diet and Lifestyle",
                "Smoking and Vaping", "Alcohol Consumption", "Drug Use",
-               "Sexual Health", "Mental Health and Wellbeing", "Safety",
+               "Sexual Health", "Mental Health and Wellbeing", "Bullying", "Safety",
                "Education", "Sustainability", "COVID-19")
   
   names(domains) <- domains
@@ -48,6 +48,7 @@ explore_mod_server <- function(id,
                                year,
                                stats,
                                stats_old,
+                               stats_combined,
                                diffs,
                                comp,
                                q_coded,
@@ -59,25 +60,51 @@ explore_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-      #observe(if("Mental Health and Wellbeing" %in% input$domains) {browser()})
-      
       # Data --------------------------------------------------------------------
       
       chk_var <- shiny::reactive({
         
         q_coded <- q_coded()
+        stats <- stats()
         
+        # Filter to specific "rotas" after 2022 when intermittent questions were introduced
+        # if (as.numeric(year()) > 2022) {
+        #   
+        #   rota <- ifelse(as.numeric(year()) %% 2 == 0, 2, 1)
+        #   q_coded <- q_coded %>% 
+        #     dplyr::mutate(rotation = as.character(rotation)) %>% 
+        #     dplyr::filter(rotation %in% c("0", as.character(rota)),
+        #                   year == year())
+        #   
+        # }
+
         # vector of selected vars
         single <- q_coded %>% 
           dplyr::arrange(question_raw) %>% 
           dplyr::filter(question_theme %in% input$domains)
         
+        # filter out questions with only auto-filled No's
+        multi_no_responses <- stats %>% 
+          dplyr::select(question, response) %>% 
+          dplyr::left_join(dplyr::select(q_coded, question_coded, response, multi_binary) %>% distinct(),
+                           by = c("question" = "question_coded", 
+                                  "response" = "response")) %>% 
+          dplyr::filter(question %in% single$question_coded, multi_binary == "TRUE") %>% 
+          dplyr::group_by(question) %>% 
+          dplyr::mutate(exception = case_when(!"Yes" %in% response ~ FALSE, TRUE ~ TRUE)) %>% 
+          dplyr::filter(!exception) %>% 
+          dplyr::distinct()
+        
         chk_var <- q_coded %>%
           dplyr::filter(question_coded %in% single$question_coded,
-                        !is.na(response),
+                        !is.na(response), !question_coded %in% multi_no_responses$question,
                         question_coded %in% unique(stats()$question)) %>%
           dplyr::pull(question_coded_gen)
         
+        # if ("Mental Health and Wellbeing" %in% input$domains) {
+        # 
+        #   chk_var <- c("selfharm_ever", "worry")
+        # }
         #TODO temporary 2022 solution for duplicated sex var. Remove during 2023 update
         ## if("sex" %in% chk_var & year() == "2022") { chk_var <- chk_var[chk_var != "sex"] }
         ## if("gender" %in% chk_var & year() != "2022") { chk_var <- chk_var[chk_var != "gender"] }
@@ -89,11 +116,13 @@ explore_mod_server <- function(id,
       # filtered datasets
       chk_stats <- shiny::reactive({
         stats <- stats()
+        q_coded <- dplyr::select(q_coded(), -question_text, -year)
+
         stats %>% 
-          dplyr::left_join(dplyr::distinct(dplyr::select(q_coded(), -question_text, -year)), by = c("question" = "question_coded",
-                                                                                                    "response" = "response")) %>% 
-          dplyr::filter(question_coded_gen %in% chk_var(),
-                        year == year())
+          dplyr::left_join(q_coded, by = c("question" = "question_coded",
+                                                           "response" = "response")) %>% 
+          dplyr::filter(question_coded_gen %in% chk_var()) %>% 
+          distinct()
         
       })
       
@@ -105,14 +134,22 @@ explore_mod_server <- function(id,
           dplyr::filter(question_coded_gen %in% chk_var())
       })
       
-      # chk_diff <- shiny::reactive({
-      #   diffs <- diffs()
-      #   diffs %>% 
-      #     dplyr::left_join(dplyr::select(q_coded(), -question_text), by = c("question" = "question_coded",
-      #                                                                       "response" = "response")) %>% 
-      #     dplyr::filter(question_coded_gen %in% chk_var())
-      # })
+      chk_trend <- shiny::reactive({
+        stats <- stats_combined()
+        
+        q_coded_trend <- q_coded() %>% 
+          dplyr::select(-polarity, -question_text, -rotation, -year,
+                        -question_type, -order, -question_raw) %>% 
+          dplyr::distinct()
+        
+        stats %>% 
+          dplyr::left_join(q_coded_trend, 
+                           by = c("question" = "question_coded", "response" = "response")) %>% 
+          dplyr::filter(question_coded_gen %in% chk_var()) %>% 
+          dplyr::distinct() # because of dupes caused by some years having same question_code
+      })
       
+      #observe(if(grepl("Smok", input$domains)) {browser()})
       
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
@@ -124,9 +161,11 @@ explore_mod_server <- function(id,
           params <- params()
           stats <- stats()
           stats_old <- stats_old()
+          chk_trend <- chk_trend()
           diffs <- diffs()
           comp <- comp()
           q_coded <- q_coded()
+          
           grp_lookup <- grp_lookup()
           
           for (i in 1:length(chk_var())){
@@ -141,6 +180,9 @@ explore_mod_server <- function(id,
               dplyr::select(-question_raw) %>% 
               dplyr::distinct() %>% 
               dplyr::mutate(year = as.character(as.numeric(year()) - 1))
+            
+            trend <- dplyr::filter(chk_trend, question_coded_gen %in% chk_var()[i]) %>% 
+              dplyr::mutate(year = as.numeric(year))
             
             multi <- ifelse(any(as.logical(current$multi_cat), as.logical(current$multi_binary)), TRUE, FALSE) # check if multicat question
             multi_bin <- ifelse(all(as.logical(current$multi_cat)), FALSE, TRUE) # check if its multicat binary (yes/no)
@@ -173,6 +215,7 @@ explore_mod_server <- function(id,
               } else {
                 
                 current_plot <- current
+                order <- unique(current_plot$breakdown)
               }
               
               current_plot$response <- forcats::as_factor(current$response)
@@ -188,25 +231,19 @@ explore_mod_server <- function(id,
               
               # trend table
               if (nrow(current_old) > 0) {
-                current_old_trend <- current_old %>% 
-                  dplyr::mutate(year = as.character(as.numeric(year()) - 1),
-                                `2020` = value) %>% 
-                  dplyr::filter(response_of_interest == "TRUE")
                 
-                names(current_old_trend) <- paste0("prev_", names(current_old_trend))
+                trend_opts <- unique(trend$menu_text[trend$year == year()])
                 
-                stats_ <- current %>% 
-                  dplyr::filter(response_of_interest == "TRUE")
-                
-                trend_plot <- create_trend_table(stats = stats_,
-                                                 stats_old = current_old_trend,
-                                                 year = year())
+                trend_plot <- create_trend_plot(df = dplyr::filter(trend, response_of_interest == "TRUE"),
+                                                plot_custom_grp = order,
+                                                plot_title = "",
+                                                year = year(),
+                                                multi = TRUE)
                 
                 
               } else {
                 
-                trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
-                trend_text <- ""
+                trend_plot <- "Trend data cannot be generated as this question does not have enough yearly data."
                 
               }
               
@@ -264,7 +301,7 @@ explore_mod_server <- function(id,
                 
                 current_plot$breakdown <- factor(current$breakdown, levels = unique(order))
                 
-              }else{
+              } else {
                 
                 current_plot <- current
                 
@@ -278,17 +315,17 @@ explore_mod_server <- function(id,
               
               # trend table
               if (nrow(current_old) > 0) {
-                
-                current_old_trend <- dplyr::mutate(current_old, `2020` = value) 
-                names(current_old_trend) <- paste0("prev_", names(current_old_trend))
-                
-                trend_plot <- create_trend_table(stats = current,
-                                                 stats_old = current_old_trend,
-                                                 year = year())
+
+                m <- ifelse(length(unique(trend$response)) > 1, TRUE, FALSE)
+                trend_plot <- create_trend_plot(df = trend,
+                                                plot_custom_grp = order,
+                                                plot_title = "",
+                                                year = year(),
+                                                multi = m)
                 
               } else {
                 
-                trend_plot <- "Trend data cannot be generated as this question was not in last year's survey."
+                trend_plot <- "Trend data cannot be generated as this question does not have enough yearly data."
                 
               }
             }
@@ -298,7 +335,7 @@ explore_mod_server <- function(id,
                                        bs4Dash::bs4TabCard(width = 12, side = "right", status = "success",
                                                            collapsible = FALSE, 
                                                            title = shiny::HTML(paste0("<a id='anchor-", current$question_coded_gen[1], "'></a>", current$heading[1],"<br>")),
-                                                           shiny::tabPanel("Summary", 
+                                                           shiny::tabPanel("Summary",
                                                                            shiny::HTML(
                                                                              text
                                                                            ),
@@ -330,7 +367,8 @@ explore_mod_server <- function(id,
                                                                                       `lower CI` = reactable::colDef(maxWidth = 75),
                                                                                       `upper CI` = reactable::colDef(maxWidth = 75)
                                                                                     ))
-                                                           )) )
+                                                           )
+                                                           ) )
           }
           
         } else {

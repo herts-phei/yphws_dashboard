@@ -158,9 +158,9 @@ create_sum_sentence <- function(dataset,
     # generate the values used for the sentences. 
     if(nrow(df) > 0) {
       
-      most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)]
-      most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)]
-      least_common <- df$response[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])]
+      most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)][1]
+      most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)][1]
+      least_common <- df$response[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])][1]
       least_v <- df$value[df$count == min(df$count[df$count >= 0 & !is.na(df$question_text)])][1]
       
       # If all students responded to this question, skip the sex breakdown. Include if not. 
@@ -174,7 +174,7 @@ create_sum_sentence <- function(dataset,
                            paste0(total_resp, " students", " (", perc, "%)"))
       
       # generate main sentence for All Responses
-      sentence <- paste0("Respondents were asked '", df$survey_text_gen[1], "'.<br><br>")
+      sentence <- paste0("Respondents were asked '<b>", df$survey_text_gen[1], "</b>'.<br><br>")
       
       if (is.na(total_resp)) { 
         
@@ -212,14 +212,14 @@ create_sum_sentence <- function(dataset,
           
           most_common <- df1 %>%
             dplyr::group_by(breakdown) %>% 
-            dplyr::filter(count == max(count), !is.na(question_text)) %>% 
+            dplyr::filter(count == max(count), !is.na(question_text), !duplicated(response)) %>% 
             dplyr::summarise(most_common = paste(response, collapse = "' or '"), most_v = min(value)) %>% 
             dplyr::ungroup() %>% 
             dplyr::distinct() 
           
           least_common <- df1 %>% 
             dplyr::group_by(breakdown) %>% 
-            dplyr::filter(count == min(count), !is.na(question_text)) %>% 
+            dplyr::filter(count == min(count), !is.na(question_text), !duplicated(response)) %>% 
             dplyr::summarise(least_common = paste(response, collapse = "' or '"), least_v = min(value)) %>%
             dplyr::ungroup() %>% 
             dplyr::distinct() 
@@ -316,10 +316,10 @@ create_sum_sentence <- function(dataset,
         # generate the values used for the sentences. 
         df <- grp_df %>% 
           dplyr::filter(question %in% reps, response_of_interest == "TRUE") %>% 
-          dplyr::left_join(q_coded, by = c("question" = "question_coded")) %>% 
+          dplyr::left_join(select(q_coded, reworded, question_coded), by = c("question" = "question_coded")) %>% 
           #drop_na(reworded) %>% 
           dplyr::arrange(dplyr::desc(count)) %>%
-          dplyr::select(-tidyselect::contains(".y")) %>%
+          dplyr::select(-tidyselect::contains(".y"), -order, -question_type, -polarity, -rotation) %>%
           dplyr::distinct()
         
         # if we only want the top N responses, subset df
@@ -333,10 +333,10 @@ create_sum_sentence <- function(dataset,
         if (binary) {
           
           temp <- paste0("Out of responses from ", group_name, ", ", 
-                         glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text.x}'"), ", ", last = ", and "))
+                         glue::glue_collapse(glue::glue("<b>{df$value}</b> selected '{df$question_text}'"), ", ", last = ", and "))
         } else {
           temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
-                         glue::glue_collapse(glue::glue("<b>{df$value}</b> for '{df$question_text.x}'"), ", ", last = ", and "))
+                         glue::glue_collapse(glue::glue("<b>{df$value}</b> for '{df$question_text}'"), ", ", last = ", and "))
         }
         
         sentence <- paste0(sentence, temp, ".<br><br>")
@@ -414,37 +414,37 @@ create_multi_plot <- function(df,
                               plot_title,
                               binary) {
   
-  df <- df %>% 
-    dplyr::filter(!is.na(question_text)) %>% 
-    droplevels() 
-  
+  df <- df %>%
+    dplyr::filter(!is.na(question_text)) %>%
+    droplevels()
+
   if (binary) {
-    
-    df %>% 
-      dplyr::filter(response == "Yes") %>% 
+
+    df %>%
+      dplyr::filter(response == "Yes") %>%
       dplyr::arrange(response) %>%
       plotly::plot_ly(x = ~value, y = ~question_text, type = "bar", name = ~breakdown, color = ~breakdown,
                       colors = "viridis", legendgroup = ~breakdown, orientation = 'h',
                       hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ",
-                                                                      response, "<br>(CI:", lowercl, " to ", 
+                                                                      response, "<br>(CI:", lowercl, " to ",
                                                                       uppercl, ")"), 30), "<extra></extra>")) %>%
-      plotly::layout(title = list(text = paste("<b>", plot_title, "</b>"), 
+      plotly::layout(title = list(text = paste("<b>", plot_title, "</b>"),
                                   yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      yaxis = list(title = "", autorange = "reversed")) %>%
-      plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d")))
-    
+      plotly::config(displaylogo = FALSE,
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+
   } else {
-    
+
     groups <- unique(df$menu_text)
-    
+
     button_list <- lapply(1:length(groups), function(x){
       list(method = "restyle",
            args = list("transforms[0].value", groups[x]),
            label = groups[x])
     })
-    
+
     type_list <-  list(
       type = 'dropdown',
       active = 0,
@@ -455,25 +455,169 @@ create_multi_plot <- function(df,
       x = 1.02,
       buttons = button_list
     )
-    
+
     df %>%
       dplyr::arrange(response) %>%
       plotly::plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
                       colors = "viridis", legendgroup = ~response, orientation = 'h',
                       hovertemplate = ~paste(stringr::str_wrap(paste0(value, " (", count, ") in the ", breakdown, " breakdown replied ",
-                                                                      response, "<br>(CI:", lowercl, " to ", 
+                                                                      response, "<br>(CI:", lowercl, " to ",
                                                                       uppercl, ")"), 30), "<extra></extra>"),
                       transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
-      plotly::layout(barmode = "stack", 
+      plotly::layout(barmode = "stack",
                      title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      updatemenus = list(type_list),
                      yaxis = list(title = "", autorange = "reversed")) %>%
-      plotly::config(displaylogo = FALSE, 
-                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d")))
-    
+      plotly::config(displaylogo = FALSE,
+                     modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+
   }
   
+  
+}
+
+create_trend_plot <- function(df, 
+                              plot_custom_grp, 
+                              plot_title,
+                              year,
+                              multi = FALSE) {
+
+  # df=trend
+  # plot_custom_grp = order
+  # plot_title = ""
+  # year = year()
+
+    groups <- unique(c("All Responses", 
+                       plot_custom_grp))
+    
+    rotate <- ifelse(length(unique(df$response)) > 7, 45, 0)
+    
+    if (multi) {
+      
+      trend_opts <- unique(df$menu_text[df$year == year])
+      
+      # If it's actually a simple question with multiple responses of interest
+      if (all(is.na(unique(trend_opts)))) {
+        trend_opts <- unique(df$response[df$year == year])
+        
+        base <- df %>% 
+          dplyr::filter(breakdown == "All Responses",
+                        response %in% trend_opts) %>% 
+          dplyr::group_by(response) %>% 
+          dplyr::mutate(temp_sum = 1,
+                        keep = case_when(sum(temp_sum) > 3 ~ TRUE,
+                                         TRUE ~ FALSE)) %>% 
+          dplyr::ungroup() %>% 
+          dplyr::filter(keep) %>% 
+          dplyr::mutate(value = round(as.numeric(.$value), 3),
+                        lowercl = round(as.numeric(.$lowercl), 3),
+                        uppercl = round(as.numeric(.$uppercl), 3),
+                        response = stringr::str_wrap(response, 15),
+                        breakdown = factor(breakdown, levels = groups),
+                        year = factor(year, levels = sort(unique(df$year)))) %>% 
+          dplyr::arrange(year) %>% 
+          dplyr::filter(!is.na(question_text)) %>% 
+          dplyr::group_by(response)
+        
+        legend_length <- ifelse(max(nchar(df$response) > 40), -100, 10)
+        
+      } else {
+        
+        base <- df %>% 
+          dplyr::filter(breakdown == "All Responses",
+                        menu_text %in% trend_opts) %>% 
+          dplyr::group_by(menu_text) %>% 
+          dplyr::mutate(temp_sum = 1,
+                        keep = case_when(sum(temp_sum) > 3 ~ TRUE,
+                                         TRUE ~ FALSE)) %>% 
+          dplyr::ungroup() %>% 
+          dplyr::filter(keep) %>% 
+          dplyr::mutate(value = round(as.numeric(.$value), 3),
+                        lowercl = round(as.numeric(.$lowercl), 3),
+                        uppercl = round(as.numeric(.$uppercl), 3),
+                        response = stringr::str_wrap(response, 15),
+                        breakdown = factor(breakdown, levels = groups),
+                        year = factor(year, levels = sort(unique(df$year)))) %>% 
+          dplyr::arrange(year) %>% 
+          dplyr::filter(!is.na(question_text)) %>% 
+          dplyr::group_by(menu_text)
+        
+        legend_length <- ifelse(max(nchar(df$menu_text) > 40), 100, 10)
+        
+      }
+
+      if(nrow(base) == 0) return("Trend data cannot be generated as this question does not have enough yearly data.")
+      
+      base %>% 
+        echarts4r::e_charts(year) %>% 
+        echarts4r::e_line(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
+      function(params){
+      return('value: ' + params.value[1] * 100 + '%' +
+        '<br/>breakdown: ' + params.seriesName +
+        '<br/>group: ' + params.value[params.encode.x[0]]) 
+        }"))) %>% 
+        echarts4r::e_tooltip(trigger = "item") %>% 
+        echarts4r::e_grid(right = 180, left = 50) %>%
+        echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, min = 0) %>% 
+        echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
+        echarts4r::e_format_y_axis(suffix = "%", formatter = echarts4r::e_axis_formatter("percent")) %>% 
+        echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
+                            right = legend_length, top = 55, bottom = 10,
+                            itemHeight = 10, itemWidth = 20,
+                            textStyle = list(fontSize = 12)) %>%
+        #echarts4r::e_theme("westeros") %>%
+        echarts4r::e_title(plot_title) %>% 
+        echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
+                                                                          image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
+        echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore"))
+      
+    } else {
+      
+      trend_opts <- unique(df$breakdown[df$year == year])
+      
+      legend_length <- ifelse(max(nchar(df$breakdown) > 40), -100, 10)
+      
+      df %>% 
+        dplyr::filter(breakdown %in% trend_opts) %>% 
+        dplyr::group_by(breakdown) %>% 
+        dplyr::mutate(temp_sum = 1,
+                      keep = case_when(sum(temp_sum) > 3 ~ TRUE,
+                                       TRUE ~ FALSE)) %>% 
+        dplyr::ungroup() %>% 
+        dplyr::filter(keep) %>%
+        dplyr::mutate(value = round(as.numeric(.$value), 3),
+                      lowercl = round(as.numeric(.$lowercl), 3),
+                      uppercl = round(as.numeric(.$uppercl), 3),
+                      response = stringr::str_wrap(response, 15),
+                      breakdown = factor(breakdown, levels = groups),
+                      year = factor(year, levels = sort(unique(df$year)))) %>% 
+        dplyr::arrange(year) %>% 
+        dplyr::filter(!is.na(question_text)) %>% 
+        dplyr::group_by(breakdown) %>% 
+        echarts4r::e_charts(year) %>% 
+        echarts4r::e_line(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
+      function(params){
+      return('value: ' + params.value[1] * 100 + '%' +
+        '<br/>breakdown: ' + params.seriesName +
+        '<br/>group: ' + params.value[params.encode.x[0]]) 
+        }"))) %>% 
+        echarts4r::e_tooltip(trigger = "item") %>% 
+        echarts4r::e_grid(right = 180, left = 50) %>%
+        echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, min = 0) %>% 
+        echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
+        echarts4r::e_format_y_axis(suffix = "%", formatter = echarts4r::e_axis_formatter("percent")) %>% 
+        echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
+                            right = legend_length, top = 35, bottom = 10,
+                            itemHeight = 10, itemWidth = 20,
+                            textStyle = list(fontSize = 12)) %>%
+        echarts4r::e_theme("westeros") %>%
+        echarts4r::e_title(plot_title) %>% 
+        echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
+                                                                          image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
+        echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore")) 
+      
+    }
   
 }
 
@@ -607,9 +751,6 @@ create_tbl <- function(stats_diff,
       data %>% 
         dplyr::distinct() %>% 
         dplyr::arrange(breakdown) %>% 
-        dplyr::rename(total = denominator, 
-                      `lower CI` = lowercl,
-                      `upper CI` = uppercl) %>% 
         reactable::reactable(defaultPageSize = 10, groupBy = groupedby, striped = T,
                              columns = list(
                                percentage = reactable::colDef(format = reactable::colFormat(percent = T, digits = 1))

@@ -24,32 +24,6 @@ key_mod <- function(id,
                                echarts4r::echarts4rOutput(ns("imd_donut"))), 
         
       ),
-      # fluidRow(
-      #   tabItem("name",
-      #           bs4TabCard(width = 12, side = "right", status = "success",
-      #                      collapsible = FALSE,
-      #                      title = "",
-      #                      tabPanel("Mental Health",
-      #                               fluidRow(
-      #                                 column(6, echarts4rOutput(ns("life_sat")),
-      #                                        echarts4rOutput(ns("life_worth"))),
-      #                                 column(6, echarts4rOutput(ns("self_harm")),
-      #                                        echarts4rOutput(ns("mh_services")))
-      #                               )
-      #                      ),
-      #                      tabPanel(
-      #                        "Lifestyle"
-      #                      ),
-      #                      tabPanel(
-      #                        "Safety"
-      #                      ),
-      #                      tabPanel(
-      #                        "Sexual Health"
-      #                      ),
-      #                      tabPanel(
-      #                        "Other"
-      #                      )) )
-      # ),
       shiny::fluidRow(
         tablerDash::tablerCard(width = 5, 
                                shiny::uiOutput(ns("mh_year")),
@@ -84,10 +58,6 @@ key_mod_server <- function(id,
     function(input, output, session) {
       
       ns <- shiny::NS(id)
-      
-      # observe({
-      #   if ("2020" %in% input$mh_year ) {browser()}
-      # })
       
       # Info boxes --------------------------------------------------------------
       
@@ -150,7 +120,7 @@ key_mod_server <- function(id,
         
         paste("This dashboard shows the results of", max(stats()$denominator, na.rm = TRUE),
               "pupils from schools in Hertfordshire who responded to the Young People’s Health & Wellbeing Survey (YPHWS).",
-              "This is third year of running this survey. You can change the data by year of survey and breakdown of interest using the", 
+              "This is fourth year of running this survey. You can change the data by year of survey and breakdown of interest using the", 
               " dropdowns in the navigation bar. To see more of the data, check the Explore Data and Inequalities tabs.<br><br>",
               "The Young People’s Health & Wellbeing Survey (YPHWS) is a youth health and wellbeing survey which gathers self-reported",
               "information annually from those aged 11-19 in Hertfordshire. The survey includes questions about home life, wellbeing, diet, physical",
@@ -158,18 +128,20 @@ key_mod_server <- function(id,
         
       })
       
+      # observe({
+      #   if ("Broxbourne" %in% input$mh_breakdown ) {browser()}
+      # })
       
       # Group summary -----------------------------------------------------------
-      
+   
       output$ethn_donut <- echarts4r::renderEcharts4r({
         
         stats <- stats()
         grp <- q_coded()$heading[q_coded()$question_coded == comp()][1]
         
-        #TODO
-        if(grp == "Sex" & !year() %in% c("2020", "2021")) { grp <- "Gender" }
-        
-        if(comp() == "District") { grp <- "District" }
+        # if(grp == "Sex" & !year() %in% c("2020", "2021")) { grp <- "Gender" }
+        # 
+        # if(comp() == "district_clean") { grp = "District" }
         
         # since schyear question isn't present, visualise age instead.
         if(comp() == "schyear") {
@@ -177,7 +149,7 @@ key_mod_server <- function(id,
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
                           question == "age") %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
                                                                            formatter = htmlwidgets::JS("function(params){
@@ -192,16 +164,17 @@ key_mod_server <- function(id,
           
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
-                          question == comp()) %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+                          question == "sex") %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
-            echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
-                                                                           formatter = htmlwidgets::JS("function(params){
+            echarts4r::e_pie(value, radius = c("50%", "70%"), 
+                             label = list(position = "inside", 
+                                          formatter = htmlwidgets::JS("function(params){
            return(`${params.value}`+'%');}"))) %>% 
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
-            echarts4r::e_title(paste(grp, "breakdown in %")) %>% 
+            echarts4r::e_title(paste("Gender", "breakdown in %")) %>% 
             echarts4r::e_theme_custom("phei.json")
           
         }
@@ -218,7 +191,7 @@ key_mod_server <- function(id,
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
                           question == "ethnicity") %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
                                                                            formatter = htmlwidgets::JS("function(params){
@@ -234,7 +207,7 @@ key_mod_server <- function(id,
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
                           question == "imd_quintile") %>% 
-            dplyr::mutate(value = round(as.numeric(value), 2) * 100) %>% 
+            dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), label = list(position = "inside", 
                                                                            formatter = htmlwidgets::JS("function(params){
@@ -382,10 +355,10 @@ key_mod_server <- function(id,
             # "<b>", dplyr::filter(all_data, question == 'hopeful_future' & response == "Never" & !is.na(question_text)) %>% .$value,
             # "</b>", " of all respondents stated that they never feel hopeful about their future.", mh2, "<br><br>",
             
-            "<b>", dplyr::filter(all_data,  question =='weight' & response =='Overweight' & !is.na(question_text)) %>% .$value,
-            "</b> felt they were overweight while <b>",
-            dplyr::filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
-            "</b> felt they were underweight. ", mh3, "<br><br>",
+            # "<b>", dplyr::filter(all_data,  question =='weight' & response =='Overweight' & !is.na(question_text)) %>% .$value,
+            # "</b> felt they were overweight while <b>",
+            # dplyr::filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
+            # "</b> felt they were underweight. ", mh3, "<br><br>",
             
             "<b>", dplyr::filter(all_data, question == 'selfharm_ever' & response == "Yes" & !is.na(question_text)) %>% .$value,
             "</b>", " of all respondents stated that they have self-harmed before.", mh5, "<br><br>",
@@ -403,10 +376,10 @@ key_mod_server <- function(id,
             dplyr::filter(all_data,  question =='pa_60') %>% dplyr::filter(count == max(count)) %>% .$response,
             " days</b>. <br><br>",
             
-            "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
-            "</b> of respondents reported having ever smoked and <b>",
-            sum(dplyr::filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
-            "</b> reported smoking regularly (once a week or more). ", ls2, "<br><br>",
+            # "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
+            # "</b> of respondents reported having ever smoked and <b>",
+            # sum(dplyr::filter(all_data,  question == 'smoke_ever' & response == 'I smoke regularly (once a week or more)') %>% .$value),
+            # "</b> reported smoking regularly (once a week or more). ", ls2, "<br><br>",
             
             "<b>", sum(dplyr::filter(all_data,  question == 'vaping' & response != 'I have never vaped') %>% .$value),
             "</b> of respondents reported having ever vaped and <b>",
@@ -429,7 +402,7 @@ key_mod_server <- function(id,
             "</b>", " of all respondents stated that they have been bullied before.", mh6, "<br><br>",
             
             "<b>", dplyr::filter(all_data, question == 'bullied_currently' & response == "Yes" & !is.na(question_text)) %>% .$value,
-            "</b>", " of all respondents stated that they have self-harmed before.", mh7, "<br><br>",
+            "</b>", " of all respondents stated that are currently being bullied.", mh7, "<br><br>",
             
             "<h1>Safety</h1>",
             
@@ -470,7 +443,7 @@ key_mod_server <- function(id,
           shinyWidgets::prettyRadioButtons(
             inputId = ns("mh_breakdown"),
             label = "",
-            choices = unique(stats()$breakdown),
+            choices = unique(stats_combined()$breakdown[stats_combined()$year == input$mh_year]),
             inline = TRUE,
             status = "info",
             fill = TRUE

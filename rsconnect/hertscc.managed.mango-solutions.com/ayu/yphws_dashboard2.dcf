@@ -1,0 +1,13 @@
+name: yphws_dashboard2
+title: yphws_dashboard
+username: ayu
+account: ayu
+server: hertscc.managed.mango-solutions.com
+hostUrl: https://hertscc.managed.mango-solutions.com/connect/__api__
+appId: 1071
+bundleId: 38849
+url: https://hertscc.managed.mango-solutions.com:443/connect/content/eeb2e237-10e9-4d3b-bffe-b75d6a423f33/
+when: 1653385030.39668
+lastSyncTime: 1653385030.3967
+asMultiple: FALSE
+asStatic: FALSE

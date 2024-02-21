@@ -1,8 +1,45 @@
 # YPHWS Dashboard
 
+Project Status: Inactive
 This repository contains the source code for the [Public Young People's Health & Wellbeing Survey](https://hcc-phei.shinyapps.io/yphws_dashboard/). 
 
-## About the survey
+# Data
+
+- Yearly survey data (currently pinned)
+- Yearly question lookups
+
+### Lookup
+
+- question_raw: Question code as specified in SmartSurvey
+- question_theme: Section of the survey the question appears in
+- question_coded: unique variable name of indicator
+- question_text: wording of question as mentioned in sentences in the Differences tables (discontinued?)
+- reworded: Sentence structure for Differences tables (discontinued?)
+- survey_text: 
+- menu_text: text as appeared in multi-category plot dropdown menus
+- multi_cat: TRUE if the question has several variables within it (e.g. How often do you have the following foods?)
+- multi_binary: TRUE if the question is multi_cat and is binary (e.g. Select all drugs you've been offered > amphetamines, Yes/No)
+- question_coded_gen: question_coded, but not unique for multi_cat variables. Used for grouping.
+- survey_text_gen:
+- response_of_interest: response(s) of interest for each question ("Yes" for "Do you self-harm?")
+
+## Updating the dashboard
+
+During the annual update, make sure to do all operations on the **dev branch** and only merge to master if a thorough QA has been done first.
+
+1. Ensure that the [dashboard-specific processing script](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report/-/blob/master/R/4_dashboard_data.R) has been run in [yphws_school_report](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report). Export `stats.rds`, `q_coded.csv`, and `params.rds` from the /outputs folder in that project and import into this project's /data-raw folder.
+
+2. Add the new year as new values in `app.R`, `shinyWidgets::pickerInput("year"...)` and change the `selected` to the latest year as a default.
+
+3. Test every tab and sections within tabs for obvious errors. Make an issue listing any bugs spotted.
+
+4. Once those bugs are resolved, push the changes (updated data, bug fixes) to the dev branch.
+
+5. Detailed QA
+
+6. Push changes to master and redeploy on shinyapps.io and GitHub.
+
+# About the survey
 
 This dashboard shows data from the annual Young People’s Health & Wellbeing Survey (YPHWS) at Hertfordshire level. The Young People’s Health & Wellbeing Survey (YPHWS) is an anonymous online survey which gathers self-reported information annually from those aged 11-19 in Hertfordshire. The survey includes questions about home life, wellbeing, diet, physical activity, smoking, alcohol use, drug use, sexual health, mental health, bullying, and safety. The project is funded by Hertfordshire Public Health and YC Hertfordshire and is run by the Public Health Evidence & Intelligence Team and provides an opportunity for partnership working between organisations providing services to young people around the county.
 
@@ -35,3 +72,5 @@ The **Inequalities** tab shows a "tartan rug" graph coloured by statistical diff
 The **Export** tab allows you to export datasets and download a report version of the full data breakdown. You can use the filters to further customise your exports. Please note that the report may take a minute to generate.
 
 The **About** tab provides further information about the survey, data, and dashboard. 
+
+

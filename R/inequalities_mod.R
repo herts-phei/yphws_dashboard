@@ -47,8 +47,6 @@ inequalities_mod_server <- function(id,
       
       ns <- shiny::NS(id)
       
-       #observe({if("Safety" %in% input$ineq_domains) {browser()}})
-      
       # Intro text --------------------------------------------------------------------
       
       output$ineq_text <- shiny::renderText({
@@ -112,6 +110,8 @@ inequalities_mod_server <- function(id,
       output$tartan <- shiny::renderPlot({
         
         if (is.null(input$ineq_questions)) { return(NULL) }
+        
+        #observe(if(grepl("Diet", input$ineq_domains)) {browser()})
         
         params <- params()
         q_coded <- q_coded()
