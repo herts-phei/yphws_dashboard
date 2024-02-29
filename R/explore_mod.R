@@ -95,8 +95,11 @@ explore_mod_server <- function(id,
       
       # filtered datasets
       chk_stats <- shiny::reactive({
-        stats <- stats()
-        q_coded <- dplyr::select(q_coded(), -question_text, -year)
+        stats <- stats() %>% 
+          dplyr::mutate(response = gsub("'", "", response))
+        
+        q_coded <- dplyr::select(q_coded(), -question_text, -year) %>% 
+          dplyr::mutate(response = gsub("'", "", response))
         
         stats %>% 
           dplyr::left_join(q_coded, by = c("question" = "question_coded",
@@ -129,7 +132,7 @@ explore_mod_server <- function(id,
           dplyr::distinct() # because of dupes caused by some years having same question_code
       })
       
-      #observe(if(grepl("Mental", input$domains)) {browser()})
+      #observe(if(grepl("Alcohol", input$domains)) {browser()})
       
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
