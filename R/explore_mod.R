@@ -61,7 +61,7 @@ explore_mod_server <- function(id,
       # Data --------------------------------------------------------------------
       
       chk_var <- shiny::reactive({
-        
+
         q_coded <- q_coded()
         stats <- stats()
 
@@ -132,7 +132,7 @@ explore_mod_server <- function(id,
           dplyr::distinct() # because of dupes caused by some years having same question_code
       })
       
-      #observe(if(grepl("Alcohol", input$domains)) {browser()})
+      #observe(if(grepl("Demograp", input$domains)) {browser()})
       
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({

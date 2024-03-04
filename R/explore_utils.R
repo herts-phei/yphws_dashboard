@@ -492,7 +492,8 @@ create_trend_plot <- function(df,
                        plot_custom_grp))
     
     rotate <- ifelse(length(unique(df$response)) > 7, 45, 0)
-    
+
+      
     if (multi) {
       
       trend_opts <- unique(df$menu_text[df$year == year])
