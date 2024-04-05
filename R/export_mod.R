@@ -25,12 +25,12 @@ export_mod <- function(id,
         tablerDash::tablerCard(title = "Export custom full report",
                                width = 12, 
                                closable = FALSE,
-                               # shiny::uiOutput(ns("exp_report_comp")),
-                               # shiny::uiOutput(ns("exp_report_cat")),
-                               shiny::uiOutput(ns("text"))
+                               shiny::uiOutput(ns("exp_report_comp")),
+                               shiny::uiOutput(ns("exp_report_cat")),
+                               shiny::uiOutput(ns("text")),
                                #shiny::uiOutput(ns("exp_report_year")),
                                #TODO
-                               #shiny::downloadButton(ns("exp_report"), "Export report")
+                               shiny::downloadButton(ns("exp_report"), "Export report")
                                
                                
         )
@@ -195,9 +195,8 @@ export_mod_server <- function(id,
                          "Ethnicity" = "ethnicity",
                          "IMD Quintile" = "imd_quintile",
                          "Sexuality" = "sexuality",
-                         "Young carer" = "caring",
-                         "Bullied" = "bullied",
-                         "District" = "District"),
+                         # "Young carer" = "caring",
+                         "District" = "district_clean"),
           selected = comp,
           options = pickerOptions(
             liveSearch = TRUE),
@@ -239,47 +238,45 @@ export_mod_server <- function(id,
       
       output$text <- shiny::renderText({
         
-        paste0("The 2023 data is currently being processed so that it can be used for customised reports.",
-               " Customised reports allow you to export a full report with all indicators broken down by categories of your choosing (e.g. Those who have been bullied vs. not bullied).",
-               " If you would like to be notified on when this functionality will available to use, please email YPHWS@hertfordshire.gov.uk")
+        paste0(" Customised reports allow you to export a full report for the latest year of data, with all indicators broken down by categories of your choosing (e.g. IMD Quintile) and level of most interest (e.g. Quintile 5 - Least Deprived).",
+               " If you would like more information on this functionality, please email YPHWS@hertfordshire.gov.uk")
         
       })
       
-      
+      # browser()
       # download handler
       output$exp_report <- downloadHandler(
-        
         
         filename = function() {
           #TODO Temporary fix before 2023 lookup fix
           if (input$exp_report_comp == "sex" ) { brkdown <- "Gender" } else {brkdown <- input$exp_report_comp } 
           
           
-          paste0("Hertfordshire YPHWS Report - ", brkdown, " focusing on ", input$exp_report_cat, "-2022", ".html")
+          paste0("Hertfordshire YPHWS Report - ", brkdown, " focusing on ", input$exp_report_cat, "-2023", ".html")
         },
         
         content = function(file) {
           
           shiny::withProgress(message = "Producing the report. This can take some time...", {
             
-            src <- normalizePath('report_app_short.Rmd')
+            src <- normalizePath('dashboard_custom_report.Rmd')
             
             # temporarily switch to the temp dir, in case you do not have write permission to the current working directory
             owd <- setwd(tempdir())
             on.exit(setwd(owd))
-            file.copy(src, 'report_app_short.Rmd', overwrite = TRUE)
+            file.copy(src, 'dashboard_custom_report.Rmd', overwrite = TRUE)
             
             # Set up parameters to pass to Rmd document
-            params <- list(var = input$exp_report_comp,
-                           cat = input$exp_report_cat,
+            params <- list(var = isolate(input$exp_report_comp),
+                           cat = isolate(input$exp_report_cat),
                            #year = input$exp_report_year,
                            rendered_by_shiny = TRUE,
-                           q_coded = q_coded(),
-                           data = data(),
-                           meta = params()$meta)
+                           q_coded = isolate(q_coded()),
+                           data = isolate(data()),
+                           meta = isolate(params()$meta))
             
             
-            out <- rmarkdown::render('report_app_short.Rmd', params = params, envir = new.env())
+            out <- rmarkdown::render('dashboard_custom_report.Rmd', params = params, envir = new.env())
             
             file.rename(out, file)
             
