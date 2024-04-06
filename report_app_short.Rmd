@@ -31,12 +31,12 @@ if (params$rendered_by_shiny)
   shiny::setProgress(0.1)  # set progress to 10%
 
 # Parameters --------------------------------------------------------------
-year_report <- 2022
+year_report <- 2023
 #year_report <- params$year#2021 # year of survey
-school_number <- params$meta
-school_number <- school_number %>%
-dplyr::filter(year %in% year_report)
-school_number <- school_number$unique_schools
+# school_number <- params$meta
+# school_number <- school_number %>%
+#   dplyr::filter(year %in% year_report)
+# school_number <- school_number$unique_schools
 group <- params$var # Which variable to break down by. Usually ethnicity.
 cat_of_interest <- params$cat # Only applicable if group parameter is custom and you'd like to highlight a specific category within the group. Otherwise, state NA
 
@@ -388,7 +388,7 @@ create_basic_plot <- function(df,
                               plot_title,
                               rotate = 0) {
   
-  groups <- c("All Responses", 
+  groups <- c(
               plot_custom_grp)
   
   # plot object

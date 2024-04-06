@@ -61,9 +61,9 @@ explore_mod_server <- function(id,
       # Data --------------------------------------------------------------------
       
       chk_var <- shiny::reactive({
-        
+
         #if(grepl("Living", input$domains)) {browser()}
-        
+
         q_coded <- q_coded()
         stats <- stats()
 
