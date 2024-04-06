@@ -160,7 +160,7 @@ key_mod_server <- function(id,
           
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
-                          question == "sex") %>% 
+                          question == comp()) %>% 
             dplyr::mutate(value = round(as.numeric(value) * 100, 2)) %>% 
             echarts4r::e_charts(response) %>% 
             echarts4r::e_pie(value, radius = c("50%", "70%"), 
@@ -170,7 +170,7 @@ key_mod_server <- function(id,
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
-            echarts4r::e_title(paste("Gender", "breakdown in %")) %>% 
+            echarts4r::e_title(paste(stringr::str_to_title(comp()), "breakdown in %")) %>% 
             echarts4r::e_theme_custom("phei.json")
           
         }
@@ -222,12 +222,14 @@ key_mod_server <- function(id,
       
       output$key_themes_text <- shiny::renderText({
         
+        #if(comp() == "condition_send_autism_adhd") browser()
+        
         comp <- comp()
         stats <- stats()
         grp_lookup <- grp_lookup()
         
         #TODO clean this.
-        group_name <- unique(stats$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
+        group_name <- unique(stats$breakdown)[grepl(paste0("^", unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), "$", collapse = "|"), 
                                                     unique(stats$breakdown))]
         
         group_name <- ifelse(length(group_name) == 0, NA, group_name)
@@ -434,7 +436,7 @@ key_mod_server <- function(id,
             fill = TRUE
           )
           
-        }else{
+        } else {
           
           shinyWidgets::prettyRadioButtons(
             inputId = ns("mh_breakdown"),

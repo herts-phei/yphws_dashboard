@@ -62,6 +62,8 @@ explore_mod_server <- function(id,
       
       chk_var <- shiny::reactive({
         
+        #if(grepl("Living", input$domains)) {browser()}
+        
         q_coded <- q_coded()
         stats <- stats()
 
@@ -85,7 +87,8 @@ explore_mod_server <- function(id,
         chk_var <- q_coded %>%
           dplyr::filter(question_coded %in% single$question_coded,
                         !is.na(response), !question_coded %in% multi_no_responses$question,
-                        question_coded %in% unique(stats()$question)) %>%
+                        question_coded %in% unique(stats()$question),
+                        question_coded != comp()) %>%
           dplyr::arrange(order) %>% 
           dplyr::pull(question_coded_gen)
 
@@ -96,10 +99,10 @@ explore_mod_server <- function(id,
       # filtered datasets
       chk_stats <- shiny::reactive({
         stats <- stats() %>% 
-          dplyr::mutate(response = gsub("'", "", response))
+          dplyr::mutate(response = gsub("'|’", "", response))
         
         q_coded <- dplyr::select(q_coded(), -question_text, -year) %>% 
-          dplyr::mutate(response = gsub("'", "", response))
+          dplyr::mutate(response = gsub("'|’", "", response))
 
         stats %>% 
           dplyr::left_join(q_coded, by = c("question" = "question_coded",
@@ -132,10 +135,10 @@ explore_mod_server <- function(id,
           dplyr::distinct() # because of dupes caused by some years having same question_code
       })
       
-      #observe(if(grepl("Alcohol", input$domains)) {browser()})
-      
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
+        
+        #if(grepl("Living", input$domains)) {browser()}
         
         l <- list()
         
@@ -171,7 +174,7 @@ explore_mod_server <- function(id,
             multi_bin <- ifelse(all(as.logical(current$multi_cat)), FALSE, TRUE) # check if its multicat binary (yes/no)
             
             # Find group of interest 
-            grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
+            grp <- unique(current$breakdown)[grepl(paste0("^", unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), "$", collapse = "|"), 
                                                    unique(current$breakdown))]
             grp <- ifelse(length(grp) == 0, NA, grp)
             
@@ -328,6 +331,7 @@ explore_mod_server <- function(id,
                                                            shiny::tabPanel(
                                                              "Trend",
                                                              shiny::br(),
+                                                             "Please note, all values are for 'All Responses'/general CYP.",
                                                              trend_plot
                                                            ),
                                                            shiny::tabPanel(
