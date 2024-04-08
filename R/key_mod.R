@@ -138,6 +138,7 @@ key_mod_server <- function(id,
         
         stats <- stats()
         grp <- q_coded()$heading[q_coded()$question_coded == comp()][1]
+        q_coded <- q_coded()
         
         # since schyear question isn't present, visualise age instead.
         if(comp() == "schyear") {
@@ -153,10 +154,16 @@ key_mod_server <- function(id,
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
-            echarts4r::e_title("Age breakdown in %") %>% 
+            echarts4r::e_title("Age (%)") %>% 
             echarts4r::e_theme_custom("phei.json")
           
         } else {
+          
+          title <- q_coded$heading[which(q_coded$question_coded == comp())][1]
+          
+          if(comp() == "condition_send_autism_adhd") {
+            title <- "SEND/ADHD/Autism"
+          }
           
           stats %>% 
             dplyr::filter(breakdown == "All Responses",
@@ -170,7 +177,7 @@ key_mod_server <- function(id,
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
-            echarts4r::e_title(paste(stringr::str_to_title(comp()), "breakdown in %")) %>% 
+            echarts4r::e_title(paste(stringr::str_to_title(title), "(%)")) %>% 
             echarts4r::e_theme_custom("phei.json")
           
         }
@@ -195,7 +202,7 @@ key_mod_server <- function(id,
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_grid(left = "10%", right = "10%") %>%
             echarts4r::e_legend(bottom = 0) %>% 
-            echarts4r::e_title("Ethnicity breakdown in %") %>% 
+            echarts4r::e_title("Ethnicity (%)") %>% 
             echarts4r::e_theme_custom("phei.json")
           
         } else {
@@ -210,7 +217,7 @@ key_mod_server <- function(id,
            return(`${params.value}`+'%');}"))) %>% 
             echarts4r::e_tooltip("item") %>% 
             echarts4r::e_legend(bottom = 0) %>% 
-            echarts4r::e_title("IMD breakdown in %") %>% 
+            echarts4r::e_title("IMD Quintile (%)") %>% 
             echarts4r::e_theme_custom("phei.json")
           
         }

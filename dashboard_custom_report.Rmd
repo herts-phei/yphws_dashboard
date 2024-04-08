@@ -540,6 +540,20 @@ if(group == "district"){
   rename_group = "District"
 }
 
+if(group == "condition_send_autism_adhd"){
+  rename_group <- "SEND/ADHD/Autism"
+}
+
+if(group == "cla"){
+  rename_group = "Young people in care"
+}
+
+if(group == "caring"){
+  rename_group = "Young carers"
+}
+
+
+
 ```
 
 ```{r functions, include=F}
