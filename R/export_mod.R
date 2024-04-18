@@ -213,6 +213,21 @@ export_mod_server <- function(id,
         choices <- unique(data[[input$exp_report_comp]]$breakdown) 
         choices <- choices[choices != "All Responses" & choices != "Non-white"]
         
+        if (input$exp_report_comp == "schyear") {
+          choices <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "Not at school/other")
+          } else if (input$exp_report_comp == "sex") {
+            choices <- c("Female", "Male", "Non-Binary", "Transgender", "Other sex", "Unsure", "Prefer not to say")
+            } else if (input$exp_report_comp == "ethnicity") {
+              choices <- c("Asian", "Black", "Chinese", "Mixed", "White", "Any other ethnic group", "Prefer not to say")
+              } else if (input$exp_report_comp == "sexuality") {
+                choices <- c("Bisexual", "Heterosexual/Straight", "Homosexual/Gay Male", "Homsexual/Lesbian", "Questioning", "Unsure", "Other sexual orientations", "Prefer not to say")
+                } else if (input$exp_report_comp == "caring") {
+                    choices <- c("Young carer", "Non-carer")
+                  } else if (input$exp_report_comp == "cla") {
+                    choices <- c("Young person in care", "Young people not in care")
+                    } else if (input$exp_report_comp == "condition_send_autism_adhd") {
+                      choices <- c("SEND", "Non-SEND")
+                      } else (input$exp_report_comp)
         
         shinyWidgets::pickerInput(ns("exp_report_cat"), "Select the category from the selected group you are most interested in:",
                                   choices = as.character(na.omit(choices)), multiple = FALSE,
@@ -251,8 +266,30 @@ export_mod_server <- function(id,
         
         filename = function() {
           #TODO Temporary fix before 2023 lookup fix
-          if (input$exp_report_comp == "sex" ) { brkdown <- "Gender" } else {brkdown <- input$exp_report_comp } 
           
+          if (input$exp_report_comp == "sex" ) {
+
+            brkdown <- "Gender" } else if (input$exp_report_comp == "cla") {
+
+              brkdown <- "Children Looked After" } else if (input$exp_report_comp == "condition_send_autism_adhd") {
+
+                brkdown <- "SEND ADHD Autism" } else if (input$exp_report_comp == "schyear") {
+                  
+                  brkdown <- "School Year" } else if (input$exp_report_comp == "ethnicity") {
+                    
+                    brkdown <- "Ethnicity" } else if (input$exp_report_comp == "imd_quintile") {
+                      
+                      brkdown <- "IMD Quintile" } else if (input$exp_report_comp == "sexuality") {
+                        
+                        brkdown <- "Sexuality" } else if (input$exp_report_comp == "caring") {
+                          
+                          brkdown <- "Young Carer" } else if (input$exp_report_comp == "district_clean") {
+                            
+                            brkdown <- "District"
+ 
+              } else {brkdown <- input$exp_report_comp}
+                
+              
           
           paste0("Hertfordshire YPHWS Report - ", brkdown, " focusing on ", input$exp_report_cat, "-2023", ".html")
         },
@@ -285,7 +322,7 @@ export_mod_server <- function(id,
           })
         }
       )
-      
-    }
+      }  
+    
   )
 }

@@ -118,8 +118,8 @@ create_tbl <- function(stats_diff, multi_response = F, include_school = F) {
                              # breakdown = colDef(minWidth = 150),
                              response = colDef(minWidth = 75),
                              count = colDef(minWidth = 75, name = "n"),
-                             `lower CI` = colDef(minWidth = 60, name = "lcl"),
-                             `upper CI` = colDef(minWidth = 60, name = "ucl"),
+                             `lower CI` = colDef(minWidth = 60, name = "lci"),
+                             `upper CI` = colDef(minWidth = 60, name = "uci"),
                              percentage = reactable::colDef(name = "%", minWidth = 60, format = reactable::colFormat(percent = T, digits = 1))
                            ))
   }
@@ -288,9 +288,9 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
           dplyr::ungroup() %>% 
           dplyr::distinct() 
         
-        sentence <- paste(sentence, "<br><br>", paste0("The most common response for ", group_of_interest, " was '", most_common$most_common, 
+        sentence <- paste(sentence, "<br><br>", paste0("The most common response for ", group_of_interest, " students was '", most_common$most_common, 
                                                        "', which made up ", most_common$most_v, " of responses and the least common response for ", 
-                                                       group_of_interest, " was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
+                                                       group_of_interest, " students was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
                                                        collapse = "<br><br>"))
           
       } else {
@@ -357,12 +357,28 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
           top_responses <- df[order(-df$value), ][1:3, ]
           
           if (binary) {
-            temp <- paste0("Out of responses from ", group_name, ", ", 
+            
+            if(group_name == "students") {
+              
+              temp <- paste0("Out of responses from all ", group_name, ", ", 
+                           glue::glue_collapse(glue::glue("{top_responses$value} selected '{top_responses$question_text}'"), ", ", last = ", and ")) } else {
+                             
+                             temp <- paste0("Out of responses from ", group_name, " students, ", 
                            glue::glue_collapse(glue::glue("{top_responses$value} selected '{top_responses$question_text}'"), ", ", last = ", and "))
+                             
+                           }
+            
           } else{
         
-            temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
+            if(group_name == "students") {
+              
+              temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
+                           glue::glue_collapse(glue::glue("{df$value} for '{df$question_text}'"), ", ", last = ", and ")) } else {
+                             
+                             temp <- paste0("The number of ", group_name, " students who stated '", df$response[1], "' was ",
                            glue::glue_collapse(glue::glue("{df$value} for '{df$question_text}'"), ", ", last = ", and "))
+                             
+                           }
           }
           
           sentence <- paste0(sentence, temp, ".<br><br>")
@@ -385,24 +401,28 @@ create_basic_plot <- function(df,
                               plot_title,
                               rotate = 0) {
   
-  groups <- c("All Responses", 
-              plot_custom_grp)
+  # if(any(df$breakdown == "schyear")) {
+  #   df$response <- factor(df$response, levels = c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "All Responses", "Not at school/other")) }
   
+  groups <- unique(c("All Responses", 
+                     plot_custom_grp))
+  
+  rotate <- ifelse(length(unique(df$response)) > 4, 45, 0)
+                
   # plot object
-  df %>% 
+  df %>%
     dplyr::filter(breakdown %in% groups) %>%
     dplyr::mutate(value = round(as.numeric(.$value), 3),
                   lowercl = round(as.numeric(.$lowercl), 3),
                   uppercl = round(as.numeric(.$uppercl), 3),
-                  response = stringr::str_wrap(response, 15)) %>% 
-    # breakdown = factor(breakdown, levels = groups)) %>%
-    dplyr::filter(
-      !is.na(question_text)) %>% 
+                  response = stringr::str_wrap(response, 15),
+                  breakdown = factor(breakdown, levels = groups)) %>% 
+    dplyr::filter(!is.na(question_text)) %>% 
     dplyr::group_by(breakdown) %>% 
     echarts4r::e_charts(response) %>% 
     echarts4r::e_bar(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
       function(params){
-      return('value: ' + Math.round(params.value[1] * 100, 3) + '%' +
+      return('value: ' + params.value[1] * 100 + '%' +
         '<br/>breakdown: ' + params.seriesName +
         '<br/>group: ' + params.value[params.encode.x[0]]) 
         }"))) %>%
@@ -417,18 +437,20 @@ create_basic_plot <- function(df,
         '%') }"))) %>%
     echarts4r::e_tooltip(trigger = "item") %>% 
     echarts4r::e_grid(right = 180, left = 50) %>%
-    echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, max = 1, min = 0) %>% 
+    echarts4r::e_y_axis(name = "Percent", nameLocation = "middle", nameGap = 35, min = 0) %>% 
     echarts4r::e_x_axis(axisLabel = list(interval = 0, rotate = rotate)) %>% 
     echarts4r::e_format_y_axis(suffix = "%", formatter = echarts4r::e_axis_formatter("percent")) %>% 
     echarts4r::e_legend(show = TRUE, type = "scroll", orient = "vertical",
-                        right = 10, top = 35, bottom = 10,
+                        right = 10, top = 65, bottom = 10,
                         itemHeight = 10, itemWidth = 20,
-                        textStyle = list(fontSize = 11)) %>%
+                        textStyle = list(fontSize = 12)) %>%
     echarts4r::e_theme("westeros") %>%
+    # echarts4r::e_theme_custom("phei.json") %>% 
     echarts4r::e_title(plot_title) %>% 
-    echarts4r::e_image_g(right = 180, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
-                                                                      image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png")) %>%
-    echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore"))
+    echarts4r::e_image_g(right = 10, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
+                                                                      image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png"))
+    # echarts4r::e_toolbox_feature(feature = c("dataZoom", "restore")) %>% 
+    
   
 }
 
@@ -468,12 +490,11 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
     dplyr::group_by(df, breakdown, response, menu_text) %>%
       dplyr::arrange(response) %>%
       plotly::plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
-                      colors = "Blues", legendgroup = ~response, orientation = 'h',
+                      colors = "viridis", legendgroup = ~response, orientation = 'h',
                       hovertemplate = ~paste(stringr::str_wrap(paste0(count, " in the ", breakdown, " breakdown replied ", response, "<br>(", value,
                                                                       " [CI:", lowercl, " to ", uppercl, "])"), 30), "<extra></extra>"),
                       transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
-      plotly::layout(barmode = "stack", 
-                     title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
+      plotly::layout(title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      updatemenus = list(type_list),
                      autosize = T,
@@ -494,7 +515,7 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
       dplyr::arrange(response) %>%
       dplyr::mutate(question_text = stringr::str_wrap(question_text, 25)) %>%
       plotly::plot_ly(x = ~count, y = ~question_text, type = "bar", name = ~response,
-                      colors = "Blues", legendgroup = ~response, orientation = 'h',
+                      colors = "viridis", legendgroup = ~response, orientation = 'h',
                       transforms = list(list(type = "filter", target = ~breakdown, operator = '=', value = groups[1]))) %>%
       plotly::layout(barmode = "stack", title = list(text = paste("<b>", plot_title, "</b>"), xanchor = "left", y = 0.85, x = 0, font = list(size = 12)),
                      xaxis = list(title = "Count of 'Yes'"),
@@ -508,6 +529,8 @@ create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_cod
                      hovermode = 'compare',
                      yaxis = list(title = "", autorange = "reversed")) %>%
       plotly::config(displaylogo = FALSE, modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
+    
+    
     
   }
   
@@ -536,7 +559,7 @@ if(group == "sexuality"){
   rename_group = "Sexuality"
 }
 
-if(group == "district"){
+if(group == "district_clean"){
   rename_group = "District"
 }
 
@@ -593,7 +616,7 @@ create_report_chunk <- function(df,
 
     simple <- ifelse(i %in% vars_simple, TRUE, FALSE)
     chk_var <- i
-
+    
     # Suppress questions with less than 5 responses
     n_responses <- stats %>%
       filter(question %in% chk_var, year == as.character(current_year), breakdown == "All Responses")
@@ -713,6 +736,8 @@ create_report_chunk <- function(df,
       #
       # livcon_diffs_list[[i]] <- bullet_df$Table
 
+      plot_title <- df$heading[df$vars %in% chk_var][1]
+      
       livcon_summary_list[[i]] <- paste0(create_sum_sentence_herts(dataset = chk_stats,
                                       multi = T,
                                       value_of_interest = response_interest,
@@ -777,7 +802,7 @@ paste_chunk_contents <- function(header,
          # var,
          # '"]]\n\n```\n\n<br>\n\n```{r ,results="asis", echo=FALSE, warning=FALSE, message=FALSE}\n\n', name, '_plot2_list[["',
          var,
-         '"]]\n\n```\n\n### Table\n\n```{r ,results="asis", echo=FALSE, warning=FALSE, message=FALSE}\n\n', name, '_table_list[["', var, '"]]\n\n```')
+         '"]]\n\n```\n\n### Table\n\n```{r ,results="asis", echo=FALSE, warning=FALSE, message=FALSE}\n\n', name, '_table_list[["', var, '"]]\n\n```\n\n*Footnote: n: number of responses; lci: lower confidence interval; uci; upper confidence interval*')
 
 }
 
@@ -967,7 +992,7 @@ perc_stats <- data %>%
 
 stats <- data %>% 
   dplyr::filter(question != "lsoa_code",
-                year == current_year) 
+                year == current_year)
 
 #### stats_diffs data frames ------------------------------ ####
 stats_diffs <- data %>%
@@ -1198,8 +1223,7 @@ ss_2 <- ifelse(!is.na(key_df$diff[key_df$question == 'schoolsupp_wellbeing' & ke
 
 > Hertfordshire's Young People's Health & Wellbeing Survey is jointly delivered by Hertfordshire County Council's Public Health and Services for Young People teams, and Hertfordshire Community NHS Trust's Public Health Nursing Service. Analysis is conducted by Public Health Evidence & Intelligence. Further information can be found at <https://www.hertshealthevidence.org/yphws/what-is-the-yphws.aspx>
 
-
-This custom report for `r rename_group`, with `r params$cat` as the category of most interest was generated using YPHWS Dashboard. The report summarises the results of `r as.character(max(filter(stats) %>% select(denominator)))` pupils from `r school_number` schools who responded to the `r as.character(current_year)` Young People's Health & Wellbeing Survey (YPHWS).
+This custom report broken down by `r rename_group`, with "`r params$cat`" as the category of most interest, was generated using the YPHWS Dashboard. The report summarises the results of `r as.character(max(filter(stats) %>% select(denominator)))` pupils from `r school_number` schools who responded to the `r as.character(current_year)` Young People's Health & Wellbeing Survey (YPHWS).
 
 Each section is comprised of summary text followed by graphs and tables accessible through switching through the tabs. You can jump to different sections of the report using the menu on the left.
 
@@ -1209,7 +1233,7 @@ A .csv of summarised results will be provided to schools so they can dig more de
 
 **Note: To protect the identity of respondents, all values are rounded to the nearest 5. This is in line with Office of National Statistics recommendations for disclosure control. Note that this means that when a value constitutes 100% or 0% of responses there may be a small number of individuals responding with a different option who have been suppressed. Please keep in mind that values of 10 or less (and the percentages calculated from them) may be unreliable due to this rounding, especially if the school had 200 or less total responses. Only data from young people who have completed the survey until the end are analysed.**
 
-If you would like to discuss your results with someone from the Public Health team, Services for Young People team, or the Public Health Nursing Service, please email [YPHWS\@hertfordshire.gov.uk](mailto:YPHWS@hertfordshire.gov.uk){.email}. Further county-level YPHWS reports and data can be found on the [Herts Health Evidence](https://www.hertshealthevidence.org/herts-health-evidence.aspx) website and the [Public YPHWS Dashboard](https://hcc-phei.shinyapps.io/yphws_dashboard/).
+If you would like to discuss your results with someone from the Public Health team, Services for Young People team please email [YPHWS\@hertfordshire.gov.uk](mailto:YPHWS@hertfordshire.gov.uk){.email}. Further county-level YPHWS reports and data can be found on the [Herts Health Evidence](https://www.hertshealthevidence.org/herts-health-evidence.aspx) website and the [Public YPHWS Dashboard](https://hcc-phei.shinyapps.io/yphws_dashboard/).
 
 You can find free resources and information about how to promote young people's mental health and wellbeing on <https://www.justtalkherts.org> and <https://healthyyoungmindsinherts.org.uk>.
 
@@ -1220,44 +1244,43 @@ You can find free resources and information about how to promote young people's 
 
 **Mental health and wellbeing**<br>
 
-- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'life_satisfied' & response == "low") %>% pull(value))`** of respondents rated their life satisfaction as low.
+- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'life_satisfied' & response == "low") %>% pull(value))`** of `r params$cat` respondents rated their life satisfaction as low. Compared with **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'life_satisfied' & response == "low") %>% pull(value))`** of all respondents.
 
-- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'hopeful_future' & response == "Never") %>% pull(value))`** of respondents stated that they never feel hopeful about their future.
+- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'hopeful_future' & response == "Never") %>% pull(value))`** of `r params$cat` respondents stated that they never feel hopeful about their future. Compared with **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'hopeful_future' & response == "Never") %>% pull(value))`** of all respondents.
 
+- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'worry_money' & response == "Yes") %>% pull(value))`** of `r params$cat` stated they worry about money problems (including family finances) .Compared with **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'worry_money' & response == "Yes") %>% pull(value))`** of all respondents.
 
-- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'worry_money' & response == "Yes") %>% pull(value))`** of respondents stated they worry about money problems (including family finances).
+- The **top 5 issues** `r params$cat` respondents were worried about were: `r mh_4`
 
-- The **top 5 issues** respondents were worried about were: `r mh_4`
+- The **top 5 ways of coping** with a problem that `r params$cat` respondents were worried about were: `r mh_5`
 
-- The **top 5 ways of coping** with a problem that respondents were worried about were: `r mh_5`
-
-- **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'mental_howaccess' & response != 'Yes') %>% .$value)`** of respondents answered "Not sure" or "No" when asked if they knew how to access support and services for mental health. **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'mental_howaccess' & response == 'No') %>% .$value`** answered "No".
+- **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'mental_howaccess' & response == 'No') %>% .$value`** of `r params$cat` respondents answered "No" when asked if they knew how to access support and services for mental health. Comapred with **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'mental_howaccess' & response == 'No') %>% .$value`** of all respondents.
 
 **Lifestyle** <br>
 
--   Out of all responses, **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'pa_60' & response == "6 to 7") %>% .$value)`** had done a total of 60 minutes or more of physical activity a day in the past week. `r ls_1` When asked how many days respondents have done a total of 60 minutes physical activity, pupils commonly responded with **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question =='pa_60') %>% filter(count == max(count)) %>% .$response`** day(s).
+- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'pa_60' & response == "6 to 7") %>% .$value)`** of `r params$cat` respondents had done a total of 60 minutes or more of physical activity a day in the past week. When asked how many days respondents have done a total of 60 minutes physical activity, `r params$cat` pupils commonly responded with **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question =='pa_60') %>% filter(count == max(count)) %>% .$response`** day(s).
 
--   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'vaping' & response != 'I have never vaped') %>% .$value)`** of respondents reported having ever vaped while **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'vaping' & response == "I vape regularly (once a week or more)") %>% .$value`** reported vaping once a week or more. 
+- **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'vaping' & response != 'I have never vaped') %>% .$value)`** of `r params$cat` respondents reported having ever vaped while **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'vaping' & response == "I vape regularly (once a week or more)") %>% .$value`** reported vaping once a week or more. 
 
--   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'alcohol_ever' & response != 'Never') %>% .$value)`** of respondents reported having had an alcoholic drink in the past 3 months. **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value`** reported drinking 4 or more times a week. 
+-   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'alcohol_ever' & response != 'Never') %>% .$value)`** of `r params$cat` respondents reported having had an alcoholic drink in the past 3 months. **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value`** reported drinking 4 or more times a week. 
 
--   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value)`** of respondents reported having ever taken drugs while **`r filter(perc_stats, year == as.character(current_year), breakdown == 'All Responses' & question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value`** reported taking drugs once a week or more. 
+-   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value)`** of `r params$cat` respondents reported having ever taken drugs while **`r filter(perc_stats, year == as.character(current_year), breakdown == params$cat & question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value`** reported taking drugs once a week or more. 
 
 **Safety** <br>
 
--   Regarding safety, **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'safety_day' & response == 'Unsafe') %>% .$value`** of respondents felt unsafe going out during the day, **`r filter(perc_stats, year == as.character(current_year), breakdown == 'All Responses' & question == 'safety_dark' & response == 'Unsafe') %>% .$value`** of respondents felt unsafe going out after dark, **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'safety_school' & response == 'Unsafe') %>% .$value`** of respondents felt unsafe at school, and **`r filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'safety_journey' & response == 'Unsafe') %>% .$value`** of respondents felt unsafe going to and from school.
+-   Regarding safety, **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'safety_day' & response == 'Unsafe') %>% .$value`** of `r params$cat` respondents felt unsafe going out during the day, **`r filter(perc_stats, year == as.character(current_year), breakdown == params$cat & question == 'safety_dark' & response == 'Unsafe') %>% .$value`** of `r params$cat` respondents felt unsafe going out after dark, **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'safety_school' & response == 'Unsafe') %>% .$value`** of `r params$cat` respondents felt unsafe at school, and **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'safety_journey' & response == 'Unsafe') %>% .$value`** of `r params$cat` respondents felt unsafe going to and from school.
 
 **Bullying**
 
-- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'bullied' & response == "Yes") %>% pull(value))`** of respondents stated that they have been bullied in their life.
+- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'bullied' & response == "Yes") %>% pull(value))`** of `r params$cat` respondents stated that they have been bullied in their life. Compared with **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'bullied' & response == "Yes") %>% pull(value))`** of all respondents.
 
-- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'bullied_currently' & response == "Yes") %>% pull(value))`** of respondents stated that they are currently being bullied.
+- **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'bullied_currently' & response == "Yes") %>% pull(value))`** of `r params$cat` respondents stated that they are currently being bullied. Compared with **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'bullied_currently' & response == "Yes") %>% pull(value))`** of all respondents.
 
 **School support**<br>
 
--   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'schoolsupp_academic' & response == "Yes") %>% .$value)`** of respondents felt that their school is supportive of their academic development.
+-   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'schoolsupp_academic' & response == "Yes") %>% .$value)`** of `r params$cat` respondents felt that their school is supportive of their academic development. Compared with **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == 'All Responses' & question == 'schoolsupp_academic' & response == "Yes") %>% .$value)`** of all respondents.
 
--   **`r sum(filter(perc_stats, year == as.character(current_year), breakdown == 'All Responses' & question == 'schoolsupp_wellbeing' & response == "Yes") %>% .$value)`** of respondents felt that their school is supportive of their emotional health and wellbeing.
+-   **`r sum(filter(perc_stats, year == as.character(current_year), breakdown == params$cat & question == 'schoolsupp_wellbeing' & response == "Yes") %>% .$value)`** of `r params$cat` respondents felt that their school is supportive of their emotional health and wellbeing. Compared with **`r sum(filter(perc_stats, year == as.character(current_year), breakdown == 'All Responses' & question == 'schoolsupp_wellbeing' & response == "Yes") %>% .$value)`** of all respondents.
 
 </font>
 
@@ -1344,7 +1367,7 @@ for (i in names(demographics_plot_list)) {
 `r paste(knit(text = out), collapse = '\n')`
 
 ```{r create_living_conditions, include=F}
-plot_title = "Age"
+plot_title <- ""
 
 list <- create_report_chunk(df = vars_df, theme = "Living Conditions")
 
