@@ -226,6 +226,8 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
     
     df <- dataset[dataset$breakdown == "All Responses", ]
     
+    if(nrow(df) > 0) {
+    
     most_common <- df$response[df$count == max(df$count) & !is.na(df$question_text)]
     most_v <- df$value[df$count == max(df$count) & !is.na(df$question_text)]
     # most_v <- round(most_v * 100, digits = 1)
@@ -261,7 +263,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
           dplyr::select(breakdown, denominator) %>% 
           dplyr::distinct()
         
-        prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 1), "%")
+        prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 2), "%")
         add <- paste0(" Among them, ", paste0(
           prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
         
@@ -273,20 +275,18 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
         df1 <- dataset[dataset$breakdown %in% group_of_interest , ]
         
         most_common <- df1 %>%
-          dplyr::group_by(breakdown) %>% 
-          dplyr::filter(count == max(count), !is.na(question_text)) %>% 
-          dplyr::summarise(most_common = paste(response, collapse = "' or '"),
-                           most_v = value) %>% 
-          dplyr::ungroup() %>% 
-          dplyr::distinct() 
+            dplyr::group_by(breakdown) %>% 
+            dplyr::filter(count == max(count), !is.na(question_text), !duplicated(response)) %>% 
+            dplyr::summarise(most_common = paste(response, collapse = "' or '"), most_v = min(value)) %>% 
+            dplyr::ungroup() %>% 
+            dplyr::distinct() 
         
         least_common <- df1 %>% 
-          dplyr::group_by(breakdown) %>% 
-          dplyr::filter(count == min(count), !is.na(question_text), ) %>% 
-          dplyr::summarise(least_common = paste(response, collapse = "' or '"),
-                           least_v = value) %>% 
-          dplyr::ungroup() %>% 
-          dplyr::distinct() 
+            dplyr::group_by(breakdown) %>% 
+            dplyr::filter(count == min(count), !is.na(question_text), !duplicated(response)) %>% 
+            dplyr::summarise(least_common = paste(response, collapse = "' or '"), least_v = min(value)) %>%
+            dplyr::ungroup() %>% 
+            dplyr::distinct() 
         
         sentence <- paste(sentence, "<br><br>", paste0("The most common response for ", group_of_interest, " students was '", most_common$most_common, 
                                                        "', which made up ", most_common$most_v, " of responses and the least common response for ", 
@@ -303,6 +303,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
       
     }
     
+    } else {return(NULL)}
     
   } else { #run the following instead if it's a multi-check question
     
@@ -445,7 +446,7 @@ create_basic_plot <- function(df,
                         itemHeight = 10, itemWidth = 20,
                         textStyle = list(fontSize = 12)) %>%
     echarts4r::e_theme("westeros") %>%
-    # echarts4r::e_theme_custom("phei.json") %>% 
+    echarts4r::e_theme_custom("../phei.json") %>%
     echarts4r::e_title(plot_title) %>% 
     echarts4r::e_image_g(right = 10, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
                                                                       image = "https://www.hertshealthevidence.org/images/young-peoples-health-and-wellbeing-survey-logo-png-Cropped-448x190.png"))
@@ -455,6 +456,8 @@ create_basic_plot <- function(df,
 }
 
 create_multicat_plot_herts <- function(df = chk_stats, title = plot_title, q_coded = q_coded, by = "percent") {
+  
+  multi_bin <- all(df$response %in% c("Yes", "No"))
   
   df <- df %>% dplyr::filter(!is.na(question_text)) %>% 
     droplevels() 
