@@ -16,7 +16,7 @@ char_year = as.character(current_year)
 
 
 df <- data
-theme <- "Safety"
+theme <- "Sexual Health"
 
 # vars <- unique(df$question_coded_gen[df$question_theme == theme])
 
@@ -48,13 +48,13 @@ livcon_table_list <- list()
 q_coded <- q_coded %>%
   dplyr::filter(year == as.character(current_year)) %>% 
   dplyr::select("order", "question_raw", "question_theme", "question_coded", "question_text", "reworded", "survey_text", "menu_text", "multi_cat", "multi_binary", "question_coded_gen", "survey_text_gen", "heading", "rotation") %>%
+  dplyr::mutate(survey_text_gen = ifelse(survey_text_gen == "Rate how safe you feel when<U+0085>", "Rate how safe you feel when:", survey_text_gen)) %>% 
   distinct()
 
 
 stats <- data %>% 
   dplyr::filter(question != "lsoa_code",
-                year == current_year)
-
+                year == current_year) 
 vars_df <- data.frame(vars = unique(stats$question))
 
 rotation_number <- ifelse(as.numeric(current_year) %% 2 == 0, 2, 1)
@@ -92,7 +92,7 @@ vars_df <- left_join(vars_df,
                                        TRUE ~ "Yes")) %>% 
   arrange(order)
 
-chk_var <- vars_df$vars[which(vars_df$question_coded_gen %in% "safety")]
+chk_var <- vars_df$vars[which(vars_df$question_coded_gen %in% "sh")]
 # chk_var <- unique(df$vars[df$question_coded_gen == i])
 chk_stats <- filter(stats, question %in% chk_var)
 # chk_diff <- dplyr::filter(stats_diffs, question %in% chk_var)
@@ -830,7 +830,7 @@ plot_title <- vars_df$heading[vars_df$vars %in% chk_var][1]
 # demographics_plot2_list <- list$plot2_list
 # demographics_table_list <- list$table_list
 
-
+create_multicat_plot_herts(df = chk_stats, plot_title = plot_title, q_coded = q_coded)
 
 create_multicat_plot_herts <- function(df = chk_stats, plot_title = plot_title, q_coded = q_coded) {
   
@@ -876,9 +876,10 @@ create_multicat_plot_herts <- function(df = chk_stats, plot_title = plot_title, 
                                                                       response, "<br>(CI:", lowercl, " to ",
                                                                       uppercl, ")"), 30), "<extra></extra>")) %>%
       plotly::layout(title = list(text = paste("<b>", plot_title, "</b>"),
-                                  yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
+                                  yanchor = "bottom", y = 1.3, x = -1, font = list(size= 12)),
                      xaxis = list(title = "Percent", tickformat = ".1%"),
-                     yaxis = list(title = "", autorange = "reversed")) %>%
+                     yaxis = list(title = "", autorange = "reversed"),
+                     margin = list(l = 50, r = 50, b = 50, t = 50)) %>%
       plotly::config(displaylogo = FALSE,
                      modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
@@ -886,12 +887,12 @@ create_multicat_plot_herts <- function(df = chk_stats, plot_title = plot_title, 
     
     groups <- unique(df$menu_text)
     
-    # button_list <- lapply(1:length(groups), function(x){
-    #   list(method = "restyle",
-    #        args = list("transforms[0].value", groups[x]),
-    #        label = groups[x])
-    # })
-    # 
+    button_list <- lapply(1:length(groups), function(x){
+      list(method = "restyle",
+           args = list("transforms[0].value", groups[x]),
+           label = groups[x])
+    })
+
     type_list <-  list(
       type = 'dropdown',
       active = 0,
@@ -911,62 +912,14 @@ create_multicat_plot_herts <- function(df = chk_stats, plot_title = plot_title, 
                                                                       uppercl, ")"), 30), "<extra></extra>"),
                       transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
       plotly::layout(barmode = "stack",
-                     title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
+                     title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = -1, font = list(size= 12)),
                      xaxis = list(title = "Percent", tickformat = ".1%"),
                      updatemenus = list(type_list),
-                     yaxis = list(title = "", autorange = "reversed")) %>%
+                     yaxis = list(title = "", autorange = "reversed"),
+                     margin = list(l = 50, r = 50, b = 50, t = 50)) %>%
       plotly::config(displaylogo = FALSE,
                      modeBarButtons = list(list("toImage", "zoomIn2d", "zoomOut2d", "pan2d", "resetScale2d", "hoverClosestCartesian")))
     
   }  
-
-  # if (by == "percent") {
-  #   
-  #   dplyr::group_by(df, breakdown, response, menu_text) %>%
-  #     dplyr::arrange(response) %>%
-  #     plotly::plot_ly(x = ~value, y = ~breakdown, type = "bar", name = ~response, color = ~response,
-  #                     colors = "viridis", legendgroup = ~response, orientation = 'h',
-  #                     hovertemplate = ~paste(stringr::str_wrap(paste0(count, " in the ", breakdown, " breakdown replied ", response, "<br>(", value,
-  #                                                                     " [CI:", lowercl, " to ", uppercl, "])"), 30), "<extra></extra>"),
-  #                     transforms = list(list(type = "filter", target = ~menu_text, operator = '=', value = groups[1]))) %>%
-  #     plotly::layout(title = list(text = paste("<b>", plot_title, "</b>"), yanchor = "bottom", y = 1.3, x = 0, font = list(size= 12)),
-  #                    xaxis = list(title = "Percent", tickformat = ".1%"),
-  #                    updatemenus = list(type_list),
-  #                    autosize = T,
-  #                    # height = 600,
-  #                    # margin = list(r = 250,
-  #                    #               t = 0,
-  #                    #               l = 0,
-  #                    #               b = 0),
-  #                    #hovermode = 'compare',
-  #                    yaxis = list(title = "", autorange = "reversed")) %>%
-  #     plotly::config(displaylogo = FALSE, modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
-  #   
-    
-  # } else {
-  #   
-  #   dplyr::group_by(df, question_text, response, breakdown) %>%
-  #     dplyr::filter(response == "Yes") %>% 
-  #     dplyr::arrange(response) %>%
-  #     dplyr::mutate(question_text = stringr::str_wrap(question_text, 25)) %>%
-  #     plotly::plot_ly(x = ~count, y = ~question_text, type = "bar", name = ~response,
-  #                     colors = "viridis", legendgroup = ~response, orientation = 'h',
-  #                     transforms = list(list(type = "filter", target = ~breakdown, operator = '=', value = groups[1]))) %>%
-  #     plotly::layout(barmode = "stack", title = list(text = paste("<b>", plot_title, "</b>"), xanchor = "left", y = 0.85, x = 0, font = list(size = 12)),
-  #                    xaxis = list(title = "Count of 'Yes'"),
-  #                    updatemenus = list(type_list),
-  #                    autosize = T,
-  #                    # height = 800,
-  #                    # margin = list(r = 400,
-  #                    #               t = 0,
-  #                    #               l = 0,
-  #                    #               b = 0),
-  #                    hovermode = 'compare',
-  #                    yaxis = list(title = "", autorange = "reversed")) %>%
-  #     plotly::config(displaylogo = FALSE, modeBarButtons = list(list("toImage", "pan2d", "resetScale2d", "hoverClosestCartesian")))
-  #   
-  #   
-  #   
-  # }
   
 }
