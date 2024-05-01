@@ -30,8 +30,8 @@ export_mod <- function(id,
                                shiny::uiOutput(ns("text")),
                                #shiny::uiOutput(ns("exp_report_year")),
                                #TODO
-                               shiny::downloadButton(ns("exp_report"), "Export report")
-                               
+                               shiny::uiOutput(ns("export_report")),
+                               shiny::uiOutput(ns("exp_report_button"))
                                
         )
       )
@@ -295,15 +295,7 @@ export_mod_server <- function(id,
       # browser()
       # download handler
       
-      output$exp_report <-
-        
-        # shiny::renderUI({
-        
-          # if (as.numeric(year()) <2023) {
-          #   return(NULL)
-          # } else {
-          # 
-        downloadHandler(
+      output$exp_report <- downloadHandler(
           
         filename = function() {
           #TODO Temporary fix before 2023 lookup fix
@@ -348,11 +340,24 @@ export_mod_server <- function(id,
             
             file.rename(out, file)
             
-          })
+          
         }
       )
-        # }
-        # })
+        
+        })
+      
+      output$exp_report_button <- shiny::renderUI(
+        
+        if (as.numeric(year()) <2023) {
+          
+        } else {
+  
+          shiny::downloadButton(ns("exp_report"), "Export report")
+
+          }
+)
+      
+      
       }
   )
 }
