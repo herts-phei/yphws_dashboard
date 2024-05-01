@@ -34,8 +34,8 @@ export_mod <- function(id,
                                shiny::uiOutput(ns("exp_report_button"))
                                
         )
-      )
     )
+  )
   )
   
 }
