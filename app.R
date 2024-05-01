@@ -190,6 +190,7 @@ server <- function(input, output) {
   
   export_mod_server(id = "export",
                     params = shiny::reactive(rv$params),
+                    year = shiny::reactive(input$year),
                     data = shiny::reactive(rv$data$data),
                     stats_combined = shiny::reactive(rv$stats_combined),
                     q_coded = shiny::reactive(q_coded()),

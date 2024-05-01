@@ -447,8 +447,8 @@ create_basic_plot <- function(df,
                         right = 10, top = 65, bottom = 10,
                         itemHeight = 10, itemWidth = 20,
                         textStyle = list(fontSize = 12)) %>%
-    echarts4r::e_color(c("#440154", "#46327e", "#365c8d", "#277f8e", "#1fa187", "#4ac16d", "#a0da39", "#fde725")) %>% 
-    # echarts4r::e_theme("infographic") %>%
+    # echarts4r::e_color(c("#440154", "#46327e", "#365c8d", "#277f8e", "#1fa187", "#4ac16d", "#a0da39", "#fde725")) %>% 
+    echarts4r::e_theme("westeros") %>%
     # echarts4r::e_theme_custom("../phei.json") %>%
     echarts4r::e_title(plot_title) %>% 
     echarts4r::e_image_g(right = 10, top = 0, z = -999, style = list(opacity = 0.5, width = 120,
