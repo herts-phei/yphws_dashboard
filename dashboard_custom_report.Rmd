@@ -6,7 +6,6 @@ author: "Public Health Evidence & Intelligence, Hertfordshire County Council"
 date: '`r Sys.Date()`'
 output:
   rmdformats::robobook:
-    css: "~projects/yphws_dashboard/www/robobook.css"
   self_contained: true
 thumbnails: false
 lightbox: false
