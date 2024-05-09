@@ -1358,6 +1358,8 @@ if (input$exp_report_comp == "sex") {
         vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "caring")
         } else if (input$exp_report_comp == "cla") {
           vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "cla")
+        } else if (input$exp_report_comp == "imd_quintile") {
+          vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "imd_quintile")
 } else (input$exp_report_comp)
 
 ```
