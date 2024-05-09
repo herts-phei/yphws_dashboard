@@ -264,7 +264,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
         
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 1), "%")
         add <- paste0(" Among them, ", paste0(
-          prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
+          prop, " were '", grp_df$breakdown, collapse = ", "), "'.")
         
         sentence <- paste0("Within Hertfordshire, ", total_resp, " responded to this question." , add, 
                            "<br> <br> The most common response for all respondents was '", most_common[1], "', which made up ", most_v[1], 
@@ -287,9 +287,9 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
             dplyr::ungroup() %>% 
             dplyr::distinct() 
         
-        sentence <- paste(sentence, "<br><br>", paste0("The most common response for ", group_of_interest, " students was '", most_common$most_common, 
-                                                       "', which made up ", most_common$most_v, " of responses and the least common response for ", 
-                                                       group_of_interest, " students was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
+        sentence <- paste(sentence, "<br><br>", paste0("The most common response for '", group_of_interest, "' students was '", most_common$most_common, 
+                                                       "', which made up ", most_common$most_v, " of responses and the least common response for '", 
+                                                       group_of_interest, "' students was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
                                                        collapse = "<br><br>"))
           
       } else {
@@ -340,7 +340,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
         
         prop <- paste0(round(grp_df$denominator / max(data$denominator, na.rm = T)[1] * 100, 1), "%")
         sentence <- paste0(sentence, "Among them, ", paste0(
-          prop, " were ", grp_df$breakdown, collapse = ", "), ". ")
+          prop, " were '", grp_df$breakdown, collapse = ", "), "'. <br> <br>")
         
         for(group in 1:length(c("All Responses", group_of_interest))) {
           
@@ -363,7 +363,7 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
               temp <- paste0("Out of responses from all ", group_name, ", ", 
                            glue::glue_collapse(glue::glue("{top_responses$value} selected '{top_responses$question_text}'"), ", ", last = ", and ")) } else {
                              
-                             temp <- paste0("Out of responses from ", group_name, " students, ", 
+                             temp <- paste0("Out of responses from '", group_name, "' students, ", 
                            glue::glue_collapse(glue::glue("{top_responses$value} selected '{top_responses$question_text}'"), ", ", last = ", and "))
                              
                            }
@@ -372,10 +372,10 @@ create_sum_sentence_herts <- function(dataset = chk_stats,
         
             if(group_name == "students") {
               
-              temp <- paste0("The number of ", group_name, " who stated '", df$response[1], "' was ",
+              temp <- paste0("The percentage of ", group_name, " who stated '", df$response[1], "' was ",
                            glue::glue_collapse(glue::glue("{df$value} for '{df$question_text}'"), ", ", last = ", and ")) } else {
                              
-                             temp <- paste0("The number of ", group_name, " students who stated '", df$response[1], "' was ",
+                             temp <- paste0("The percentage of '", group_name, "' students who stated '", df$response[1], "' was ",
                            glue::glue_collapse(glue::glue("{df$value} for '{df$question_text}'"), ", ", last = ", and "))
                              
                            }
@@ -998,7 +998,7 @@ q_coded <- q_coded %>%
   dplyr::filter(year == as.character(current_year)) %>% 
   dplyr::select("order", "question_raw", "question_theme", "question_coded", "question_text", "reworded", "survey_text", "menu_text", "multi_cat", "multi_binary", "question_coded_gen", "survey_text_gen", "heading", "rotation") %>%
   dplyr::mutate(survey_text_gen = ifelse(survey_text_gen == "Rate how safe you feel when<U+0085>", "Rate how safe you feel when:", survey_text_gen)) %>% 
-  distinct()
+  distinct(order, question_raw, question_theme, question_coded, .keep_all = T)
 
 # data <- params$data
 # data <- data[[group]]
@@ -1246,8 +1246,6 @@ Each section is comprised of summary text followed by graphs and tables accessib
 
 All graphs are interactive, and users can hover over bars for more information, select and deselect categories in the legend, and more. Graphs show comparisons between sexes and between year groups. 
 
-A .csv of summarised results will be provided to schools so they can dig more deeply into the data if they wish. 
-
 **Note: To protect the identity of respondents, all values are rounded to the nearest 5. This is in line with Office of National Statistics recommendations for disclosure control. Note that this means that when a value constitutes 100% or 0% of responses there may be a small number of individuals responding with a different option who have been suppressed. Please keep in mind that values of 10 or less (and the percentages calculated from them) may be unreliable due to this rounding, especially if the school had 200 or less total responses. Only data from young people who have completed the survey until the end are analysed.**
 
 If you would like to discuss your results with someone from the Public Health team, Services for Young People team please email [YPHWS\@hertfordshire.gov.uk](mailto:YPHWS@hertfordshire.gov.uk){.email}. Further county-level YPHWS reports and data can be found on the [Herts Health Evidence](https://www.hertshealthevidence.org/herts-health-evidence.aspx) website and the [Public YPHWS Dashboard](https://hcc-phei.shinyapps.io/yphws_dashboard/).
@@ -1277,11 +1275,11 @@ You can find free resources and information about how to promote young people's 
 
 - **`r paste0(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'pa_60' & response == "6 to 7") %>% .$value)`** of `r params$cat` respondents had done a total of 60 minutes or more of physical activity a day in the past week. When asked how many days respondents have done a total of 60 minutes physical activity, `r params$cat` pupils commonly responded with **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question =='pa_60') %>% filter(count == max(count)) %>% .$response`** day(s).
 
-- **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'vaping' & response != 'I have never vaped') %>% .$value)`** of `r params$cat` respondents reported having ever vaped while **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'vaping' & response == "I vape regularly (once a week or more)") %>% .$value`** reported vaping once a week or more. 
+- **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'vaping' & response != 'I have never vaped') %>% .$value)`** of `r params$cat` respondents reported having ever vaped whereas **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'vaping' & response == "I vape regularly (once a week or more)") %>% .$value`** reported vaping once a week or more. 
 
 -   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'alcohol_ever' & response != 'Never') %>% .$value)`** of `r params$cat` respondents reported having had an alcoholic drink in the past 3 months. **`r filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'alcohol_ever' & response == '4 or more times a week') %>% .$value`** reported drinking 4 or more times a week. 
 
--   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value)`** of `r params$cat` respondents reported having ever taken drugs while **`r filter(perc_stats, year == as.character(current_year), breakdown == params$cat & question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value`** reported taking drugs once a week or more. 
+-   **`r sum(filter(perc_stats, year == as.character(current_year),  breakdown == params$cat & question == 'drug_ever' & response != 'I have never taken drugs') %>% .$value)`** of `r params$cat` respondents reported having ever taken drugs whereas **`r filter(perc_stats, year == as.character(current_year), breakdown == params$cat & question == 'drug_ever' & response == 'I take drugs regularly (once a week or more)') %>% .$value`** reported taking drugs once a week or more. 
 
 **Safety** <br>
 
@@ -1337,6 +1335,30 @@ vars_df <- left_join(vars_df,
                                        question_coded_gen %in% c("clubs") ~ "Currently attending",
                                        TRUE ~ "Yes")) %>% 
   arrange(order)
+
+# If schyear Year 7-9 is selected - filter out sexual health Qs not asked to these years
+if (input$exp_report_cat %in% c("Year 7", "Year 8", "Year 9")) {
+  
+  vars_df <- vars_df %>% 
+    dplyr::filter(!(heading %in% c("Sexual health beliefs", "Knowing where to get condoms for free")))
+    
+} else {}
+
+if (input$exp_report_comp == "sex") {
+          vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "sex")
+} else if (input$exp_report_comp == "schyear") {
+  vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "schyear")
+} else if (input$exp_report_comp == "district_clean") {
+  vars_df <- vars_df %>% dplyr::filter(!(question_coded_gen %in% c("district_residence", "district_clean")))
+  } else if (input$exp_report_comp == "ethnicity") {
+    vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "ethnicity")
+    } else if (input$exp_report_comp == "sexuality") {
+      vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "sexuality")
+      } else if (input$exp_report_comp == "caring") {
+        vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "caring")
+        } else if (input$exp_report_comp == "cla") {
+          vars_df <- vars_df %>% dplyr::filter(question_coded_gen != "cla")
+} else (input$exp_report_comp)
 
 ```
 
