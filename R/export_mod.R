@@ -20,22 +20,22 @@ export_mod <- function(id,
                                br(),
                                reactableOutput(ns("data_table"))
         )
-      )
-      # shiny::fluidRow(
-      #   tablerDash::tablerCard(title = "Export custom full report",
-      #                          width = 12, 
-      #                          closable = FALSE,
-      #                          shiny::uiOutput(ns("exp_report_comp")),
-      #                          shiny::uiOutput(ns("exp_report_cat")),
-      #                          shiny::uiOutput(ns("text")),
-      #                          #shiny::uiOutput(ns("exp_report_year")),
-      #                          #TODO
-      #                          shiny::downloadButton(ns("exp_report"), "Export report")
-      #                          
-      #                          
-      #   )
-      # )
+      ),
+      shiny::fluidRow(
+        tablerDash::tablerCard(title = "Export custom full report",
+                               width = 12, 
+                               closable = FALSE,
+                               shiny::uiOutput(ns("exp_report_comp")),
+                               shiny::uiOutput(ns("exp_report_cat")),
+                               shiny::uiOutput(ns("text")),
+                               #shiny::uiOutput(ns("exp_report_year")),
+                               #TODO
+                               shiny::uiOutput(ns("export_report")),
+                               shiny::uiOutput(ns("exp_report_button"))
+                               
+        )
     )
+  )
   )
   
 }
@@ -44,6 +44,7 @@ export_mod <- function(id,
 
 export_mod_server <- function(id,
                               params,
+                              year,
                               data, 
                               stats_combined,
                               q_coded, 
@@ -185,6 +186,16 @@ export_mod_server <- function(id,
       
       output$exp_report_comp <- renderUI({
         
+        if (as.numeric(year()) <2023) {
+          
+          output$text <- shiny::renderText({
+            
+            paste0("Customised reports are currently only available for the latest year of data. Please select the current year at the top of the dashboard and come back to this panel to create your report.")
+            
+          })
+          
+        } else {
+        
         comp <- comp()
         
         pickerInput(
@@ -203,23 +214,52 @@ export_mod_server <- function(id,
           options = pickerOptions(
             liveSearch = TRUE),
           multiple = FALSE)
-        
+       
+        } 
       })
       
       output$exp_report_cat <- shiny::renderUI({
+        
+        if (as.numeric(year()) <2023) {
+          
+          output$text <- shiny::renderText({
+            
+            paste0("")
+            
+          })
+          
+        } else {
         
         data <- data()
         
         choices <- unique(data[[input$exp_report_comp]]$breakdown) 
         choices <- choices[choices != "All Responses" & choices != "Non-white"]
         
+        if (input$exp_report_comp == "schyear") {
+          choices <- c("Year 7", "Year 8", "Year 9", "Year 10", "Year 11", "Year 12", "Year 13", "Not at school/other")
+          } else if (input$exp_report_comp == "sex") {
+            choices <- c("Female", "Male", "Non-Binary", "Transgender", "Other sex", "Unsure", "Prefer not to say")
+            } else if (input$exp_report_comp == "ethnicity") {
+              choices <- c("Asian", "Black", "Mixed", "White", "Any other ethnic group")
+              } else if (input$exp_report_comp == "sexuality") {
+                choices <- c("Bisexual", "Heterosexual/Straight", "Homosexual/Gay Male", "Homsexual/Lesbian", "Questioning", "Unsure", "Other sexual orientations", "Prefer not to say")
+                } else if (input$exp_report_comp == "caring") {
+                    choices <- c("Young carer", "Non-carer")
+                  } else if (input$exp_report_comp == "cla") {
+                    choices <- c("Young person in care", "Young people not in care")
+                    } else if (input$exp_report_comp == "condition_send_autism_adhd") {
+                      choices <- c("SEND", "Non-SEND")
+                    } else if (input$exp_report_comp == "district_clean") {
+                      choices <- c("Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire",
+                                   "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield", "Outside of Hertfordshire")
+                      } else (input$exp_report_comp)
         
         shinyWidgets::pickerInput(ns("exp_report_cat"), "Select the category from the selected group you are most interested in:",
                                   choices = as.character(na.omit(choices)), multiple = FALSE,
                                   options = pickerOptions(
                                     liveSearch = TRUE),
                                   selected = as.character(na.omit(choices)[1]))
-        
+        }
       })
       
       # output$exp_report_year <- shiny::renderUI({
@@ -240,20 +280,41 @@ export_mod_server <- function(id,
       
       output$text <- shiny::renderText({
         
-        paste0(" Customised reports allow you to export a full report for the latest year of data, with all indicators broken down by categories of your choosing (e.g. IMD Quintile) and level of most interest (e.g. Quintile 5 - Least Deprived).",
-               " If you would like more information on this functionality, please email YPHWS@hertfordshire.gov.uk")
+        if (as.numeric(year()) <2023) {
+          
+          output$text <- shiny::renderText({
+            
+            paste0("")
+            
+          })
+          
+        } else {
         
+        paste0(" Customised reports allow you to export a full report for the latest year of data, with all indicators broken down by group of interest (e.g. 'Year group') and category of most interest (e.g. 'Year 10').",
+               " If you would like more information on this functionality, please email YPHWS@hertfordshire.gov.uk")
+        }
       })
       
       # browser()
       # download handler
+      
       output$exp_report <- downloadHandler(
-        
+          
         filename = function() {
           #TODO Temporary fix before 2023 lookup fix
-          if (input$exp_report_comp == "sex" ) { brkdown <- "Gender" } else {brkdown <- input$exp_report_comp } 
           
-          
+          if (input$exp_report_comp == "sex" ) {
+            brkdown <- "Gender" } else if (input$exp_report_comp == "cla") {
+              brkdown <- "Children Looked After" } else if (input$exp_report_comp == "condition_send_autism_adhd") {
+                brkdown <- "SEND ADHD Autism" } else if (input$exp_report_comp == "schyear") {
+                  brkdown <- "School Year" } else if (input$exp_report_comp == "ethnicity") {
+                    brkdown <- "Ethnicity" } else if (input$exp_report_comp == "imd_quintile") {
+                      brkdown <- "IMD Quintile" } else if (input$exp_report_comp == "sexuality") {
+                        brkdown <- "Sexuality" } else if (input$exp_report_comp == "caring") {
+                          brkdown <- "Young Carer" } else if (input$exp_report_comp == "district_clean") {
+                            brkdown <- "District"
+              } else {brkdown <- input$exp_report_comp}
+                
           paste0("Hertfordshire YPHWS Report - ", brkdown, " focusing on ", input$exp_report_cat, "-2023", ".html")
         },
         
@@ -282,10 +343,24 @@ export_mod_server <- function(id,
             
             file.rename(out, file)
             
-          })
+          
         }
       )
+        
+        })
       
-    }
+      output$exp_report_button <- shiny::renderUI(
+        
+        if (as.numeric(year()) <2023) {
+          
+        } else {
+  
+          shiny::downloadButton(ns("exp_report"), "Export report")
+
+          }
+)
+      
+      
+      }
   )
 }
