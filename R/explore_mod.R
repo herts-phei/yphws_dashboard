@@ -138,7 +138,7 @@ explore_mod_server <- function(id,
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
         
-        #if(grepl("Living", input$domains)) {browser()}
+        #if(grepl("Demo", input$domains)) {browser()}
         
         l <- list()
         

@@ -240,7 +240,7 @@ export_mod_server <- function(id,
           } else if (input$exp_report_comp == "sex") {
             choices <- c("Female", "Male", "Non-Binary", "Transgender", "Other sex", "Unsure", "Prefer not to say")
             } else if (input$exp_report_comp == "ethnicity") {
-              choices <- c("Asian", "Black", "Chinese", "Mixed", "White", "Any other ethnic group", "Prefer not to say")
+              choices <- c("Asian", "Black", "Mixed", "White", "Any other ethnic group")
               } else if (input$exp_report_comp == "sexuality") {
                 choices <- c("Bisexual", "Heterosexual/Straight", "Homosexual/Gay Male", "Homsexual/Lesbian", "Questioning", "Unsure", "Other sexual orientations", "Prefer not to say")
                 } else if (input$exp_report_comp == "caring") {
@@ -249,6 +249,9 @@ export_mod_server <- function(id,
                     choices <- c("Young person in care", "Young people not in care")
                     } else if (input$exp_report_comp == "condition_send_autism_adhd") {
                       choices <- c("SEND", "Non-SEND")
+                    } else if (input$exp_report_comp == "district_clean") {
+                      choices <- c("Broxbourne", "Dacorum", "East Hertfordshire", "Hertsmere", "North Hertfordshire",
+                                   "St Albans", "Stevenage", "Three Rivers", "Watford", "Welwyn Hatfield", "Outside of Hertfordshire")
                       } else (input$exp_report_comp)
         
         shinyWidgets::pickerInput(ns("exp_report_cat"), "Select the category from the selected group you are most interested in:",
