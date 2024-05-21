@@ -42,7 +42,9 @@ ui <- tablerDash::tablerDashPage(
                                                                        "Ethnicity" = "ethnicity",
                                                                        "IMD Quintile" = "imd_quintile",
                                                                        "Sexuality" = "sexuality", 
-                                                                       # "Young carer" = "caring", 
+                                                                       "Young carer" = "caring", 
+                                                                       "Young person looked after" = "cla",
+                                                                       "SEND/ADHD/Autism" = "condition_send_autism_adhd",
                                                                        # "Bullied" = "bullied",
                                                                        "District" = "district_clean"), 
                                                         selected = "sex", multiple = FALSE), 
@@ -120,6 +122,8 @@ server <- function(input, output) {
   
   # Edit q_coded for differences after 2023
   q_coded <- shiny::reactive({
+    
+    #if(input$comp == "caring") browser()
     if(as.numeric(input$year) > 2022) {
       rota <- ifelse(as.numeric(input$year) %% 2 == 0, 2, 1)
       
@@ -128,13 +132,20 @@ server <- function(input, output) {
         dplyr::distinct() %>% 
         dplyr::mutate(rotation = as.character(rotation)) %>% 
         dplyr::filter(rotation %in% c("0", as.character(rota)),
-                      year == input$year)
+                      year == input$year) %>% 
+        dplyr::left_join(rv$data$grp_lookup, by = c("question_coded" = "group",
+                                                    "response" = "group_value")) 
+        # dplyr::mutate(response = case_when(question_coded == input$comp & !is.na(value_reworded) ~ value_reworded,
+        #                                    TRUE ~ response))
 
     } else {
       rv$data$q_coded %>% 
         dplyr::filter(year %in% c("2020", "2021", "2022")) %>% 
         dplyr::distinct()
     }
+    
+    
+    
   })
   
   # Key Points --------------------------------------------------------------
@@ -179,6 +190,7 @@ server <- function(input, output) {
   
   export_mod_server(id = "export",
                     params = shiny::reactive(rv$params),
+                    year = shiny::reactive(input$year),
                     data = shiny::reactive(rv$data$data),
                     stats_combined = shiny::reactive(rv$stats_combined),
                     q_coded = shiny::reactive(q_coded()),

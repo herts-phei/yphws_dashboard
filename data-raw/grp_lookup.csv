@@ -5,7 +5,9 @@ schyear,NA,NA,NA,NA
 imd_quintile,Quintile 1- Most Deprived,NA,IMD Quintile 1,NA
 sexuality,NA,NA,NA,NA
 caring,Yes,NA,Young carer,NA
-District,NA,NA,NA,NA
+district_clean,NA,NA,NA,NA
 selfharm_ever,Yes,NA,Self-harmed,NA
 smoke_ever,Smoker,NA,Smoker,NA
 bullied,Yes,NA,Bullied,NA
+condition_send_autism_adhd,Yes,NA,SEND,NA
+cla,Yes,NA,Young person in care,NA

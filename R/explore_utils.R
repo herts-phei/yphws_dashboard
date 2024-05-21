@@ -224,7 +224,7 @@ create_sum_sentence <- function(dataset,
             dplyr::ungroup() %>% 
             dplyr::distinct() 
           
-          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "s</b> was '", most_common$most_common, 
+          sentence <- paste(sentence, "<br><br>", paste0("The most common response for <b>", group_of_interest, "</b> was '", most_common$most_common, 
                                                          "', which made up ", most_common$most_v, " of responses and the least common response was '", least_common$least_common, "', with ", least_common$least_v, " of responses.", 
                                                          collapse = "<br><br>"))
           
@@ -492,7 +492,8 @@ create_trend_plot <- function(df,
                        plot_custom_grp))
     
     rotate <- ifelse(length(unique(df$response)) > 7, 45, 0)
-    
+
+      
     if (multi) {
       
       trend_opts <- unique(df$menu_text[df$year == year])

@@ -61,10 +61,12 @@ explore_mod_server <- function(id,
       # Data --------------------------------------------------------------------
       
       chk_var <- shiny::reactive({
-        
+
+        #if(grepl("Living", input$domains)) {browser()}
+
         q_coded <- q_coded()
         stats <- stats()
-        
+
         # vector of selected vars
         single <- q_coded %>% 
           dplyr::arrange(question_raw) %>% 
@@ -85,10 +87,11 @@ explore_mod_server <- function(id,
         chk_var <- q_coded %>%
           dplyr::filter(question_coded %in% single$question_coded,
                         !is.na(response), !question_coded %in% multi_no_responses$question,
-                        question_coded %in% unique(stats()$question)) %>%
+                        question_coded %in% unique(stats()$question),
+                        question_coded != comp()) %>%
           dplyr::arrange(order) %>% 
           dplyr::pull(question_coded_gen)
-        
+
         return(unique(chk_var))
         
       })
@@ -96,14 +99,14 @@ explore_mod_server <- function(id,
       # filtered datasets
       chk_stats <- shiny::reactive({
         stats <- stats() %>% 
-          dplyr::mutate(response = gsub("'", "", response))
+          dplyr::mutate(response = gsub("'|’", "", response))
         
         q_coded <- dplyr::select(q_coded(), -question_text, -year) %>% 
-          dplyr::mutate(response = gsub("'", "", response))
-        
+          dplyr::mutate(response = gsub("'|’", "", response))
+
         stats %>% 
           dplyr::left_join(q_coded, by = c("question" = "question_coded",
-                                           "response" = "response")) %>% 
+                                                           "response" = "response")) %>% 
           dplyr::filter(question_coded_gen %in% chk_var()) %>% 
           distinct()
         
@@ -132,10 +135,10 @@ explore_mod_server <- function(id,
           dplyr::distinct() # because of dupes caused by some years having same question_code
       })
       
-      #observe(if(grepl("Demographics", input$domains)) {browser()})
-      
       # Boxes -------------------------------------------------------------------
       boxes <- shiny::reactive({
+        
+        #if(grepl("Demo", input$domains)) {browser()}
         
         l <- list()
         
@@ -171,7 +174,7 @@ explore_mod_server <- function(id,
             multi_bin <- ifelse(all(as.logical(current$multi_cat)), FALSE, TRUE) # check if its multicat binary (yes/no)
             
             # Find group of interest 
-            grp <- unique(current$breakdown)[grepl(paste0(unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), collapse = "|"), 
+            grp <- unique(current$breakdown)[grepl(paste0("^", unique(c(grp_lookup$value_reworded, grp_lookup$value_reworded2)), "$", collapse = "|"), 
                                                    unique(current$breakdown))]
             grp <- ifelse(length(grp) == 0, NA, grp)
             
@@ -298,7 +301,7 @@ explore_mod_server <- function(id,
               
               # trend table
               if (nrow(current_old) > 0) {
-                
+
                 m <- ifelse(length(unique(trend$response)) > 1, TRUE, FALSE)
                 trend_plot <- create_trend_plot(df = trend,
                                                 plot_custom_grp = order,
@@ -328,6 +331,7 @@ explore_mod_server <- function(id,
                                                            shiny::tabPanel(
                                                              "Trend",
                                                              shiny::br(),
+                                                             "Please note, all values are for 'All Responses'/general CYP.",
                                                              trend_plot
                                                            ),
                                                            shiny::tabPanel(
@@ -351,7 +355,7 @@ explore_mod_server <- function(id,
                                                                                       `upper CI` = reactable::colDef(maxWidth = 75)
                                                                                     ))
                                                            )
-                                       ) )
+                                                           ) )
           }
           
         } else {
