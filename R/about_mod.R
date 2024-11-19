@@ -44,7 +44,7 @@ about_mod_server <- function(id) {
                  " The project is funded by Hertfordshire Public Health and YC Hertfordshire and is run by the Public Health Evidence & Intelligence Team", 
                  " and provides an opportunity for partnership working between organisations providing services to young people around the county.<br><br>",
                  
-                 "The survey has been ongoing for two years with good uptake: 12,923 responses in the first year and 11,681 responses in the second.",
+                 "The survey has been ongoing for four years with good uptake: 16,300 responses in the latest year.",
                  " The data in this dashboard is expected to update annually during spring with the latest survey data, collected during November - December",
                  " in the previous year. Please note that additional questions/indicators may be added in response to health concerns during the time of the survey (e.g. COVID-19).",
                  " For more information about the survey and supporting reports, please visit the <a href='https://www.hertshealthevidence.org/yphws/what-is-the-yphws.aspx' target='_blank'>YPHWS page</a>",
