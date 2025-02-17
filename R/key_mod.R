@@ -96,8 +96,7 @@ key_mod_server <- function(id,
                              dplyr::filter(breakdown == "All Responses",
                                            question == "sexuality",
                                            !response %in% c("Heterosexual/Straight",
-                                                            "Prefer not to say",
-                                                            "Undecided/Questioning")) %>%
+                                                            "Prefer not to say")) %>%
                              dplyr::summarise(value = sum(value)) %>%
                              dplyr::pull(value)}),
                          title = "LGBTQ+ respondents"
@@ -105,7 +104,7 @@ key_mod_server <- function(id,
       
       # Lowest IMD Quintile 
       infobox_mod_server("infobox6",
-                         value = reactive({stats() %>% 
+                          value = reactive({stats() %>% 
                              dplyr::filter(breakdown == "All Responses",
                                            question == "imd_quintile",
                                            response == "Quintile 1 - Most Deprived") %>%
@@ -113,6 +112,7 @@ key_mod_server <- function(id,
                              dplyr::pull(value)}),
                          title = "IMD 1- Most Deprived"
       )
+      
       
       # Text --------------------------------------------------------------------
       
@@ -219,7 +219,6 @@ key_mod_server <- function(id,
             echarts4r::e_legend(bottom = 0) %>% 
             echarts4r::e_title("IMD Quintile (%)") %>% 
             echarts4r::e_theme_custom("phei.json")
-          
         }
         
         
@@ -471,6 +470,7 @@ key_mod_server <- function(id,
         )
         
       })
+      
       
       output$worries_graph <- echarts4r::renderEcharts4r({
         
