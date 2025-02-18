@@ -35,7 +35,7 @@ ui <- tablerDash::tablerDashPage(
                                                                        "2022" = "2022",
                                                                        "2023" = "2023",
                                                                        "2024" = "2024"), 
-                                                        selected = "2020", multiple = FALSE),
+                                                        selected = "2024", multiple = FALSE),
                               HTML('&nbsp;'),
                               shinyWidgets::pickerInput("comp", label = "Select what to group by:", width = "170px", 
                                                         choices = list("Gender" = "sex", 
