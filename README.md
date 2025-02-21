@@ -27,7 +27,7 @@ This repository contains the source code for the [Public Young People's Health &
 
 During the annual update, make sure to do all operations on the **dev branch** and only merge to master if a thorough QA has been done first.
 
-1. Ensure that the [dashboard-specific processing script](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report/-/blob/master/R/4_dashboard_data.R) has been run in [yphws_school_report](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report). Export `stats.rds`, `q_coded.csv`, and `params.rds` from the /outputs folder, or YPHWS/Data/Dashboard data/ on sharepoint in that project and import into this project's /data-raw folder.
+1. Ensure that the [dashboard-specific processing script](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report/-/blob/master/R/4_dashboard_data.R) has been run in [yphws_school_report](https://hertscc.managed.mango-solutions.com/git/hcc_phei/yphws/yphws_school_report). Export `stats.rds`, `q_coded.csv`, and `params.rds` from the YPHWS/Data/Dashboard data/ on sharepoint in that project and import into this project's /data-raw folder.
 
 2. Add the new year as new values in `app.R`, `shinyWidgets::pickerInput("year"...)` and change the `selected` to the latest year as a default.
 
