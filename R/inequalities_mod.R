@@ -78,15 +78,26 @@ inequalities_mod_server <- function(id,
         
       })
       
+      # selected_domain <- reactive({
+      #   req(input$ineq_domains)  # Ensure input is not NULL
+      #   input$ineq_domains
+      # })
+      # 
       questions <- shiny::reactive({
+        # req(selected_domain())
+        # print(selected_domain())        
         
         q_coded() %>%
           dplyr::mutate(survey_text = as.character(survey_text)) %>%
-          dplyr::filter(question_theme %in% input$ineq_domains, 
+          # dplyr::filter(question_theme %in% selected_domain(), 
+          dplyr::filter(question_theme %in% input$ineq_domains,
                         response_of_interest == "TRUE",
                         question_coded != comp())
         
+        # browser()
+        
       })
+      
       
       output$ineq_questions <- renderUI({
         
@@ -112,6 +123,7 @@ inequalities_mod_server <- function(id,
         if (is.null(input$ineq_questions)) { return(NULL) }
         
         #observe(if(grepl("Diet", input$ineq_domains)) {browser()})
+        # browser()
         
         params <- params()
         q_coded <- q_coded()
@@ -123,7 +135,7 @@ inequalities_mod_server <- function(id,
                                                                           "response" = "response")) %>% 
           dplyr::filter(question_response %in% input$ineq_questions, response_of_interest == "TRUE") %>% 
           distinct()
-        
+
         names(df) <- gsub("\\.x", "", names(df))
         
         if(comp() == "schyear"){

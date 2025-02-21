@@ -41,10 +41,10 @@ about_mod_server <- function(id) {
                  " The Young People’s Health & Wellbeing Survey (YPHWS) is an anonymous online survey which gathers self-reported",
                  " information annually from those aged 11-19 in Hertfordshire. The survey includes questions about home life, wellbeing,",
                  " diet, physical activity, smoking, alcohol use, drug use, sexual health, mental health, bullying, and safety.",
-                 " The project is funded by Hertfordshire County Council's Public Health and Services for Young People teams. It is run by the Public Health Evidence & Intelligence Team", 
+                 " The project is run by Hertfordshire County Conucil's Public Health Evidence & Intelligence Team", 
                  " and provides an opportunity for partnership working between organisations providing services to young people around the county.<br><br>",
                  
-                 "The survey has been ongoing for four years with good uptake: 16,300 responses in the latest year.",
+                 "The survey has been ongoing for five years with good uptake: 14,585 responses in the latest year.",
                  " The data in this dashboard is expected to update annually during spring with the latest survey data, collected during November - December",
                  " in the previous year. Please note that additional questions/indicators may be added in response to health concerns during the time of the survey (e.g. COVID-19).",
                  " For more information about the survey and supporting reports, please visit the <a href='https://www.hertshealthevidence.org/yphws/what-is-the-yphws.aspx' target='_blank'>YPHWS page</a>",

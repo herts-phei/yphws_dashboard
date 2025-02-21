@@ -123,7 +123,7 @@ server <- function(input, output) {
   
   # Edit q_coded for differences after 2023
   q_coded <- shiny::reactive({
-    
+    # browser()
     #if(input$comp == "caring") browser()
     if(as.numeric(input$year) > 2022) {
       rota <- ifelse(as.numeric(input$year) %% 2 == 0, 2, 1)
