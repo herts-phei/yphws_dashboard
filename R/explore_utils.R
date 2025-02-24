@@ -487,6 +487,7 @@ create_trend_plot <- function(df,
   # plot_custom_grp = order
   # plot_title = ""
   # year = year()
+  # multi = m
 
     groups <- unique(c("All Responses", 
                        plot_custom_grp))
@@ -522,7 +523,7 @@ create_trend_plot <- function(df,
           dplyr::group_by(response)
         
         legend_length <- ifelse(max(nchar(df$response) > 40), -100, 10)
-        
+
       } else {
         
         base <- df %>% 
@@ -546,6 +547,7 @@ create_trend_plot <- function(df,
         
         legend_length <- ifelse(max(nchar(df$menu_text) > 40), 100, 10)
         
+        
       }
 
       if(nrow(base) == 0) return("Trend data cannot be generated as this question does not have enough yearly data.")
@@ -554,7 +556,7 @@ create_trend_plot <- function(df,
         echarts4r::e_charts(year) %>% 
         echarts4r::e_line(value, name = .$breakdown, tooltip = list(formatter = htmlwidgets::JS("
       function(params){
-      return('value: ' + params.value[1] * 100 + '%' +
+      return('value: ' + (params.value[1]*100).toFixed(1) + '%' +
         '<br/>breakdown: ' + params.seriesName +
         '<br/>group: ' + params.value[params.encode.x[0]]) 
         }"))) %>% 
