@@ -29,7 +29,8 @@ explore_mod <- function(id,
                       choices = domains,
                       inline = TRUE, 
                       status = "danger",
-                      fill = TRUE
+                      fill = TRUE,
+                      selected = domains[7]
                     ),
                     shiny::uiOutput(ns("explore_boxes")))
     )
@@ -155,6 +156,8 @@ explore_mod_server <- function(id,
           grp_lookup <- grp_lookup()
           
           for (i in 1:length(chk_var())){
+          # for (i in 3){
+          
             
             # Current question
             current <- dplyr::filter(chk_stats(), question_coded_gen %in% chk_var()[i]) %>% 
@@ -215,6 +218,8 @@ explore_mod_server <- function(id,
                                             plot_title = "",
                                             binary = multi_bin)
               
+              # browser()
+              
               # trend table
               if (nrow(current_old) > 0) {
                 
@@ -225,7 +230,6 @@ explore_mod_server <- function(id,
                                                 plot_title = "",
                                                 year = year(),
                                                 multi = TRUE)
-                
                 
               } else {
                 
@@ -298,6 +302,7 @@ explore_mod_server <- function(id,
               int_plot <- create_basic_plot(df = current_plot,
                                             plot_custom_grp = order,
                                             plot_title = "")
+              # browser()
               
               # trend table
               if (nrow(current_old) > 0) {
@@ -308,7 +313,6 @@ explore_mod_server <- function(id,
                                                 plot_title = "",
                                                 year = year(),
                                                 multi = m)
-                
               } else {
                 
                 trend_plot <- "Trend data cannot be generated as this question does not have enough yearly data."
