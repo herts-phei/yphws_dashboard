@@ -29,8 +29,8 @@ explore_mod <- function(id,
                       choices = domains,
                       inline = TRUE, 
                       status = "danger",
-                      fill = TRUE,
-                      selected = domains[7]
+                      fill = TRUE#,
+                      # selected = domains[7]
                     ),
                     shiny::uiOutput(ns("explore_boxes")))
     )

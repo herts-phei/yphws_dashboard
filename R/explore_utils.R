@@ -522,7 +522,7 @@ create_trend_plot <- function(df,
           dplyr::filter(!is.na(question_text)) %>% 
           dplyr::group_by(response)
         
-        legend_length <- ifelse(max(nchar(df$response) > 40), -100, 10)
+        legend_length <- ifelse(max(nchar(df$response) > 30), -100, 10)
 
       } else {
         
@@ -545,7 +545,7 @@ create_trend_plot <- function(df,
           dplyr::filter(!is.na(question_text)) %>% 
           dplyr::group_by(menu_text)
         
-        legend_length <- ifelse(max(nchar(df$menu_text) > 40), 100, 10)
+        legend_length <- ifelse(max(nchar(df$menu_text) > 30), max(nchar(df$menu_text)), 10)
         
         
       }
