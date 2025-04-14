@@ -104,7 +104,7 @@ key_mod_server <- function(id,
       
       # Lowest IMD Quintile 
       infobox_mod_server("infobox6",
-                          value = reactive({stats() %>% 
+                         value = reactive({stats() %>% 
                              dplyr::filter(breakdown == "All Responses",
                                            question == "imd_quintile",
                                            response == "Quintile 1 - Most Deprived") %>%
@@ -133,7 +133,7 @@ key_mod_server <- function(id,
       # })
       
       # Group summary -----------------------------------------------------------
-   
+      
       output$ethn_donut <- echarts4r::renderEcharts4r({
         
         stats <- stats()
@@ -252,9 +252,9 @@ key_mod_server <- function(id,
                                                  dplyr::filter(key_data, question == 'life_satisfied' & response == "low") %>%
                                                    .$value, "</b> for ", group_name,  " respondents."), "")
         
-        # mh2 <- ifelse(!is.na(group_name), paste0(" This statistic was <b>",
-        #                                          dplyr::filter(key_data, question == 'hopeful_future' & response == "Never") %>% .$value,
-        #                                          "</b> for ", group_name, " respondents."), "")
+        mh2 <- ifelse(!is.na(group_name), paste0(" This statistic was <b>",
+                                                 dplyr::filter(key_data, question == 'hopeful_future' & response == "Never") %>% .$value,
+                                                 "</b> for ", group_name, " respondents."), "")
         
         mh3 <- ifelse(!is.na(group_name), paste0("From ", group_name, " respondents, <b>",
                                                  dplyr::filter(key_data, question =='weight' & response=='Overweight') %>%
@@ -322,8 +322,8 @@ key_mod_server <- function(id,
                                                     "</b> respectively."), "")
         
         bull1 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
-                                                 dplyr::filter(key_data, question == 'bullied' & response == "Yes") %>%
-                                                   .$value, "</b> for ", group_name, " respondents."), "")
+                                                   dplyr::filter(key_data, question == 'bullied' & response == "Yes") %>%
+                                                     .$value, "</b> for ", group_name, " respondents."), "")
         
         bull2 <- ifelse(!is.na(group_name), paste0("This statistic was <b>",
                                                    dplyr::filter(key_data, question == 'bullied_currently' & response == "Yes") %>%
@@ -356,29 +356,29 @@ key_mod_server <- function(id,
             "<b>", dplyr::filter(all_data, question == 'life_satisfied' & response == "low" & !is.na(question_text)) %>% .$value,
             "</b> of all respondents rated their life satisfaction as low. ", mh1, "<br><br>",
             
-            # "<b>", dplyr::filter(all_data, question == 'hopeful_future' & response == "Never" & !is.na(question_text)) %>% .$value,
-            # "</b>", " of all respondents stated that they never feel hopeful about their future.", mh2, "<br><br>",
+            "<b>", dplyr::filter(all_data, question == 'hopeful_future' & response == "Never" & !is.na(question_text)) %>% .$value,
+            "</b>", " of all respondents stated that they never feel hopeful about their future.", mh2, "<br><br>",
             
-            # "<b>", dplyr::filter(all_data,  question =='weight' & response =='Overweight' & !is.na(question_text)) %>% .$value,
-            # "</b> felt they were overweight while <b>",
-            # dplyr::filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
-            # "</b> felt they were underweight. ", mh3, "<br><br>",
+            "<b>", dplyr::filter(all_data,  question =='weight' & response =='Overweight' & !is.na(question_text)) %>% .$value,
+            "</b> felt they were overweight while <b>",
+            dplyr::filter(all_data,  question == 'weight' & response == 'Underweight' & !is.na(question_text)) %>% .$value,
+            "</b> felt they were underweight. ", mh3, "<br><br>",
             
             "<b>", dplyr::filter(all_data, question == 'selfharm_ever' & response == "Yes" & !is.na(question_text)) %>% .$value,
             "</b>", " of all respondents stated that they have self-harmed before.", mh5, "<br><br>",
-          
+            
             "<b>", sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response != 'Yes') %>% .$value),
             "</b> of respondents answered 'Not sure' or 'No' when asked if they knew how to access support and services for mental health. <b>",
             sum(dplyr::filter(all_data,  question == 'mental_howaccess' & response == 'Yes') %>% .$value),
             "</b> answered 'Yes'. ", mh4, "<br><br>",
-          
+            
             "<h1>Lifestyle</h1>",
             
-            "Out of all responses <b>", dplyr::filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
-            "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
-            " The most common response for this question was <b>",
-            dplyr::filter(all_data,  question =='pa_60') %>% dplyr::filter(count == max(count)) %>% .$response,
-            " days</b>. <br><br>",
+            # "Out of all responses <b>", dplyr::filter(all_data,  question == 'pa_60' & response == "6 to 7") %>% .$value,
+            # "</b> had done a total of 60 minutes or more of physical activity 6 to 7 days of the week (in line with recommended daily physical activity guidance). ", ls1,
+            # " The most common response for this question was <b>",
+            # dplyr::filter(all_data,  question =='pa_60') %>% dplyr::filter(count == max(count)) %>% .$response,
+            # " days</b>. <br><br>",
             
             # "<b>", sum(dplyr::filter(all_data,  question == 'smoke_ever' & response != 'I have never smoked') %>% .$value),
             # "</b> of respondents reported having ever smoked and <b>",
